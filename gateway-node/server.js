@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/validateJSON.js';
 
 import authRoutes from './routes/auth.routes.js';
+import { hello } from './controllers/protected.controller.js';
+import { authenticateToken } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -34,6 +36,9 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+
+//Check JWT logic
+app.get('/protected', authenticateToken, hello);
 
 // Start the server
 app.listen(port, () => {
