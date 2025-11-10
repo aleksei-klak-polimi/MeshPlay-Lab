@@ -1,4 +1,4 @@
-import { errorResponse } from "./response.js";
+import { errorResponse } from "../controllers/common/response.js";
 
 export function handleError(err, res){
     const status = err.isAppError ? err.status : 500;

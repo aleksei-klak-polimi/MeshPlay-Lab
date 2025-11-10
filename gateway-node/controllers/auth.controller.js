@@ -1,5 +1,5 @@
-import { successResponse } from "./common/response.js";
-import { handleError } from "./common/errorHandler.js";
+import { successResponse } from "../utils/response.js";
+import { handleError } from "../utils/errorHandler.js";
 import UserService from "../services/user.service.js";
 import { createLogger } from "../config/logger.js";
 
