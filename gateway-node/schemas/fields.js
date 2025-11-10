@@ -1,6 +1,8 @@
 import Joi from "joi"
 
 export const id = Joi.number().integer().positive();
+export const iat = Joi.number().integer().positive();
+export const exp = Joi.number().integer().positive();
 
 export const username = Joi.string()
                             .pattern(/^[a-zA-Z0-9_]{3,255}$/)
