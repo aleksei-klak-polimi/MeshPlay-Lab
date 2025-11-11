@@ -5,6 +5,6 @@ export default {
     moduleFileExtensions: ['js', 'json'],
     roots: ['<rootDir>/tests'],
     setupFiles: ['dotenv/config'],
-    collectCoverageFrom: ['src/utils/**/*.js'],
+    collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js', 'src/models/common/**/*.js'],
     coverageDirectory: 'coverage',
 };
