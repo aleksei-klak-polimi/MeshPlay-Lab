@@ -18,6 +18,22 @@ const tokenSchema = Joi.object({
     username: username.required()
 });
 
+
+/**
+ * Express middleware that authenticates incoming requests using a JWT token.
+ *
+ * Validates the presence and format of the `Authorization` header,
+ * verifies the token signature, checks the token’s payload structure,
+ * and ensures the user exists and matches in the database.
+ *
+ * On success, attaches the decoded token payload to `req.user` and calls `next()`.
+ * On failure, responds with an appropriate error JSON.
+ *
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @param {import('express').NextFunction} next - Express next middleware callback.
+ * @returns {Promise<void>} - Resolves once the middleware completes.
+ */
 export async function authenticateToken(req, res, next){
     logger.debug('Authenticating JWT token.', 'authenticateToken');
 
