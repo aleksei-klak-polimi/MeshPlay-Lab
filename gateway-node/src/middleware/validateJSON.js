@@ -1,7 +1,18 @@
 import express from 'express';
-import logger from '../config/logger.js';
+import { createLogger } from '../config/logger.js';
 import { BadRequestError } from '../utils/errors.js';
 import { errorResponse } from '../utils/response.js';
+
+const logger = createLogger('middleware.validateJSON');
+
+export const verifyJson = (req, res, buf) => {
+  try {
+    JSON.parse(buf.toString());
+  } catch (err) {
+    err.isBodyParser = true;
+    throw err;
+  }
+};
 
 /**
  * Express middleware that parses JSON request bodies and validates syntax.
@@ -9,16 +20,7 @@ import { errorResponse } from '../utils/response.js';
  *
  * @type {import('express').RequestHandler}
  */
-export const jsonParserWithValidation = express.json({
-  verify: (req, res, buf) => {
-    try {
-      JSON.parse(buf.toString());
-    } catch (err) {
-      err.isBodyParser = true;
-      throw err;
-    }
-  }
-});
+export const jsonParserWithValidation = express.json({ verify: verifyJson });
 
 /**
  * Express error-handling middleware for malformed JSON bodies.
