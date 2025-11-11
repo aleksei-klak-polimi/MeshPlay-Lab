@@ -7,6 +7,12 @@ export class AppError extends Error {
   }
 }
 
+export class InternalError extends AppError {
+  constructor(message = 'An unexpected server error occurred', code = 'INTERNAL_ERROR') {
+    super(message, 500, code);
+  }
+}
+
 export class ConflictError extends AppError {
   constructor(message = 'Resource conflict', code = 'CONFLICT_ERROR') {
     super(message, 409, code);

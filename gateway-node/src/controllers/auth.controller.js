@@ -1,4 +1,4 @@
-import { successResponse } from "../utils/response.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import UserService from "../services/user.service.js";
 import { createLogger } from "../config/logger.js";
@@ -16,7 +16,8 @@ export async function signup (req, res) {
 
     } catch (err) {
         logger.error(`Signup failed for username: ${username}`, 'signup', err);
-        return handleError(err, res);
+        const sanitizedError = handleError(err);
+        return errorResponse(res, sanitizedError);
     }
 }
 
@@ -31,6 +32,7 @@ export async function login (req, res) {
 
     } catch (err) {
         logger.error(`Login failed for username: ${username}`, 'login', err);
-        return handleError(err, res);
+        const sanitizedError = handleError(err);
+        return errorResponse(res, sanitizedError);
     }
 }

@@ -1,9 +1,12 @@
-import { errorResponse } from "./response.js";
+import { InternalError } from "./errors.js";
 
-export function handleError(err, res){
-    const status = err.isAppError ? err.status : 500;
-    const code = err.isAppError ? err.code : 'INTERNAL_ERROR';
-    const message = err.isAppError ? err.message : 'An unexpected server error occurred';
+export function handleError(err){
+    if(!err)
+        throw new TypeError('handleError expectes a non null and non undefined argument');
 
-    return errorResponse(res, message, code, status);
+    if(!err.isAppError){
+        return new InternalError();
+    } else {
+        return err;
+    }
 }

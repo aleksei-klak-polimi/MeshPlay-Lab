@@ -1,4 +1,5 @@
 // tests/unit/utils/response.test.js
+import { AppError, InternalError } from '../../../src/utils/errors.js';
 import { successResponse, errorResponse } from '../../../src/utils/response.js';
 import {expect, jest} from '@jest/globals';
 
@@ -56,34 +57,12 @@ describe('response.js', () => {
     }).toThrow(TypeError);
   });
 
-
-  test('errorResponse builds correct shape', () => {
-    const res = mockRes();
-    errorResponse(res, 'Bad thing', 'SOME_CODE', 500, { field: 'name' });
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      success: false,
-      message: 'Bad thing',
-      error: { code: 'SOME_CODE', details: { field: 'name' } },
-    });
-  });
-
-  test('errorResponse default output', () => {
-    const res = mockRes();
-    errorResponse(res, 'Bad thing');
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      success: false,
-      message: 'Bad thing',
-      error: { code: 'GENERIC_ERROR', details: null },
-    });
-  });
-
   test('successResponse should throw exception on missing args', () => {
     const res = mockRes();
+    const appError = new AppError();
 
     expect(() => {
-      successResponse(null, 'Bad thing');
+      successResponse(null, appError);
     }).toThrow(TypeError);
 
     expect(() => {
@@ -91,7 +70,7 @@ describe('response.js', () => {
     }).toThrow(TypeError);
 
     expect(() => {
-      successResponse(undefined, 'Bad thing');
+      successResponse(undefined, appError);
     }).toThrow(TypeError);
 
     expect(() => {
@@ -100,6 +79,37 @@ describe('response.js', () => {
 
     expect(() => {
       successResponse();
+    }).toThrow(TypeError);
+  });
+
+
+
+
+
+  test('errorResponse builds correct shape', () => {
+    const res = mockRes();
+    const error = new InternalError();
+
+    errorResponse(res, error, { field: 'name' });
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: error.message,
+      error: { code: error.code, details: { field: 'name' } },
+    });
+  });
+
+  test('errorResponse throws TypeError on non app errors', () => {
+    const res = mockRes();
+    const appError = new AppError();
+
+    expect(() => {
+      errorResponse(res, new Error());
+    }).toThrow(TypeError);
+
+    expect(() => {
+      errorResponse(res, new TypeError());
     }).toThrow(TypeError);
   });
 });

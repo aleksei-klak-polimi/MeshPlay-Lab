@@ -1,3 +1,5 @@
+import { AppError } from './errors.js';
+
 /**
  * Sends a standardized JSON success response.
  * 
@@ -37,22 +39,25 @@ export function successResponse(res, message, data = null, status = 200) {
  * (controllers, error handlers) — not for direct user input validation.
  * 
  * @param {import('express').Response} res - Express response object.
- * @param {string} message - Human-readable message.
- * @param {string} [code='GENERIC_ERROR'] - Application-specific error code (for frontend handling or logs).
- * @param {number} [status=400] - HTTP status code.
+ * @param {AppError} error - error object containing the core information that will be sent in the response.
  * @param {any} [details=null] - Optional additional error information (e.g., validation errors).
  * 
  * @returns {import('express').Response} The Express response object (for chaining or testing).
  * 
  * @throws {TypeError} if res or message are missing or invalid.
  */
-export function errorResponse(res, message, code = 'GENERIC_ERROR', status = 400, details = null) {
+export function errorResponse(res, error, details = null) {
   if (!res || typeof res.status !== 'function') {
-    throw new TypeError('errorResponse expected a valid Express response object as the first argument');
+    throw new TypeError('errorResponse expected a valid Express response object as the first argument.');
   }
-  if (typeof message !== 'string' || !message.length) {
-    throw new TypeError('errorResponse expected a non-empty message string');
+  if(!error) {
+    throw new TypeError('errorResponse expects a non null and non undefined error as the second argument.');
   }
+  if(!error.isAppError){
+    throw new TypeError('errorResponse expects an appError as the second argument.');
+  }
+
+  const { message, code, status } = error;
 
   return res.status(status).json({
     success: false,
