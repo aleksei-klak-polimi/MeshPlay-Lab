@@ -53,66 +53,60 @@ export async function authenticateToken(req, res, next){
         return errorResponse(res, error);
     }
 
+
+    //Decode user data from jwt
+    let decoded;
     try{
-        //Decode user data from jwt
-        let decoded;
-        try{
-            decoded = jwt.verify(token, config.jwtSecret);
-            logger.trace(`JWT contents:\n${decoded}`);
-        } catch (err){
-            if (err.name === 'TokenExpiredError') {
-                logger.warn(`Provided JWT has expired`, 'authenticateToken');
-                const error = new UnauthorizedError('Access denied. Token expired.', 'EXPIRED_JWT');
-                return errorResponse(res, error);
-            }
-            logger.warn(`Error while verifying token: ${err.name} ${err.message}`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid token.', 'INVALID_JWT');
-            return errorResponse(res, error);
-        }
-
-        //Check if user data is correctly formatted
-        const {error: validationError} = tokenSchema.validate(decoded);
-        if (validationError){
-            logger.warn(`Provided JWT has invalid format.`, 'authenticateToken');
-            const error = new BadRequestError('Access denied. Invalid user token format.', 'INVALID_JWT_FORMAT');
-            return errorResponse(res, error);
-        }
-
-        //Check if user data matches to database
-        let conn;
-        try{
-            //Check if user exists
-            conn = await getConnection();
-
-            const dbUserData = await UserModel.getById(conn, decoded.id);
-            if(!dbUserData){
-                logger.warn(`Attempted to use JWT of non existing user.`, 'authenticateToken');
-                const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
-                return errorResponse(res, error);
-            }
-            //Check if username matches
-            else if(dbUserData.username != decoded.username){
-                logger.warn(`Username in JWT does not match username in database`, 'authenticateToken');
-                const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
-                return errorResponse(res, error);
-            }
-        } 
-        //Handle db access errors
-        catch (err) {
-            logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
-            const sanitizedError = handleError(err);
-            return errorResponse(res, sanitizedError);
-
-        } finally {
-            if (conn) await conn.release();
-        }
-
-        req.user = decoded;
-        next();
-
+        decoded = jwt.verify(token, config.jwtSecret);
+        logger.trace(`JWT contents:\n${decoded}`);
     } catch (err){
+        if (err.name === 'TokenExpiredError') {
+            logger.warn(`Provided JWT has expired`, 'authenticateToken');
+            const error = new UnauthorizedError('Access denied. Token expired.', 'EXPIRED_JWT');
+            return errorResponse(res, error);
+        }
+        logger.warn(`Error while verifying token: ${err.name} ${err.message}`, 'authenticateToken');
+        const error = new UnauthorizedError('Access denied. Invalid token.', 'INVALID_JWT');
+        return errorResponse(res, error);
+    }
+
+    //Check if user data is correctly formatted
+    const {error: validationError} = tokenSchema.validate(decoded);
+    if (validationError){
+        logger.warn(`Provided JWT has invalid format.`, 'authenticateToken');
+        const error = new BadRequestError('Access denied. Invalid user token format.', 'INVALID_JWT_FORMAT');
+        return errorResponse(res, error);
+    }
+
+    //Check if user data matches to database
+    let conn;
+    try{
+        //Check if user exists
+        conn = await getConnection();
+
+        const dbUserData = await UserModel.getById(conn, decoded.id);
+        if(!dbUserData){
+            logger.warn(`Attempted to use JWT of non existing user.`, 'authenticateToken');
+            const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
+            return errorResponse(res, error);
+        }
+        //Check if username matches
+        else if(dbUserData.username != decoded.username){
+            logger.warn(`Username in JWT does not match username in database`, 'authenticateToken');
+            const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
+            return errorResponse(res, error);
+        }
+    } 
+    //Handle db access errors
+    catch (err) {
         logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
         const sanitizedError = handleError(err);
         return errorResponse(res, sanitizedError);
+
+    } finally {
+        if (conn) await conn.release();
     }
+
+    req.user = decoded;
+    next();
 }
