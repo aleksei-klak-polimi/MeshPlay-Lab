@@ -7,4 +7,6 @@ export default {
     setupFiles: ['dotenv/config'],
     collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js', 'src/models/common/**/*.js'],
     coverageDirectory: 'coverage',
+
+    testTimeout: 20000, // Increase for async DB operations
 };
