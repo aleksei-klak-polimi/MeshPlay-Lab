@@ -41,7 +41,7 @@ export async function authenticateToken(req, res, next){
 
     if(!authHeader){
         logger.debug('Missing Auth Header.', 'authenticateToken');
-        const error = new BadRequestError('Access denied. Missing Auth Header.', 'MISSING_AUTH_HEADER');
+        const error = new UnauthorizedError('Access denied. Missing Auth Header.', 'MISSING_AUTH_HEADER');
         return errorResponse(res, error);
     }
 
@@ -66,7 +66,7 @@ export async function authenticateToken(req, res, next){
                 return errorResponse(res, error);
             }
             logger.warn(`Error while verifying token: ${err.name} ${err.message}`, 'authenticateToken');
-            const error = new BadRequestError('Access denied. Invalid token.', 'INVALID_JWT');
+            const error = new UnauthorizedError('Access denied. Invalid token.', 'INVALID_JWT');
             return errorResponse(res, error);
         }
 
@@ -74,7 +74,7 @@ export async function authenticateToken(req, res, next){
         const {error: validationError} = tokenSchema.validate(decoded);
         if (validationError){
             logger.warn(`Provided JWT has invalid format.`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid user token format.', 'INVALID_JWT_FORMAT');
+            const error = new BadRequestError('Access denied. Invalid user token format.', 'INVALID_JWT_FORMAT');
             return errorResponse(res, error);
         }
 
