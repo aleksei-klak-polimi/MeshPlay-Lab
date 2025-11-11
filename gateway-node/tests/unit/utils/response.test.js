@@ -10,8 +10,8 @@ const mockRes = () => {
   return res;
 };
 
-describe('response.js', () => {
-  test('successResponse sets status and json', () => {
+describe('successResponse', () => {
+  test('Sets status and json', () => {
     const res = mockRes();
     successResponse(res, 'ok', { user: 'alex' }, 201);
     expect(res.status).toHaveBeenCalledWith(201);
@@ -22,7 +22,7 @@ describe('response.js', () => {
     });
   });
 
-  test('successResponse default output', () => {
+  test('Default output', () => {
     const res = mockRes();
     successResponse(res, 'ok');
     expect(res.status).toHaveBeenCalledWith(200);
@@ -33,7 +33,7 @@ describe('response.js', () => {
     });
   });
 
-  test('successResponse should throw exception on missing args', () => {
+  test('Throw exception on missing args', () => {
     const res = mockRes();
 
     expect(() => {
@@ -57,7 +57,7 @@ describe('response.js', () => {
     }).toThrow(TypeError);
   });
 
-  test('successResponse should throw exception on missing args', () => {
+  test('Throw exception on missing args', () => {
     const res = mockRes();
     const appError = new AppError();
 
@@ -81,12 +81,12 @@ describe('response.js', () => {
       successResponse();
     }).toThrow(TypeError);
   });
+});
 
 
 
-
-
-  test('errorResponse builds correct shape', () => {
+describe('errorResponse', () => {
+  test('Builds correct shape', () => {
     const res = mockRes();
     const error = new InternalError();
 
@@ -100,7 +100,7 @@ describe('response.js', () => {
     });
   });
 
-  test('errorResponse throws TypeError on non app errors', () => {
+  test('Throws TypeError on non app errors', () => {
     const res = mockRes();
     const appError = new AppError();
 

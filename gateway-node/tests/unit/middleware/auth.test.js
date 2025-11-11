@@ -45,7 +45,7 @@ beforeEach(() => {
 
 // Test suite
 describe('authenticateToken middleware', () => {
-  test('should return 401 if Authorization header is missing', async () => {
+  test('Returns 401 if Authorization header is missing', async () => {
     const req = { headers: {} };
     const res = mockRes();
 
@@ -60,7 +60,7 @@ describe('authenticateToken middleware', () => {
   });
 
 
-  test('should return 401 if token part is missing', async () => {
+  test('Returns 401 if token part is missing', async () => {
     const req = { headers: { authorization: 'Bearer' } };
     const res = mockRes();
 
@@ -73,7 +73,7 @@ describe('authenticateToken middleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  test('should return 401 if JWT expired', async () => {
+  test('Returns 401 if JWT expired', async () => {
     const req = { headers: { authorization: 'Bearer valid.jwt.token' } };
     const res = mockRes();
 
@@ -92,7 +92,7 @@ describe('authenticateToken middleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  test('should return 401 if JWT is invalid', async () => {
+  test('Returns 401 if JWT is invalid', async () => {
     const req = { headers: { authorization: 'Bearer invalid.jwt' } };
     const res = mockRes();
 
@@ -111,7 +111,7 @@ describe('authenticateToken middleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  test('should return 400 if token schema invalid', async () => {
+  test('Returns 400 if token schema invalid', async () => {
     const req = { headers: { authorization: 'Bearer good.jwt' } };
     const res = mockRes();
 
@@ -127,7 +127,7 @@ describe('authenticateToken middleware', () => {
     );
   });
 
-  test('should return 401 if user not found in DB', async () => {
+  test('Returns 401 if user not found in DB', async () => {
     const req = { headers: { authorization: 'Bearer good.jwt' } };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
@@ -151,7 +151,7 @@ describe('authenticateToken middleware', () => {
     expect(fakeConn.release).toHaveBeenCalled();
   });
 
-  test('should return 401 if username mismatch', async () => {
+  test('Returns 401 if username mismatch', async () => {
     const req = { headers: { authorization: 'Bearer good.jwt' } };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
@@ -175,7 +175,7 @@ describe('authenticateToken middleware', () => {
     expect(fakeConn.release).toHaveBeenCalled();
   });
 
-  test('should handle DB connection error gracefully', async () => {
+  test('Handles DB connection error gracefully', async () => {
     const req = { headers: { authorization: 'Bearer good.jwt' } };
     const res = mockRes();
 
@@ -195,7 +195,7 @@ describe('authenticateToken middleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  test('should call next() and set req.user if everything is valid', async () => {
+  test('Calls next() and sets req.user if everything is valid', async () => {
     const req = { headers: { authorization: 'Bearer good.jwt' } };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
