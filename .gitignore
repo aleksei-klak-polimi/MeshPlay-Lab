@@ -1,4 +1,4 @@
 db/.env
 logs/*
-gateway-node/src/node_modules
-gateway-node/src/.env
+gateway-node/node_modules
+gateway-node/.env
