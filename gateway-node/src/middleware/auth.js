@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import { id, iat, exp, username } from '../schemas/fields.js';
 import { createLogger } from "../config/logger.js";
+import { ERROR_CODES } from "../constants/errorCodes.js";
 
 const logger = createLogger('middleware.auth');
 
@@ -41,7 +42,7 @@ export async function authenticateToken(req, res, next){
 
     if(!authHeader){
         logger.debug('Missing Auth Header.', 'authenticateToken');
-        const error = new UnauthorizedError('Access denied. Missing Auth Header.', 'MISSING_AUTH_HEADER');
+        const error = new UnauthorizedError('Access denied. Missing Auth Header.', ERROR_CODES.MISSING_AUTH_HEADER);
         return errorResponse(res, error);
     }
 
@@ -49,7 +50,7 @@ export async function authenticateToken(req, res, next){
 
     if(!token){
         logger.debug('Missing JWT in Auth Header.', 'authenticateToken');
-        const error = new UnauthorizedError('Access denied. Token missing.', 'MISSING_JWT');
+        const error = new UnauthorizedError('Access denied. Token missing.', ERROR_CODES.MISSING_JWT);
         return errorResponse(res, error);
     }
 
@@ -62,11 +63,11 @@ export async function authenticateToken(req, res, next){
     } catch (err){
         if (err.name === 'TokenExpiredError') {
             logger.warn(`Provided JWT has expired`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Token expired.', 'EXPIRED_JWT');
+            const error = new UnauthorizedError('Access denied. Token expired.', ERROR_CODES.EXPIRED_JWT);
             return errorResponse(res, error);
         }
         logger.warn(`Error while verifying token: ${err.name} ${err.message}`, 'authenticateToken');
-        const error = new UnauthorizedError('Access denied. Invalid token.', 'INVALID_JWT');
+        const error = new UnauthorizedError('Access denied. Invalid token.', ERROR_CODES.INVALID_JWT);
         return errorResponse(res, error);
     }
 
@@ -74,7 +75,7 @@ export async function authenticateToken(req, res, next){
     const {error: validationError} = tokenSchema.validate(decoded);
     if (validationError){
         logger.warn(`Provided JWT has invalid format.`, 'authenticateToken');
-        const error = new BadRequestError('Access denied. Invalid user token format.', 'INVALID_JWT_FORMAT');
+        const error = new BadRequestError('Access denied. Invalid user token format.', ERROR_CODES.INVALID_JWT_FORMAT);
         return errorResponse(res, error);
     }
 
@@ -87,13 +88,13 @@ export async function authenticateToken(req, res, next){
         const dbUserData = await UserModel.getById(conn, decoded.id);
         if(!dbUserData){
             logger.warn(`Attempted to use JWT of non existing user.`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
+            const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
             return errorResponse(res, error);
         }
         //Check if username matches
         else if(dbUserData.username != decoded.username){
             logger.warn(`Username in JWT does not match username in database`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid user token contents.', 'INVALID_JWT_CONTENT');
+            const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
             return errorResponse(res, error);
         }
     } 

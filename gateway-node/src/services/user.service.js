@@ -6,6 +6,7 @@ import { ConflictError, UnauthorizedError } from '../utils/errors.js';
 import { toMySQLDateTime } from '../utils/time.js';
 import config from '../config/config.js';
 import { createLogger } from "../config/logger.js";
+import { ERROR_CODES } from '../constants/errorCodes.js';
 
 const logger = createLogger('user.service');
 const SALT_ROUNDS = 10;
@@ -25,7 +26,7 @@ const UserService = {
             const existingUser = await UserModel.getByUsername(conn, username);
             if(existingUser){
                 logger.warn(`Signup attempt with existing username: ${username}`, 'create');
-                throw new ConflictError('Username already exists', 'USER_EXISTS');
+                throw new ConflictError('Username already exists', ERROR_CODES.USER_EXISTS);
             }
 
             //Create new user
@@ -62,7 +63,7 @@ const UserService = {
             const existingUser = await UserModel.getByUsername(conn, username);
             if(!existingUser){
                 logger.warn(`Login attempt with non-existing username: ${username}`, 'authenticate');
-                throw new UnauthorizedError('Wrong username or password', 'INVALID_CREDENTIALS');
+                throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
             }
             logger.debug(`User exists: ${username}`, 'authenticate');
 
@@ -70,7 +71,7 @@ const UserService = {
             logger.debug(`Checking password hash for user: ${username}`, 'authenticate');
             if(!(await bcrypt.compare(password, existingUser.password_hash))){
                 logger.warn(`Login attempt for user: ${username} with invalid password.`, 'authenticate');
-                throw new UnauthorizedError('Wrong username or password', 'INVALID_CREDENTIALS');
+                throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
             }
 
             //Generate JWST
