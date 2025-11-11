@@ -56,31 +56,6 @@ describe('successResponse', () => {
       successResponse();
     }).toThrow(TypeError);
   });
-
-  test('Throw exception on missing args', () => {
-    const res = mockRes();
-    const appError = new AppError();
-
-    expect(() => {
-      successResponse(null, appError);
-    }).toThrow(TypeError);
-
-    expect(() => {
-      successResponse(res, null);
-    }).toThrow(TypeError);
-
-    expect(() => {
-      successResponse(undefined, appError);
-    }).toThrow(TypeError);
-
-    expect(() => {
-      successResponse(res, undefined);
-    }).toThrow(TypeError);
-
-    expect(() => {
-      successResponse();
-    }).toThrow(TypeError);
-  });
 });
 
 
@@ -110,6 +85,31 @@ describe('errorResponse', () => {
 
     expect(() => {
       errorResponse(res, new TypeError());
+    }).toThrow(TypeError);
+  });
+
+  test('Throw exception on missing args', () => {
+    const res = mockRes();
+    const appError = new AppError();
+
+    expect(() => {
+      errorResponse(null, appError);
+    }).toThrow(TypeError);
+
+    expect(() => {
+      errorResponse(res, null);
+    }).toThrow(TypeError);
+
+    expect(() => {
+      errorResponse(undefined, appError);
+    }).toThrow(TypeError);
+
+    expect(() => {
+      errorResponse(res, undefined);
+    }).toThrow(TypeError);
+
+    expect(() => {
+      errorResponse();
     }).toThrow(TypeError);
   });
 });
