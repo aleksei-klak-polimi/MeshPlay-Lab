@@ -78,7 +78,7 @@ const UserService = {
             const token = jwt.sign(
                 {id: existingUser.id, username: existingUser.username},
                 config.jwtSecret,
-                {expiresIn: '1h'}
+                {expiresIn: config.jwtExpiration}
             );
 
             //Updating user last login
