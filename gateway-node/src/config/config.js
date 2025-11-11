@@ -6,7 +6,7 @@ const config = {
     env: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 3000,
     jwtSecret: process.env.JWT_SECRET || 'f84a9b7ac12297a3b7a4c4f1f3d9a85c08e6bba4c8e59cc1e8e62fa792e1784ff6c7a3f9b4a4a5f7b1a2c43a52e9f8d1', //Placeholder value, not actual jwt
-    dbTimezone: process.env.DB_TIMEZONE || UTC,
+    dbTimezone: process.env.DB_TIMEZONE || 'UTC',
   };
 
 if (config.env === 'production' && process.env.npm_lifecycle_event === 'dev') {
