@@ -11,7 +11,7 @@ import { ERROR_CODES } from '../constants/errorCodes.js';
 const logger = createLogger('user.service');
 const SALT_ROUNDS = 10;
 
-const UserService = {
+const AuthService = {
     async create({username, password}){
         const createdAt = toMySQLDateTime();
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -106,4 +106,4 @@ const UserService = {
     }
 };
 
-export default UserService;
+export default AuthService;

@@ -1,6 +1,6 @@
 import { successResponse, errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
-import UserService from "../services/user.service.js";
+import AuthService from "../services/auth.service.js";
 import { createLogger } from "../config/logger.js";
 
 const logger = createLogger('auth.controller');
@@ -10,7 +10,7 @@ export async function signup (req, res) {
 
     try{
         logger.debug(`Signup request received for username: ${username}`, 'signup');
-        const user = await UserService.create({username, password});
+        const user = await AuthService.create({username, password});
         logger.info(`Signup successful for user: ${username}`, 'signup');
         return successResponse(res, 'User created successfully', user, 201);
 
@@ -26,7 +26,7 @@ export async function login (req, res) {
 
     try{
         logger.debug(`Login request received for username: ${username}`, 'login');
-        const token = await UserService.authenticate(username, password);
+        const token = await AuthService.authenticate(username, password);
         logger.info(`Login successful for user: ${username}`, 'login');
         return successResponse(res, 'Login successfull', {token: token}, 200);
 
