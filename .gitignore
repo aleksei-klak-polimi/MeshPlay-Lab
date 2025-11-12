@@ -2,4 +2,5 @@ db/.env
 logs/*
 gateway-node/node_modules
 gateway-node/.env
+gateway-node/.env.test
 gateway-node/coverage/*
