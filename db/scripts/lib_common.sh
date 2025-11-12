@@ -8,10 +8,11 @@ set -eE -o pipefail
 # Logging utilities
 log_init() {
   local log_dir="$1"
-  local log_name="$2"
+  local target_env="$2"
+  local log_name="$3"
   local timestamp
   timestamp="$(date +'%Y%m%d_%H%M%S')"
-  LOG_FILE="$log_dir/scripts/$log_name/${log_name}_${timestamp}.log"
+  LOG_FILE="$log_dir/scripts/$target_env/$log_name/${log_name}_${timestamp}.log"
 
   mkdir -p "$(dirname "$LOG_FILE")"
 }
@@ -51,6 +52,44 @@ validate_env_vars() {
   fi
 }
 
+parse_env_flag() {
+  local flagName="$1"
+  local flag="$2"
+
+  # If no flagName is supplied, error immediately.
+  if [ -z "$flagName" ]; then
+    echo "[ERROR] Missing required environment flag (expected: dev | test | prod)" >&2
+    exit 1
+  fi
+
+  # If no flag is supplied, error immediately.
+  if [ -z "$flag" ]; then
+    echo "[ERROR] Missing required environment flag (expected: dev | test | prod)" >&2
+    exit 1
+  fi
+
+  case "$flagName" in
+    --env)
+      # Valid environment; do nothing and resume normal execution
+      ;;
+    *)
+      echo "[ERROR] Invalid argument Name: '$flagName' (expected: --env)" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$flag" in
+    dev|test|prod)
+      # Valid environment;
+      TARGET_ENV="$flag"
+      ;;
+    *)
+      echo "[ERROR] Invalid environment: '$flag' (expected: dev | test | prod)" >&2
+      exit 1
+      ;;
+  esac
+}
+
 
 
 # Database utilities
@@ -65,6 +104,12 @@ db_check_connection() {
 db_exists() {
   local user="$1" pass="$2" host="$3" port="$4" db="$5"
   mariadb -u"$user" -p"$pass" -h"$host" -P"$port" -Nse "SHOW DATABASES LIKE '$db';" 2>>"$LOG_FILE" || true
+}
+
+user_exists() {
+  local admin="$1" pass="$2" db_host="$3" port="$4" user="$5" host="$6"
+  mariadb -u"$admin" -p"$pass" -h"$db_host" -P "$port" \
+    -Nse "SELECT COUNT(*) FROM mysql.user WHERE user='$user' AND host='$host';" 2>>"$LOG_FILE" || true
 }
 
 

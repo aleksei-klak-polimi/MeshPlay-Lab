@@ -10,9 +10,7 @@ ALTER TABLE User AUTO_INCREMENT = 1;
 ALTER TABLE Game AUTO_INCREMENT = 1;
 ALTER TABLE Lobby AUTO_INCREMENT = 1;
 
--- Inserts sample Users and Games for Meshplay-Lab prototype
-
-USE `MeshPlay-LabDB`;
+-- Inserts sample Users and Games
 
 -- -------------------------------
 -- Users
