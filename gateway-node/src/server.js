@@ -1,6 +1,9 @@
-import app from './app.js';
-import { createLogger } from './config/logger.js';
-import config from './config/config.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { default: app } = await import('./app.js');
+const { createLogger } = await import('./config/logger.js');
+const { default: config } = await import('./config/config.js');
 
 const PORT = config.port;
 const logger = createLogger('server');
