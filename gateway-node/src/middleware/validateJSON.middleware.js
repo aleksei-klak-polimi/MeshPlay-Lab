@@ -3,7 +3,7 @@ import { createLogger } from '../config/logger.js';
 import { BadRequestError } from '../utils/errors.js';
 import { errorResponse } from '../utils/response.js';
 
-const logger = createLogger('middleware.validateJSON');
+const logger = createLogger('validateJSON.middleware');
 
 export const verifyJson = (req, res, buf) => {
   try {

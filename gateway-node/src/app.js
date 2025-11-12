@@ -2,7 +2,7 @@ import express from 'express';
 import config from './config/config.js';
 import morgan from 'morgan';
 import { createLogger } from './config/logger.js';
-import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/validateJSON.js';
+import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/validateJSON.middleware.js';
 
 import authRoutes from './routes/auth.routes.js';
 import { hello } from './controllers/protected.controller.js';

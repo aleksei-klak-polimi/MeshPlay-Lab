@@ -16,7 +16,7 @@ jest.unstable_mockModule('../../../src/config/logger.js', () => ({
 // Import actual module after mocks
 const { errorResponse } = await import('../../../src/utils/response.js');
 const { BadRequestError } = await import('../../../src/utils/errors.js');
-const { verifyJson, invalidJsonErrorHandler } = await import('../../../src/middleware/validateJSON.js');
+const { verifyJson, invalidJsonErrorHandler } = await import('../../../src/middleware/validateJSON.middleware.js');
 
 
 // Helpers
