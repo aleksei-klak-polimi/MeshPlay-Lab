@@ -1,7 +1,13 @@
 #!/bin/bash
 # seed_db.sh
-# Usage: ./seed_db.sh
-# Description: Populates the development database with sample data
+#
+# Usage:
+#   ./seed_db.sh --env dev
+#   ./seed_db.sh --env test
+#
+# Description:
+#   Populates the development database with sample data
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Stop on any error, and propagate pipeline errors
 set -eE -o pipefail
@@ -16,44 +22,56 @@ else
 fi
 
 # Configuration
-REQUIRED_VARS=(
-  ENVIRONMENT 
-  DB_HOST DB_PORT DB_NAME
-  DB_APP_USER DB_APP_PASSWORD
-  LOG_DIR SEED_FILE
-)
+ENV_FILE="$SCRIPT_DIR/../.env"
+SEED_DIR="$SCRIPT_DIR/../seeds"
 
-ENV_FILE="../.env"
-SEED_DIR="../seeds"
+# Validate .env
+REQUIRED_VARS=( 
+  DB_HOST DB_PORT DB_DEV_NAME DB_TEST_NAME
+  DB_DEV_USER DB_DEV_PASSWORD
+  DB_TEST_USER DB_TEST_PASSWORD
+  SEED_FILE SEED_FILE_TEST
+  LOG_DIR 
+)
 
 # Load and validate environment
 load_env "$ENV_FILE"
 validate_env_vars REQUIRED_VARS
 
-# Init logging
-log_init "$LOG_DIR" "seed"
+# Parse arguments
+parse_env_flag $1 $2
 
-# Check if Production env then warn user
-if [ "$ENVIRONMENT" = "PROD" ]; then
-  echo "[WARNING] You are attempting to run the seed script in a PRODUCTION environment."
-  echo "This will erase all data in database '$DB_NAME'."
-  read -p "Type CONFIRM to continue: " CONFIRM
-  if [ "$CONFIRM" != "CONFIRM" ]; then
-    echo "[INFO] Aborting seed operation."
-    exit 1
-  fi
+# Select environment-specific values
+if [[ "$TARGET_ENV" == "test" ]]; then
+  DB_TO_SEED="$DB_TEST_NAME"
+  DB_USER="$DB_TEST_USER"
+  DB_PASSWORD="$DB_TEST_PASSWORD"
+  SEED_FILE="$SEED_FILE_TEST"
+elif [[ "$TARGET_ENV" == "dev" ]]; then
+  DB_TO_SEED="$DB_DEV_NAME"
+  DB_USER="$DB_DEV_USER"
+  DB_PASSWORD="$DB_DEV_PASSWORD"
+  SEED_FILE="$SEED_FILE_TEST"
+elif [[ "$TARGET_ENV" == "prod" ]]; then
+  echo "[ERROR] Seeding in production is not allowed."
+  echo "[INFO] Aborting operation..."
+  exit 1
 fi
 
+# Init logging
+log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "seed"
+log INFO "Running script for environment: $TARGET_ENV"
+
 # Define reusable DB connection contexts
-DB_CONN_APP=("$DB_APP_USER" "$DB_APP_PASSWORD" "$DB_HOST" "$DB_PORT")
+DB_CONN_APP=("$DB_USER" "$DB_PASSWORD" "$DB_HOST" "$DB_PORT")
 
 
 # Database Utilities
-
 apply_seed() {
   local seed_path="$SEED_DIR/$SEED_FILE"
   if [ -f "$seed_path" ]; then
-    if mariadb -u "$DB_APP_USER" -p"$DB_APP_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$DB_NAME" < "$seed_path" 2>>"$LOG_FILE"; then
+    log INFO "Applying seed from $SEED_FILE"
+    if mariadb -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$DB_TO_SEED" < "$seed_path" 2>>"$LOG_FILE"; then
       log INFO "Applied seed file '$SEED_FILE' successfully"
     else
       log ERROR "Failed applying '$SEED_FILE' (see $LOG_FILE for details)"
@@ -72,8 +90,9 @@ log INFO "=== Starting database seeding ==="
 
 db_check_connection "${DB_CONN_APP[@]}"
 
-if [ "$(db_exists "${DB_CONN_APP[@]}" "$DB_NAME")" != "$DB_NAME" ]; then
-  log ERROR "Database '$DB_NAME' does not exist - exiting seeding script."
+log INFO "Checking if Database $DB_NAME exists..."
+if [ "$(db_exists "${DB_CONN_APP[@]}" "$DB_TO_SEED")" != "$DB_TO_SEED" ]; then
+  log ERROR "Database '$DB_TO_SEED' does not exist - exiting seeding script."
   exit 1
 fi
 
