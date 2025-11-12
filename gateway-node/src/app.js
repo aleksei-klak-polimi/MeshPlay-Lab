@@ -2,14 +2,11 @@ import express from 'express';
 import config from './config/config.js';
 import morgan from 'morgan';
 import { createLogger } from './config/logger.js';
-import dotenv from 'dotenv';
 import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/validateJSON.js';
 
 import authRoutes from './routes/auth.routes.js';
 import { hello } from './controllers/protected.controller.js';
 import { authenticateToken } from './middleware/auth.js';
-
-dotenv.config();
 
 const logger = createLogger('app');
 const app = express();
