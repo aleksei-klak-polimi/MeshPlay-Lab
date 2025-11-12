@@ -38,12 +38,8 @@ REQUIRED_VARS=(
 load_env "$ENV_FILE"
 validate_env_vars REQUIRED_VARS
 
-# Init logging
-log_init "$SCRIPT_DIR/$LOG_DIR" "seed_${LOG_SUFFIX}"
-
 # Parse arguments
 parse_env_flag $1 $2
-log INFO "Running script for environment: $TARGET_ENV"
 
 # Select environment-specific values
 if [[ "$TARGET_ENV" == "test" ]]; then
@@ -51,18 +47,20 @@ if [[ "$TARGET_ENV" == "test" ]]; then
   DB_USER="$DB_TEST_USER"
   DB_PASSWORD="$DB_TEST_PASSWORD"
   SEED_FILE="$SEED_FILE_TEST"
-  LOG_SUFFIX="test"
 elif [[ "$TARGET_ENV" == "dev" ]]; then
   DB_TO_SEED="$DB_DEV_NAME"
   DB_USER="$DB_DEV_USER"
   DB_PASSWORD="$DB_DEV_PASSWORD"
   SEED_FILE="$SEED_FILE_TEST"
-  LOG_SUFFIX="test"
 elif [[ "$TARGET_ENV" == "prod" ]]; then
-  log ERROR "Seeding in production is not allowed."
-  log INFO "Aborting operation."
+  echo "[ERROR] Seeding in production is not allowed."
+  echo "[INFO] Aborting operation..."
   exit 1
 fi
+
+# Init logging
+log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "seed"
+log INFO "Running script for environment: $TARGET_ENV"
 
 # Define reusable DB connection contexts
 DB_CONN_APP=("$DB_USER" "$DB_PASSWORD" "$DB_HOST" "$DB_PORT")

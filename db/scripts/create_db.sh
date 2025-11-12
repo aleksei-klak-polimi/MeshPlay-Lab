@@ -42,30 +42,27 @@ REQUIRED_VARS=(
 load_env "$ENV_FILE"
 validate_env_vars REQUIRED_VARS
 
-# Init logging
-log_init "$SCRIPT_DIR/$LOG_DIR" "create_${LOG_SUFFIX}"
-
 # Parse arguments
 parse_env_flag $1 $2
-log INFO "Running script for environment: $TARGET_ENV"
 
 # Select environment-specific variables
 if [[ "$TARGET_ENV" == "test" ]]; then
   DB_NAME="$DB_TEST_NAME"
   DB_APP_USER="$DB_TEST_USER"
   DB_APP_PASSWORD="$DB_TEST_PASSWORD"
-  LOG_SUFFIX="test"
 elif [[ "$TARGET_ENV" == "dev" ]]; then
   DB_NAME="$DB_DEV_NAME"
   DB_APP_USER="$DB_DEV_USER"
   DB_APP_PASSWORD="$DB_DEV_PASSWORD"
-  LOG_SUFFIX="dev"
 elif [[ "$TARGET_ENV" == "prod" ]]; then
   DB_NAME="$DB_PROD_NAME"
   DB_APP_USER="$DB_PROD_USER"
   DB_APP_PASSWORD="$DB_PROD_PASSWORD"
-  LOG_SUFFIX="prod"
 fi
+
+# Init logging
+log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "create"
+log INFO "Running script for environment: $TARGET_ENV"
 
 # Define reusable DB connection contexts
 DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")

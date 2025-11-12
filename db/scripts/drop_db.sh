@@ -36,12 +36,8 @@ REQUIRED_VARS=(
 load_env "$ENV_FILE"
 validate_env_vars REQUIRED_VARS
 
-# Init logging
-log_init "$SCRIPT_DIR/$LOG_DIR" "drop_${TARGET_ENV}"
-
 # Parse arguments
 parse_env_flag $1 $2
-log INFO "Running script for environment: $TARGET_ENV"
 
 # --- Select DB based on target env ---
 if [ "$TARGET_ENV" == "test" ]; then
@@ -51,10 +47,14 @@ elif [[ "$TARGET_ENV" == "dev" ]]; then
   DB_TO_DROP="$DB_DEV_NAME"
   USER_TO_DROP="$DB_DEV_USER"
 elif [[ "$TARGET_ENV" == "prod" ]]; then
-  log ERROR "Dropping in production is not allowed."
-  log INFO "Aborting operation."
+  echo "[ERROR] Dropping in production is not allowed."
+  echo "[INFO] Aborting operation."
   exit 1
 fi
+
+# Init logging
+log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "drop"
+log INFO "Running script for environment: $TARGET_ENV"
 
 DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
 

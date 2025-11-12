@@ -8,10 +8,11 @@ set -eE -o pipefail
 # Logging utilities
 log_init() {
   local log_dir="$1"
-  local log_name="$2"
+  local target_env="$2"
+  local log_name="$3"
   local timestamp
   timestamp="$(date +'%Y%m%d_%H%M%S')"
-  LOG_FILE="$log_dir/scripts/$log_name/${log_name}_${timestamp}.log"
+  LOG_FILE="$log_dir/scripts/$target_env/$log_name/${log_name}_${timestamp}.log"
 
   mkdir -p "$(dirname "$LOG_FILE")"
 }
