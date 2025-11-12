@@ -10,7 +10,7 @@ import { id, iat, exp, username } from '../schemas/fields.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from "../constants/errorCodes.js";
 
-const logger = createLogger('middleware.auth');
+const logger = createLogger('auth.middleware');
 
 const tokenSchema = Joi.object({
     id: id.required(),
