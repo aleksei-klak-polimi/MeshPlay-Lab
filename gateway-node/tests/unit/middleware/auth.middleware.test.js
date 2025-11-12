@@ -17,7 +17,7 @@ jest.unstable_mockModule('../../../src/models/user.model.js', () => ({ default: 
 //Structure imports this way to ensure they happen after mocks.
 const { errorResponse } = await import('../../../src/utils/response.js');
 const { handleError } = await import('../../../src/utils/errorHandler.js');
-const { authenticateToken } = await import('../../../src/middleware/auth.js');
+const { authenticateToken } = await import('../../../src/middleware/auth.middleware.js');
 const {default: jwt} = await import('jsonwebtoken');
 const {getConnection} = await import('../../../src/config/db.js');
 const {default: UserModel} = await import('../../../src/models/user.model.js');

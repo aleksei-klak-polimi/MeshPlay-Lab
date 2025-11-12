@@ -6,7 +6,7 @@ import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/
 
 import authRoutes from './routes/auth.routes.js';
 import { hello } from './controllers/protected.controller.js';
-import { authenticateToken } from './middleware/auth.js';
+import { authenticateToken } from './middleware/auth.middleware.js';
 
 const logger = createLogger('app');
 const app = express();
