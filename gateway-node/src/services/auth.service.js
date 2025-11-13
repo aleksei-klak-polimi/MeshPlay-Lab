@@ -8,12 +8,13 @@ import config from '../config/config.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
-const logger = createLogger('user.service');
+const logger = createLogger('auth.service');
 const SALT_ROUNDS = 10;
 
 const AuthService = {
     async create({username, password}){
-        const createdAt = toMySQLDateTime();
+        const now = new Date();
+        const createdAt = toMySQLDateTime(now);
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
         let conn;
@@ -31,13 +32,15 @@ const AuthService = {
 
             //Create new user
             const userId = await UserModel.create(conn, {username, passwordHash, createdAt});
+            const createdUser = await UserModel.getById(conn, userId);
+            delete createdUser.passwordHash;
 
             //Commit transaction
             await conn.commit();
 
-            logger.info(`New user created: ${username} (ID: ${userId})`, 'create');
+            logger.info(`New user created: ${createdUser}`, 'create');
 
-            return { id: userId, username, createdAt };
+            return createdUser;
 
         } catch (err){
             // Rollback if anything goes wrong
@@ -69,7 +72,7 @@ const AuthService = {
 
             //Check password
             logger.debug(`Checking password hash for user: ${username}`, 'authenticate');
-            if(!(await bcrypt.compare(password, existingUser.password_hash))){
+            if(!(await bcrypt.compare(password, existingUser.passwordHash))){
                 logger.warn(`Login attempt for user: ${username} with invalid password.`, 'authenticate');
                 throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
             }

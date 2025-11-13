@@ -4,6 +4,17 @@ import { normalizeRow, normalizeRows } from "./common/normalize.js";
 const logger = createLogger('user.model');
 const TABLE = 'User';
 
+function formatUser(user){
+    const formattedUser = {};
+    formattedUser.id = user.id;
+    formattedUser.username = user.username;
+    formattedUser.passwordHash = user.password_hash;
+    formattedUser.createdAt = user.created_at;
+    formattedUser.lastLogin = user.last_login;
+
+    return formattedUser;
+}
+
 const UserModel = {
     async create(conn, {username, passwordHash, createdAt}){
         try{
@@ -36,7 +47,7 @@ const UserModel = {
                 logger.trace?.(`Query result: ${JSON.stringify(rows[0])}`, 'getById');
             }
 
-            return rows[0] || null;
+            return rows[0] ? formatUser(rows[0]) : null;
 
         } catch (err) {
             logger.error(`Error fetching user ID ${id}: ${err.message}`, 'getById');
@@ -58,7 +69,7 @@ const UserModel = {
                 logger.trace?.(`Query result: ${JSON.stringify(rows[0])}`, 'getByUsername');
             }
 
-            return rows[0] || null;
+            return rows[0] ? formatUser(rows[0]) : null;
 
         } catch (err) {
            logger.error(`Error fetching username '${username}': ${err.message}`, 'getByUsername');
