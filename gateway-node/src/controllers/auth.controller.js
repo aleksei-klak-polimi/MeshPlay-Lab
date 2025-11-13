@@ -28,7 +28,7 @@ export async function login (req, res) {
         logger.debug(`Login request received for username: ${username}`, 'login');
         const token = await AuthService.authenticate(username, password);
         logger.info(`Login successful for user: ${username}`, 'login');
-        return successResponse(res, 'Login successfull', {token: token}, 200);
+        return successResponse(res, 'Login successful', {token: token}, 200);
 
     } catch (err) {
         logger.error(`Login failed for username: ${username}`, 'login', err);
