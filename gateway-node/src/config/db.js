@@ -3,9 +3,9 @@ import mariadb from 'mariadb';
 const pool = mariadb.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
-    user: process.env.DB_APP_USER || 'meshplay_app',
-    password: process.env.DB_APP_PASSWORD || 'apppassword',
-    database: process.env.DB_NAME || 'MeshPlay-LabDB',
+    user: process.env.DB_APP_USER || 'meshplay_dev',
+    password: process.env.DB_APP_PASSWORD || 'devpassword',
+    database: process.env.DB_NAME || 'MeshPlay-LabDB_DEV',
     connectionLimit: 10, // number of simultaneous connections
 });
 
