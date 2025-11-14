@@ -4,11 +4,11 @@ export default {
     verbose: true,
     moduleFileExtensions: ['js', 'json'],
     roots: ['<rootDir>/tests'],
-    setupFiles: ['dotenv/config'],
+    // setupFiles: ['dotenv/config'],
     collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js', 'src/models/common/**/*.js'],
     coverageDirectory: 'coverage',
 
-    globalSetup: './tests/integration/setup/setupDB.js',
+    globalSetup: './tests/integration/setup/globalSetup.js',
     globalTeardown: './tests/integration/setup/teardownDB.js',
 
     testTimeout: 20000, // Increase for async DB operations
