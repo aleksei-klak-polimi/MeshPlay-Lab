@@ -14,6 +14,9 @@ export const ERROR_CODES = Object.freeze({
     //Signup errors
     USER_EXISTS: 'USER_EXISTS',
 
+    //User errors
+    USER_NOT_FOUND: 'USER_NOT_FOUND',
+
     // Request / validation errors
     BAD_REQUEST: 'BAD_REQUEST',
     VALIDATION_ERROR: 'VALIDATION_ERROR',
