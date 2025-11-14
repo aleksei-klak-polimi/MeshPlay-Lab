@@ -1,0 +1,27 @@
+post:
+  summary: Register a new user
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [username, password]
+          properties:
+            username:
+              type: string
+              example: test_user
+            password:
+              type: string
+              example: Passw0rd!
+  responses:
+    '201':
+      $ref: '../../components/responses/success/auth/signupCreated.yaml'
+    '400':
+      $ref: '../../components/responses/errors/badRequest.yaml'
+    '409':
+      $ref: '../../components/responses/errors/auth/conflictUserExists.yaml'
+    '500':
+      $ref: '../../components/responses/errors/internalError.yaml'

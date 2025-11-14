@@ -1,0 +1,18 @@
+description: The request could not be understood due to malformed syntax or invalid input.
+content:
+  application/json:
+    schema:
+      $ref: '../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      invalidJson:
+        summary: Invalid or malformed JSON
+        value:
+          success: false
+          message: "Invalid JSON in request body"
+          error:
+            code: BAD_REQUEST
+            details:
+              - "Unexpected token in JSON at position 12"
+x-errorCodes:
+  - BAD_REQUEST
+  - VALIDATION_ERROR

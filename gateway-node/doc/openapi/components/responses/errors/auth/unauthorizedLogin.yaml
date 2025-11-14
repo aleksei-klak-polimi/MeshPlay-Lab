@@ -1,0 +1,15 @@
+description: Login failed due to invalid credentials.
+content:
+  application/json:
+    schema:
+      $ref: '../../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      invalidCredentials:
+        summary: Invalid username or password
+        value:
+          success: false
+          message: "Invalid username or password"
+          error:
+            code: INVALID_CREDENTIALS
+x-errorCodes:
+  - INVALID_CREDENTIALS

@@ -1,0 +1,17 @@
+description: An unexpected server error occurred.
+content:
+  application/json:
+    schema:
+      $ref: '../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      internalServerError:
+        summary: Database or internal failure
+        value:
+          success: false
+          message: "Unexpected server error"
+          error:
+            code: INTERNAL_ERROR
+            details:
+              - "Unhandled exception in auth service"
+x-errorCodes:
+  - INTERNAL_ERROR

@@ -1,0 +1,16 @@
+description: The provided username is already taken.
+content:
+  application/json:
+    schema:
+      $ref: '../../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      userExists:
+        summary: Duplicate username
+        value:
+          success: false
+          message: "User already exists"
+          error:
+            code: USER_EXISTS
+            details: []
+x-errorCodes:
+  - USER_EXISTS

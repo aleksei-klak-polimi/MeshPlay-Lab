@@ -1,0 +1,15 @@
+description: User not found.
+content:
+  application/json:
+    schema:
+      $ref: '../../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      invalidCredentials:
+        summary: User not found
+        value:
+          success: false
+          message: "Could not find requested user"
+          error:
+            code: USER_NOT_FOUND
+x-errorCodes:
+  - USER_NOT_FOUND

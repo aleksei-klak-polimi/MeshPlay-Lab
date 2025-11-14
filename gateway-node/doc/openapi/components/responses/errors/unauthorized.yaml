@@ -1,0 +1,23 @@
+description: Authentication is required or the provided credentials are invalid.
+content:
+  application/json:
+    schema:
+      $ref: '../../schemas/common.yaml#/ErrorResponse'
+    examples:
+      missingAuthHeader:
+        summary: Missing Authorization header
+        value:
+          success: false
+          message: "Missing Authorization header"
+          error:
+            code: MISSING_AUTH_HEADER
+      invalidJwt:
+        summary: Invalid JWT
+        value:
+          success: false
+          message: "The provided JWT token is invalid or expired"
+          error:
+            code: INVALID_JWT
+x-errorCodes:
+  - MISSING_AUTH_HEADER
+  - INVALID_JWT

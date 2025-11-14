@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: MeshPlay-Lab Gateway API
+  version: 0.0.1
+  description: REST API documentation for the MeshPlay-Lab Gateway Service.
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: User authentication and session management
+  - name: User
+    description: User manipulation logic
+
+paths:
+  /auth/signup:
+    $ref: './paths/auth/signup.yaml'
+  /auth/login:
+    $ref: './paths/auth/login.yaml'
+  /auth/user/{id}/get:
+    $ref: './paths/user/getUser.yaml'
+
+
+error codes:
+  ErrorCodes: { $ref: './components/schemas/errorCodes.yaml' }
+

@@ -1,0 +1,21 @@
+User:
+  type: object
+  properties:
+    id:
+      type: string
+      pattern: '^[0-9]+$'
+      example: "42"
+    username:
+      type: string
+      example: "johndoe"
+    createdAt:
+      type: string
+      format: date-time
+      example: "2025-11-12T22:41:51.540Z"
+    lastLogin:
+      type: string
+      format: date-time
+      example: "2025-11-16T22:41:51.540Z"
+  required:
+    - id
+    - username
