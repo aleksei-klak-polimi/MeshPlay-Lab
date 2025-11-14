@@ -1,5 +1,4 @@
 import Joi from "joi";
-
 import { username, password } from "./fields.js";
 
 export const signupSchema = Joi.object({
