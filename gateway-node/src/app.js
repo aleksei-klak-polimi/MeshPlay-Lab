@@ -6,8 +6,6 @@ import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/
 
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
-import { hello } from './controllers/protected.controller.js';
-import { authenticateToken } from './middleware/auth.middleware.js';
 
 const logger = createLogger('app');
 const app = express();
@@ -42,9 +40,5 @@ if (config.env === 'development') {
 
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
-
-
-//Check JWT logic
-app.get('/protected', authenticateToken, hello);
 
 export default app;
