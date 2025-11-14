@@ -35,6 +35,15 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 
+//Expose documenteation in dev environments:
+if (config.env === 'development') {
+  const swaggerUi = await import('swagger-ui-express');
+  const { swaggerSpec } = await import('./config/swagger.js');
+
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
+
+
 //Check JWT logic
 app.get('/protected', authenticateToken, hello);
 

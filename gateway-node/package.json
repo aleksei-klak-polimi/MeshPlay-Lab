@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "NODE_ENV=test node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --coverage"
+    "test": "NODE_ENV=test node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --coverage",
+    "bundle:docs": "swagger-cli bundle doc/openapi/openapi.yaml -o doc/openapi/bundled.yaml --type yaml --tolerate"
   },
   "keywords": [],
   "author": "",
