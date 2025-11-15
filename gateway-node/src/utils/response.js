@@ -39,14 +39,13 @@ export function successResponse(res, message, data = null, status = 200) {
  * (controllers, error handlers) — not for direct user input validation.
  * 
  * @param {import('express').Response} res - Express response object.
- * @param {AppError} error - error object containing the core information that will be sent in the response.
- * @param {any} [details=null] - Optional additional error information (e.g., validation errors).
+ * @param {AppError} error - error object containing the information that will be sent in the response.
  * 
  * @returns {import('express').Response} The Express response object (for chaining or testing).
  * 
  * @throws {TypeError} if res or message are missing or invalid.
  */
-export function errorResponse(res, error, details = null) {
+export function errorResponse(res, error) {
   if (!res || typeof res.status !== 'function') {
     throw new TypeError('errorResponse expected a valid Express response object as the first argument.');
   }
@@ -57,7 +56,7 @@ export function errorResponse(res, error, details = null) {
     throw new TypeError('errorResponse expects an appError as the second argument.');
   }
 
-  const { message, code, status } = error;
+  const { message, code, status, details } = error;
 
   return res.status(status).json({
     success: false,

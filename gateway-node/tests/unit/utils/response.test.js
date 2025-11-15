@@ -63,15 +63,15 @@ describe('successResponse', () => {
 describe('errorResponse', () => {
   test('Builds correct shape', () => {
     const res = mockRes();
-    const error = new InternalError();
+    const error = new InternalError( null, "INTERNAL_ERROR", 'name');
 
-    errorResponse(res, error, { field: 'name' });
+    errorResponse(res, error, 'name');
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: error.message,
-      error: { code: error.code, details: { field: 'name' } },
+      error: { code: error.code, details: ['name'] },
     });
   });
 
