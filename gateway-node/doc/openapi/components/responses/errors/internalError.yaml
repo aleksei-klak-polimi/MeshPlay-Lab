@@ -2,7 +2,17 @@ description: An unexpected server error occurred.
 content:
   application/json:
     schema:
-      $ref: '../../schemas/common.yaml#/ErrorResponse'
+      allOf:
+        - $ref: '../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - INTERNAL_ERROR
     examples:
       internalServerError:
         summary: Database or internal failure
@@ -12,6 +22,4 @@ content:
           error:
             code: INTERNAL_ERROR
             details:
-              - "Unhandled exception in auth service"
-x-errorCodes:
-  - INTERNAL_ERROR
+              "Unhandled exception in auth service"

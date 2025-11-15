@@ -25,5 +25,7 @@ get:
       $ref: '../../components/responses/errors/unauthorized.yaml'
     '404':
       $ref: '../../components/responses/errors/user/userNotFound.yaml'
+    '422':
+      $ref: '../../components/responses/errors/validationError.yaml'
     '500':
       $ref: '../../components/responses/errors/internalError.yaml'

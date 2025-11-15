@@ -22,7 +22,3 @@ paths:
   /auth/user/{id}/get:
     $ref: './paths/user/getUser.yaml'
 
-
-error codes:
-  ErrorCodes: { $ref: './components/schemas/errorCodes.yaml' }
-

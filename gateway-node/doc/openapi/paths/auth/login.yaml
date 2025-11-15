@@ -23,5 +23,7 @@ post:
       $ref: '../../components/responses/errors/badRequest.yaml'
     '401':
       $ref: '../../components/responses/errors/auth/unauthorizedLogin.yaml'
+    '422':
+      $ref: '../../components/responses/errors/validationError.yaml'
     '500':
       $ref: '../../components/responses/errors/internalError.yaml'

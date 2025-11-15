@@ -12,15 +12,14 @@ content:
                 code:
                   type: string
                   enum:
-                    - BAD_REQUEST
                     - VALIDATION_ERROR
     examples:
-      invalidJson:
-        summary: Invalid or malformed JSON
+      validationError:
+        summary: Request body failed validation
         value:
           success: false
-          message: "Invalid JSON in request body"
+          message: "One or more fields failed validation"
           error:
-            code: BAD_REQUEST
+            code: VALIDATION_ERROR
             details:
-              "Unexpected token in JSON at position 12"
+              "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character"

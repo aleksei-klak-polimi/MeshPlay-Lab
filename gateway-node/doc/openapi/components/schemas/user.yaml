@@ -13,9 +13,11 @@ User:
       format: date-time
       example: "2025-11-12T22:41:51.540Z"
     lastLogin:
-      type: string
-      format: date-time
-      example: "2025-11-16T22:41:51.540Z"
+      oneOf:
+        - type: string
+          format: date-time
+          example: "2025-11-16T22:41:51.540Z"
+        - type: "null"
   required:
     - id
     - username

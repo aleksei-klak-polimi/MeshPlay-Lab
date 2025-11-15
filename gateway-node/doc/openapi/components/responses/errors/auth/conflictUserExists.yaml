@@ -2,7 +2,17 @@ description: The provided username is already taken.
 content:
   application/json:
     schema:
-      $ref: '../../../schemas/common.yaml#/ErrorResponse'
+      allOf:
+        - $ref: '../../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - USER_EXISTS
     examples:
       userExists:
         summary: Duplicate username
@@ -11,6 +21,4 @@ content:
           message: "User already exists"
           error:
             code: USER_EXISTS
-            details: []
-x-errorCodes:
-  - USER_EXISTS
+            details: "This username is already in use by another user."

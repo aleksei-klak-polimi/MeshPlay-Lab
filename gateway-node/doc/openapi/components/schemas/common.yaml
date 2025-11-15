@@ -23,38 +23,32 @@ StandardResponse:
           data:
             type: object
           meta:
-            $ref: '#/components/schemas/ResponseMeta'
+            $ref: './common.yaml#/ResponseMeta'
         required:
           - success
           - message
 
 ErrorResponse:
-  description: Standard error response envelope
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          success:
-            type: boolean
-            example: false
-          message:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: false
+    message:
+      type: string
+      example: "Invalid request parameters"
+    error:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
             type: string
-            example: "Invalid request parameters"
-          error:
-            type: object
-            properties:
-              code:
-                $ref: './errorCodes.yaml#/ErrorCode'
-              details:
-                type: array
-                items:
-                  type: string
-                example:
-                  - "username is required"
-          meta:
-            $ref: './common.yaml#/ResponseMeta'
-        required:
-          - success
-          - message
-          - error
+          example:
+            - "username is required"
+    meta:
+      $ref: './common.yaml#/ResponseMeta'
+  required:
+    - success
+    - message
+    - error
