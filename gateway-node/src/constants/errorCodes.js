@@ -22,6 +22,9 @@ export const ERROR_CODES = Object.freeze({
     VALIDATION_ERROR: 'VALIDATION_ERROR',
     UNAUTHORIZED: 'UNAUTHORIZED',
 
+    //Permission errors
+    FORBIDDEN: 'FORBIDDEN',
+
     // Database
     DB_ERROR: 'DB_ERROR',
     DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',

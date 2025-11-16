@@ -84,3 +84,13 @@ export class BadRequestError extends AppError {
     super(message, 400, code, details);
   }
 }
+
+export class ForbiddenError extends AppError {
+  constructor(
+    message = 'You do not have permission to perform this action.',
+    code = ERROR_CODES.FORBIDDEN,
+    details
+  ) {
+    super(message, 403, code, details);
+  }
+}
