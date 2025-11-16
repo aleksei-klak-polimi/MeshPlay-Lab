@@ -105,6 +105,9 @@ const UserService = {
             throw new BadRequestError('No fields were provided for editing');
         }
 
+        if(newUsername)
+            logger.trace(`New username to apply: ${newUsername}`, 'edit');
+
         let newPasswordHash;
         if(newPassword){
             newPasswordHash = await hashPassword(newPassword);
@@ -123,12 +126,11 @@ const UserService = {
                 return;
             }
             logger.debug(`User by id: ${id} found.`, 'edit');
-            logger.trace(`User contents: ${user}`, 'edit');
+            logger.trace(`User contents: ${JSON.stringify(userToEdit)}`, 'edit');
 
             // Edit the user
             logger.debug(`Editing user by id: ${id}.`, 'edit');
-            logger.trace(`New username: ${newUsername}`, 'edit');
-            await UserModel.update(conn, {username: newUsername, passwordHash: newPasswordHash});
+            await UserModel.update(conn, id, {username: newUsername, passwordHash: newPasswordHash});
 
             //Commit transaction
             await conn.commit();
