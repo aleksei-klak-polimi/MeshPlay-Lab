@@ -1,3 +1,20 @@
+/**
+ * Global application configuration values.
+ *
+ * Centralizes environment-dependent settings such as runtime environment,
+ * server port, JWT configuration, and DB timezone. All values default to
+ * sensible development-safe fallbacks when not provided through
+ * environment variables.
+ *
+ * This module should be imported anywhere configuration values are needed.
+ *
+ * @typedef {Object} AppConfig
+ * @property {string} env - Current runtime environment ('development', 'production', etc.).
+ * @property {number|string} port - Port number used by the HTTP server.
+ * @property {string} jwtSecret - Secret key used to sign JWT tokens.
+ * @property {string|number} jwtExpiration - JWT token expiration as a string ('1h') or number.
+ * @property {string} dbTimezone - Database timezone configuration.
+ */
 const config = {
     env: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 3000,

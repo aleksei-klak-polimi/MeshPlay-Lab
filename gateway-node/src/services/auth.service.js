@@ -1,3 +1,7 @@
+/**
+ *AuthService — Handles user signup and authentication logic.
+ */
+
 import { getConnection } from '../config/db.js';
 import UserModel from '../models/user.model.js';
 import { hashPassword, validatePassword } from '../utils/hashPassword.js';
@@ -10,6 +14,20 @@ import { ERROR_CODES } from '../constants/errorCodes.js';
 const logger = createLogger('auth.service');
 
 const AuthService = {
+
+    /**
+     * Create a new user account.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {Object} data - User creation payload.
+     * @param {string} data.username - Username to register.
+     * @param {string} data.password - Raw password to hash.
+     * 
+     * @returns {Promise<Object>} The newly created user (without passwordHash).
+     * 
+     * @throws {ConflictError} If the username already exists.
+     * @throws {Error} For database or hashing errors.
+     */
     async create(requestId, {username, password}){
         logger.setRequestId(requestId);
 
@@ -52,6 +70,18 @@ const AuthService = {
         }
     },
 
+    /**
+     * Authenticate a user and generate a JWT.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {string} username - Username attempting login.
+     * @param {string} password - Raw password to validate.
+     * 
+     * @returns {Promise<string>} JWT token for authenticated session.
+     * 
+     * @throws {UnauthorizedError} If credentials are invalid.
+     * @throws {Error} For database or internal errors.
+     */
     async authenticate (requestId, username, password){
         logger.setRequestId(requestId);
         const lastLogin = new Date();

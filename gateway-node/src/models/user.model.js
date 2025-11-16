@@ -1,3 +1,17 @@
+/**
+ * UserModel — Data Access Layer for the "User" table.
+ *
+ * Responsibilities:
+ *  - Execute SQL operations for CRUD user actions.
+ *  - Normalize DB rows and convert MySQL datetime fields.
+ *  - Return JS-friendly formatted objects.
+ *
+ * Notes:
+ *  - All methods require an existing DB connection (with transaction support).
+ *  - Errors are thrown raw and handled at the service/controller layers.
+ *  - Logging is scoped per requestId.
+ */
+
 import { createLogger } from "../config/logger.js";
 import { normalizeRow, normalizeRows } from "./common/normalize.js";
 import { toMySQLDateTime, fromMySQLDateTime } from "./common/time.js";
@@ -5,6 +19,12 @@ import { toMySQLDateTime, fromMySQLDateTime } from "./common/time.js";
 const logger = createLogger('user.model');
 const TABLE = 'User';
 
+/**
+ * Normalize and format a DB row into a JavaScript-friendly user object.
+ *
+ * @param {Object} user - Raw user row from the database.
+ * @returns {Object} Formatted user object with camelCase fields and JS Dates.
+ */
 function formatUser(user){
     const formattedUser = {};
     formattedUser.id = user.id;
@@ -25,6 +45,21 @@ function formatUser(user){
 }
 
 const UserModel = {
+
+    /**
+     * Insert a new user into the database.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {Object} conn - MySQL connection.
+     * @param {Object} data
+     * @param {string} data.username
+     * @param {string} data.passwordHash
+     * @param {Date}   data.createdAt
+     * 
+     * @returns {Promise<number>} The newly inserted user ID.
+     * 
+     * @throws {Error} Raw database errors.
+     */
     async create(requestId, conn, {username, passwordHash, createdAt}){
         logger.setRequestId(requestId);
 
@@ -44,6 +79,17 @@ const UserModel = {
         }
     },
 
+    /**
+     * Retrieve a user by ID.
+     *
+     * @param {string} requestId - Request identifier.
+     * @param {Object} conn - MySQL connection.
+     * @param {number} id - User ID.
+     * 
+     * @returns {Promise<Object|null>} Formatted user object or null if not found.
+     * 
+     * @throws {Error} Raw database errors.
+     */
     async getById(requestId, conn, id){
         logger.setRequestId(requestId);
 
@@ -68,6 +114,17 @@ const UserModel = {
         }
     },
 
+    /**
+     * Retrieve a user by username.
+     *
+     * @param {string} requestId - Request identifier.
+     * @param {Object} conn - MySQL connection.
+     * @param {string} username
+     * 
+     * @returns {Promise<Object|null>} Formatted user object or null if not found.
+     * 
+     * @throws {Error} Raw database errors.
+     */
     async getByUsername(requestId, conn, username){
         logger.setRequestId(requestId);
 
@@ -92,6 +149,22 @@ const UserModel = {
         }
     },
 
+    /**
+     * Update fields for a given user ID.
+     *
+     * @param {string} requestId - Request identifier.
+     * @param {Object} conn - MySQL connection.
+     * @param {number} id - User ID.
+     * @param {Object} fields - Optional fields to update.
+     * @param {string} [fields.username]
+     * @param {string} [fields.passwordHash]
+     * @param {Date}   [fields.createdAt]
+     * @param {Date}   [fields.lastLogin]
+     * 
+     * @returns {Promise<number|null>} Number of affected rows, or null if no fields were provided.
+     * 
+     * @throws {Error} Raw database errors.
+     */
     async update(requestId, conn, id, {username, passwordHash, createdAt, lastLogin}){
         logger.setRequestId(requestId);
 
@@ -125,6 +198,15 @@ const UserModel = {
         }
     },
 
+    /**
+     * Delete a user by ID.
+     *
+     * @param {string} requestId - Request identifier.
+     * @param {Object} conn - MySQL connection.
+     * @param {number} id - User ID.
+     * @returns {Promise<number>} Number of affected rows (0 or 1).
+     * @throws {Error} Raw database errors.
+     */
     async delete(requestId, conn, id){
         logger.setRequestId(requestId);
 

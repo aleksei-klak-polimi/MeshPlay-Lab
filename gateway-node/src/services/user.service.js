@@ -1,3 +1,7 @@
+/**
+ * UserService — Business logic for user retrieval, deletion, and updates.
+ */
+
 import { getConnection } from '../config/db.js';
 import UserModel from '../models/user.model.js';
 import { createLogger } from "../config/logger.js";
@@ -8,6 +12,18 @@ import { NotFoundError, ForbiddenError, BadRequestError } from '../utils/errors.
 const logger = createLogger('user.service');
 
 const UserService = {
+
+    /**
+     * Retrieve a user by ID.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {number} id - User ID to fetch.
+     * 
+     * @returns {Promise<Object>} User object without passwordHash.
+     * 
+     * @throws {NotFoundError} If the user does not exist.
+     * @throws {Error} For database errors.
+     */
     async get(requestId, id){
         logger.setRequestId(requestId);
 
@@ -46,6 +62,16 @@ const UserService = {
         }
     },
 
+    /**
+     * Delete a user by ID.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {number} id - ID of the user to delete.
+     * @param {Object} user - Authenticated user performing the request.
+     * @returns {Promise<void>}
+     * @throws {ForbiddenError} If the requesting user attempts to delete another user.
+     * @throws {Error} For database or transactional errors.
+     */
     async delete(requestId, id, user){
         logger.setRequestId(requestId);
 
@@ -93,6 +119,21 @@ const UserService = {
         }
     },
 
+    /**
+     * Edit the username and/or password of a user.
+     *
+     * @param {string} requestId - Request identifier for logging.
+     * @param {number} id - ID of the user to edit.
+     * @param {Object} user - Authenticated user performing the operation.
+     * @param {Object} data - Fields to update.
+     * @param {string} [data.newUsername] - New username.
+     * @param {string} [data.newPassword] - New raw password.
+     * @returns {Promise<Object>} Updated user object without passwordHash.
+     * @throws {ForbiddenError} If the requesting user attempts to edit another user.
+     * @throws {BadRequestError} If no fields were provided.
+     * @throws {NotFoundError} If the user does not exist.
+     * @throws {Error} For database or transactional errors.
+     */
     async edit(requestId, id, user, { newUsername, newPassword }){
         logger.setRequestId(requestId);
 

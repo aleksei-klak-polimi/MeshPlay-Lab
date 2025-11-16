@@ -1,3 +1,14 @@
+/**
+ * Authentication controller.
+ *
+ * Handles user signup and login requests and delegates business logic to
+ * `AuthService`. Centralizes logging, error handling, and standardized
+ * response formatting.
+ *
+ * Each request is associated with a `requestId` (set by requestSignature middleware)
+ * for traceability across logs and services.
+ */
+
 import { successResponse, errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import AuthService from "../services/auth.service.js";
@@ -5,6 +16,15 @@ import { createLogger } from "../config/logger.js";
 
 const logger = createLogger('auth.controller');
 
+/**
+ * Handles user registration requests.
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object containing `username` and `password`.
+ * @param {import('express').Response} res - Express response object.
+ * 
+ * @returns {Promise<import('express').Response>} JSON response with newly created user.
+ */
 export async function signup (req, res) {
     const requestId = req.meta.id
     logger.setRequestId(requestId);
@@ -23,6 +43,15 @@ export async function signup (req, res) {
     }
 }
 
+/**
+ * Handles user login and JWT token issuance.
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object containing login credentials.
+ * @param {import('express').Response} res - Express response object.
+ * 
+ * @returns {Promise<import('express').Response>} JSON response containing the authentication token.
+ */
 export async function login (req, res) {
     const requestId = req.meta.id
     logger.setRequestId(requestId);

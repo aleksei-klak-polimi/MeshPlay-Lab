@@ -5,6 +5,15 @@ import config from './config.js';
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
+/**
+ * Custom Winston log level definitions used by the application.
+ *
+ * Additional level "trace" is added for extremely verbose diagnostic output.
+ *
+ * @typedef {Object} CustomLogLevels
+ * @property {Object<string, number>} levels - Log level names mapped to numeric severity.
+ * @property {Object<string, string>} colors - ANSI colors applied to custom log levels.
+ */
 const customLevels = {
   levels: { error: 0, warn: 1, info: 2, http: 3, verbose: 4, debug: 5, trace: 6 },
   colors: { trace: 'magenta' }
@@ -22,7 +31,12 @@ const dateStr = new Date().toISOString();
 const errorFile = path.join(logDir, `${dateStr}-error.log`);
 const combinedFile = path.join(logDir, `${dateStr}-app.log`);
 
-// Pretty console format for dev
+/**
+ * Development log format.
+ * Adds colors, timestamps, stack traces, and request contextual metadata.
+ *
+ * @type {winston.Logform.Format}
+ */
 const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -34,14 +48,30 @@ const devFormat = combine(
   })
 );
 
-// JSON format for production (good for log aggregation)
+/**
+ * Production JSON log format optimized for log aggregation systems such as
+ * Elastic, Grafana Loki, or CloudWatch.
+ *
+ * @type {winston.Logform.Format}
+ */
+
 const prodFormat = combine(
   timestamp(),
   errors({ stack: true }),
   winston.format.json()
 );
 
-// Create the logger
+/**
+ * Base Winston logger instance used throughout the application.
+ * 
+ * Provides:
+ * - File logging (rotating by size)
+ * - Console logging
+ * - Error stack capture
+ * - JSON output in production
+ *
+ * @type {winston.Logger}
+ */
 const baseLogger = winston.createLogger({
   levels: customLevels.levels,
   level: process.env.LOG_LEVEL || (config.env === 'development' ? 'debug' : 'info'),
@@ -60,12 +90,36 @@ const baseLogger = winston.createLogger({
   ],
 });
 
-// Allow morgan (HTTP logger) to write to Winston
+/**
+ * Writable stream interface used by HTTP loggers such as Morgan.
+ * Allows Morgan to forward its logs directly into Winston.
+ *
+ * @type {{ write(message: string): void }}
+ */
 baseLogger.stream = {
   write: (message) => baseLogger.info(message.trim()),
 };
 
-// Factory to create contextual loggers
+/**
+ * Creates a contextual logger for a specific module file.
+ *
+ * This allows logs to automatically include:
+ * - module name
+ * - method name
+ * - request ID (set per incoming request)
+ *
+ * @param {string} moduleName - Name of the module using this logger.
+ * 
+ * @returns {{
+ *   setRequestId(reqId: string): void,
+ *   trace(message: string, method?: string): void,
+ *   debug(message: string, method?: string): void,
+ *   verbose(message: string, method?: string): void,
+ *   info(message: string, method?: string): void,
+ *   warn(message: string, method?: string): void,
+ *   error(message: string, method?: string, err?: Error): void
+ * }} A module-scoped logger with request-aware logging methods.
+ */
 export function createLogger(moduleName) {
   let requestId = null;
 

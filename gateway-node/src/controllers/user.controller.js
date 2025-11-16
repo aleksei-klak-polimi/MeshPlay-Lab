@@ -1,3 +1,12 @@
+/**
+ * User controller.
+ *
+ * Responsible for retrieving, editing and deleting user accounts.
+ * Logging, standardized responses, and service delegation are centralized here.
+ *
+ * All requests are tagged with a `requestId` for tracing and correlation.
+ */
+
 import { successResponse, errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import UserService from "../services/user.service.js";
@@ -5,6 +14,17 @@ import { createLogger } from "../config/logger.js";
 
 const logger = createLogger('user.controller');
 
+/**
+ * Fetches a single user by ID.
+ *
+ * Requires authentication; the authenticated user is available in `req.user`.
+ * 
+ * @async
+ * @param {import('express').Request} req - Express request object containing `params.id`.
+ * @param {import('express').Response} res - Express response object.
+ * 
+ * @returns {Promise<import('express').Response>} JSON response with the user’s data.
+ */
 export async function getUser(req, res) {
     const requestId = req.meta.id
     logger.setRequestId(requestId);
@@ -26,6 +46,17 @@ export async function getUser(req, res) {
     }
 }
 
+/**
+ * Deletes a user by ID.
+ *
+ * Requires authentication; the authenticated user is available in `req.user`.
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object containing `params.id`.
+ * @param {import('express').Response} res - Express response object.
+ * 
+ * @returns {Promise<import('express').Response>} A 204 no-content response.
+ */
 export async function deleteUser(req, res) {
     const requestId = req.meta.id
     logger.setRequestId(requestId);
@@ -48,6 +79,17 @@ export async function deleteUser(req, res) {
     }
 }
 
+/**
+ * Edits an existing user’s username and/or password.
+ * 
+ * Requires authentication; the authenticated user is available in `req.user`.
+ *
+ * @async
+ * @param {import('express').Request} req - Express request object containing `params.id` and updated fields.
+ * @param {import('express').Response} res - Express response object.
+ * 
+ * @returns {Promise<import('express').Response>} JSON response with the updated user.
+ */
 export async function editUser(req, res) {
     const requestId = req.meta.id
     logger.setRequestId(requestId);
