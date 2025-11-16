@@ -6,7 +6,7 @@ import { getUserSchema, deleteUserSchema, editUserParamSchema, editUserBodySchem
 
 const router = express.Router();
 
-router.get('/:id/get', authenticateToken, validateParams(getUserSchema), getUser);
+router.get('/:id', authenticateToken, validateParams(getUserSchema), getUser);
 router.delete('/:id', authenticateToken, validateParams(deleteUserSchema), deleteUser);
 router.patch('/:id', authenticateToken, validateParams(editUserParamSchema), validateBody(editUserBodySchema), editUser);
 
