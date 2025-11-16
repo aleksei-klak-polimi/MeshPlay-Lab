@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { id, username } from "./fields.js";
+import { id, username, password } from "./fields.js";
 
 export const getUserSchema = Joi.object({
     id: id.required()
@@ -17,6 +17,7 @@ export const editUserParamSchema = Joi.object({
 });
 
 export const editUserBodySchema = Joi.object({
-    username: username
+    username: username,
+    password: password
 });
 

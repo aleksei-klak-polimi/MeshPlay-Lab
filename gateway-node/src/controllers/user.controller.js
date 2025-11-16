@@ -47,12 +47,12 @@ export async function deleteUser(req, res) {
 export async function editUser(req, res) {
     const id = req.params.id;
     const user = req.user;
-    const { username } = req.body;
+    const { username, password } = req.body;
 
     try{
 
         logger.debug(`Edit request received for userid: ${id}`, 'editUser');
-        const updatedUser = await UserService.edit(id, user, { newUsername: username });
+        const updatedUser = await UserService.edit(id, user, { newUsername: username, newPassword: password });
         logger.info(`Edit request successful for resource: user by id: ${id}`, 'editUser');
         return successResponse(res, 'User edited successfully', updatedUser, 200);
 

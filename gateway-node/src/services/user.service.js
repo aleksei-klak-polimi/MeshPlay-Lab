@@ -2,6 +2,7 @@ import { getConnection } from '../config/db.js';
 import UserModel from '../models/user.model.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from '../constants/errorCodes.js';
+import { hashPassword } from '../utils/hashPassword.js';
 import { NotFoundError, ForbiddenError, BadRequestError } from '../utils/errors.js';
 
 const logger = createLogger('user.service');
@@ -85,7 +86,7 @@ const UserService = {
         }
     },
 
-    async edit(id, user, { newUsername }){
+    async edit(id, user, { newUsername, newPassword }){
 
         // Check if requesting user has permissions to edit
         if(id !== user.id){
@@ -93,11 +94,15 @@ const UserService = {
             throw new ForbiddenError();
         }
 
-        // Checking if at least one parameter value was provided (in the future there will be a user email 
-        // and user profile pic etc...)
-        if(!newUsername){
+        // Checking if at least one parameter value was provided
+        if(!newUsername && !newPassword){
             logger.debug('Called edit user with no parameters to edit', 'edit');
             throw new BadRequestError('No fields were provided for editing');
+        }
+
+        let newPasswordHash;
+        if(newPassword){
+            newPasswordHash = await hashPassword(newPassword);
         }
 
         let conn;
@@ -118,9 +123,9 @@ const UserService = {
             // Edit the user
             logger.debug(`Editing user by id: ${id}.`, 'edit');
             logger.trace(`New username: ${newUsername}`, 'edit');
-            await UserModel.update(conn, {username: newUsername});
+            await UserModel.update(conn, {username: newUsername, passwordHash: newPasswordHash});
 
-            //retreive edited user
+            // retreive edited user
             const user = await UserModel.getById(conn, id);
             delete user.passwordHash;
             return user;
