@@ -27,9 +27,10 @@ const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
-  printf(({ level, message, timestamp, stack, module, method }) => {
+  printf(({ level, message, timestamp, stack, module, method, requestId }) => {
+    const request = requestId ? `[requestId: ${requestId}]` : '';
     const location = module ? `[${module}${method ? '.' + method : ''}]` : '';
-    return `${timestamp} [${level}] ${location} ${stack || message}`;
+    return `${timestamp} [${level}] ${request} ${location} ${stack || message}`;
   })
 );
 
@@ -66,14 +67,18 @@ baseLogger.stream = {
 
 // Factory to create contextual loggers
 export function createLogger(moduleName) {
+  let requestId = null;
+
   return {
-    trace: (message, method) => baseLogger.trace(message, { module: moduleName, method }),
-    debug: (message, method) => baseLogger.debug(message, { module: moduleName, method }),
-    verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method }),
-    info: (message, method) => baseLogger.info(message, { module: moduleName, method }),
-    warn: (message, method) => baseLogger.warn(message, { module: moduleName, method }),
+    setRequestId: (reqId) => { requestId = reqId },
+
+    trace: (message, method) => baseLogger.trace(message, { module: moduleName, method, requestId }),
+    debug: (message, method) => baseLogger.debug(message, { module: moduleName, method, requestId }),
+    verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method, requestId }),
+    info: (message, method) => baseLogger.info(message, { module: moduleName, method, requestId }),
+    warn: (message, method) => baseLogger.warn(message, { module: moduleName, method, requestId }),
     error: (message, method, err) =>
-      baseLogger.error(err || message, { module: moduleName, method, stack: err?.stack }),
+      baseLogger.error(err || message, { module: moduleName, method, stack: err?.stack, requestId }),
   };
 }
 
