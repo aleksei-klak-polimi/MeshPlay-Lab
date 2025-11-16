@@ -1,5 +1,6 @@
 import { createLogger } from "../config/logger.js";
 import { normalizeRow, normalizeRows } from "./common/normalize.js";
+import { toMySQLDateTime, fromMySQLDateTime } from "./common/time.js";
 
 const logger = createLogger('user.model');
 const TABLE = 'User';
@@ -9,8 +10,16 @@ function formatUser(user){
     formattedUser.id = user.id;
     formattedUser.username = user.username;
     formattedUser.passwordHash = user.password_hash;
-    formattedUser.createdAt = user.created_at;
-    formattedUser.lastLogin = user.last_login;
+
+    if(user.created_at)
+        formattedUser.createdAt = fromMySQLDateTime(user.created_at);
+    else
+        formattedUser.createdAt = user.createdAt;
+
+    if(user.last_login)
+        formattedUser.lastLogin = fromMySQLDateTime(user.last_login);
+    else
+        formattedUser.lastLogin = user.lastLogin;
 
     return formattedUser;
 }
@@ -23,7 +32,7 @@ const UserModel = {
             logger.debug(`Inserting user: ${username}`, 'create');
             const result = normalizeRow(await conn.query(
                 `INSERT INTO ${TABLE} (username, password_hash, created_at) VALUES (?, ?, ?)`,
-                [username, passwordHash, createdAt]
+                [username, passwordHash, toMySQLDateTime(createdAt)]
             ));
 
             logger.debug(`Inserted user '${username}' with ID: ${result.insertId}`, 'create');
@@ -92,10 +101,10 @@ const UserModel = {
             const values = [];
             const fields = [];
 
-            if(username)        {values.push(username);     fields.push('username = ?');}
-            if(passwordHash)    {values.push(passwordHash); fields.push('password_hash = ?');}
-            if(createdAt)       {values.push(createdAt);    fields.push('created_at = ?');}
-            if(lastLogin)       {values.push(lastLogin);    fields.push('last_login = ?');}
+            if(username)        {values.push(username);                     fields.push('username = ?');}
+            if(passwordHash)    {values.push(passwordHash);                 fields.push('password_hash = ?');}
+            if(createdAt)       {values.push(toMySQLDateTime(createdAt));   fields.push('created_at = ?');}
+            if(lastLogin)       {values.push(toMySQLDateTime(lastLogin));   fields.push('last_login = ?');}
 
             if (values.length === 0) {
                 logger.debug(`No fields provided for update (ID: ${id})`, 'update');

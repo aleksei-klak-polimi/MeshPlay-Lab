@@ -1,8 +1,8 @@
-import { toMySQLDateTime, fromMySQLDateTime } from '../../../src/utils/time.js';
+import { toMySQLDateTime, fromMySQLDateTime } from '../../../../src/models/common/time.js';
 import { format, toZonedTime, fromZonedTime } from 'date-fns-tz';
 import {expect, jest} from '@jest/globals';
 
-jest.mock('../../../src/config/config.js', () => ({
+jest.mock('../../../../src/config/config.js', () => ({
   __esModule: true,
   default: { dbTimezone: 'Europe/Paris' },
 }));

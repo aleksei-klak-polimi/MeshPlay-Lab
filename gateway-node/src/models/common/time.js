@@ -1,5 +1,5 @@
 import { format, toZonedTime, fromZonedTime } from 'date-fns-tz';
-import config from '../config/config.js';
+import config from '../../config/config.js';
 
 const DB_TZ = config.dbTimezone;
 

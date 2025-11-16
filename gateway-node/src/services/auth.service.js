@@ -3,7 +3,6 @@ import UserModel from '../models/user.model.js';
 import { hashPassword, validatePassword } from '../utils/hashPassword.js';
 import jwt from 'jsonwebtoken';
 import { ConflictError, UnauthorizedError } from '../utils/errors.js';
-import { toMySQLDateTime } from '../utils/time.js';
 import config from '../config/config.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from '../constants/errorCodes.js';
@@ -14,8 +13,7 @@ const AuthService = {
     async create(requestId, {username, password}){
         logger.setRequestId(requestId);
 
-        const now = new Date();
-        const createdAt = toMySQLDateTime(now);
+        const createdAt = new Date();
         const passwordHash = await hashPassword(password);
 
         let conn;
@@ -56,7 +54,7 @@ const AuthService = {
 
     async authenticate (requestId, username, password){
         logger.setRequestId(requestId);
-        const lastLogin = toMySQLDateTime();
+        const lastLogin = new Date();
 
         let conn
         try{
