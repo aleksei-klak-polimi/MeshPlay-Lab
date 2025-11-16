@@ -16,18 +16,25 @@ import { AppError } from './errors.js';
  * 
  * @throws {TypeError} if res or message are missing or invalid.
  */
-export function successResponse(res, message, data = null, status = 200) {
-  if (!res || typeof res.status !== 'function') {
-    throw new TypeError('successResponse expected a valid Express response object as the first argument');
+export function successResponse(req, res, message, data = null, status = 200) {
+  if (!req) {
+    throw new TypeError('successResponse expected a valid Express request object.');
+  }
+  if (!res) {
+    throw new TypeError('successResponse expected a valid Express response object.');
   }
   if (typeof message !== 'string' || !message.length) {
-    throw new TypeError('successResponse expected a non-empty message string');
+    throw new TypeError('successResponse expected a non-empty message string.');
   }
+
+  const requestId = req.meta.id;
+  const timeStamp = req.meta.timeStamp;
 
   return res.status(status).json({
     success: true,
     message,
-    data
+    data,
+    meta: {requestId, timeStamp}
   });
 }
 
@@ -45,22 +52,28 @@ export function successResponse(res, message, data = null, status = 200) {
  * 
  * @throws {TypeError} if res or message are missing or invalid.
  */
-export function errorResponse(res, error) {
-  if (!res || typeof res.status !== 'function') {
-    throw new TypeError('errorResponse expected a valid Express response object as the first argument.');
+export function errorResponse(req, res, error) {
+  if (!req) {
+    throw new TypeError('successResponse expected a valid Express request object.');
+  }
+  if (!res) {
+    throw new TypeError('errorResponse expected a valid Express response object.');
   }
   if(!error) {
-    throw new TypeError('errorResponse expects a non null and non undefined error as the second argument.');
+    throw new TypeError('errorResponse expects a non null and non undefined error object.');
   }
   if(!error.isAppError){
-    throw new TypeError('errorResponse expects an appError as the second argument.');
+    throw new TypeError('errorResponse expects an appError object.');
   }
 
   const { message, code, status, details } = error;
+  const requestId = req.meta.id;
+  const timeStamp = req.meta.timeStamp;
 
   return res.status(status).json({
     success: false,
     message,
-    error: { code, details }
+    error: { code, details },
+    meta: {requestId, timeStamp}
   });
 }

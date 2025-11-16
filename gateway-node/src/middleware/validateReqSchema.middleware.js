@@ -9,7 +9,7 @@ export function validateBody(schema) {
         if(error) {
             const details = error.details.map((error) => error.message);
             const customError = new ValidationError('Invalid contents in request body.', ERROR_CODES.VALIDATION_ERROR, details);
-            return errorResponse(res, customError);
+            return errorResponse(req, res, customError);
         }
 
         next();
@@ -23,7 +23,7 @@ export function validateParams(schema) {
         if(error) {
             const details = error.details.map((error) => error.message);
             const customError = new ValidationError('Invalid contents in request parameters.', ERROR_CODES.VALIDATION_ERROR, details);
-            return errorResponse(res, customError);
+            return errorResponse(req, res, customError);
         }
 
         next();
@@ -37,7 +37,7 @@ export function validateQuery(schema) {
         if(error) {
             const details = error.details.map((error) => error.message);
             const customError = new ValidationError('Invalid contents in request query.', ERROR_CODES.VALIDATION_ERROR, details);
-            return errorResponse(res, customError);
+            return errorResponse(req, res, customError);
         }
 
         next();

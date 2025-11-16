@@ -58,6 +58,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+        req,
         res,
         expect.any(UnauthorizedError)
     );
@@ -74,6 +75,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(UnauthorizedError)
     );
@@ -94,6 +96,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(UnauthorizedError)
     );
@@ -114,6 +117,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(UnauthorizedError)
     );
@@ -132,6 +136,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(BadRequestError)
     );
@@ -156,6 +161,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(UnauthorizedError)
     );
@@ -181,6 +187,7 @@ describe('authenticateToken middleware', () => {
     await authenticateToken(req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(UnauthorizedError)
     );

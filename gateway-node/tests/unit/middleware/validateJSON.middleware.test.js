@@ -82,6 +82,7 @@ describe('invalidJsonErrorHandler middleware', () => {
     invalidJsonErrorHandler(err, req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(BadRequestError)
     );
@@ -96,6 +97,7 @@ describe('invalidJsonErrorHandler middleware', () => {
     invalidJsonErrorHandler(err, req, res, mockNext);
 
     expect(errorResponse).toHaveBeenCalledWith(
+      req,
       res,
       expect.any(BadRequestError)
     );

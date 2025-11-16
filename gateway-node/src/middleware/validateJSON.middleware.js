@@ -38,7 +38,7 @@ export const invalidJsonErrorHandler = (err, req, res, next) => {
     logger.setRequestId(req.meta.id);
     logger.warn(`Malformed JSON received: ${err.message}`);
     const error = new BadRequestError('Invalid JSON format in request body', 'BAD_REQUEST');
-    return errorResponse(res, error);
+    return errorResponse(req, res, error);
   }
   next(err);
 };
