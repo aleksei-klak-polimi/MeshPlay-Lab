@@ -120,7 +120,7 @@ const UserModel = {
 
             const affectedRows = result.affectedRows;
 
-            logger.trace(`Query result: ${result}`);
+            logger.trace(`Query result: ${result}. Affected rows: ${affectedRows}`);
 
             if(affectedRows && affectedRows > 1){
                 logger.error(`Deleting userid: ${id} deleted ${affectedRows} rows in the DB!`, 'delete');
