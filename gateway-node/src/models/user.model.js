@@ -113,10 +113,12 @@ const UserModel = {
 
             logger.debug(`Deleting user ID: ${id}`, 'delete');
 
-            const affectedRows = await conn.query(
+            const result = await conn.query(
                 `DELETE FROM ${TABLE} WHERE id = ?`,
                 [id]
-            ).affectedRows;
+            );
+
+            const affectedRows = result.affectedRows;
 
             logger.trace(`Query result: ${result}`);
 
