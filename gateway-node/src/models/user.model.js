@@ -106,6 +106,33 @@ const UserModel = {
             logger.error(`Failed to update user ID ${id}: ${err.message}`, 'update');
             throw err;
         }
+    },
+
+    async delete(conn, id){
+        try{
+
+            logger.debug(`Deleting user ID: ${id}`, 'delete');
+
+            const affectedRows = await conn.query(
+                `DELETE FROM ${TABLE} WHERE id = ?`,
+                [id]
+            ).affectedRows;
+
+            logger.trace(`Query result: ${result}`);
+
+            if(affectedRows && affectedRows > 1){
+                logger.error(`Deleting userid: ${id} deleted ${affectedRows} rows in the DB!`, 'delete');
+                throw new InternalError('Could not perform action "delete user".');
+            }
+
+            return affectedRows;
+
+        } catch (err) {
+
+            logger.error(`Error deleting user ID ${id}: ${err.message}`, 'delete');
+            throw err;
+            
+        }
     }
 }
 

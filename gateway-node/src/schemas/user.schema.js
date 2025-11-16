@@ -6,3 +6,8 @@ export const getUserSchema = Joi.object({
             .messages({'string.empty': 'User id is required'}),
 });
 
+export const deleteUserSchema = Joi.object({
+    id: id.required()
+            .messages({'string.empty': 'User id is required'}),
+});
+
