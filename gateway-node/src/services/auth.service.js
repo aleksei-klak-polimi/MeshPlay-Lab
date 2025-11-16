@@ -1,13 +1,12 @@
 import { getConnection } from '../config/db.js';
 import UserModel from '../models/user.model.js';
-import bcrypt from 'bcrypt';
+import { hashPassword, validatePassword } from '../utils/hashPassword.js';
 import jwt from 'jsonwebtoken';
 import { ConflictError, UnauthorizedError } from '../utils/errors.js';
 import { toMySQLDateTime } from '../utils/time.js';
 import config from '../config/config.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from '../constants/errorCodes.js';
-import { CONSTANTS } from  '../constants/constants.js';
 
 const logger = createLogger('auth.service');
 
@@ -15,7 +14,7 @@ const AuthService = {
     async create({username, password}){
         const now = new Date();
         const createdAt = toMySQLDateTime(now);
-        const passwordHash = await bcrypt.hash(password, CONSTANTS.SALT_ROUNDS);
+        const passwordHash = await hashPassword(password);
 
         let conn;
         try{
@@ -72,7 +71,7 @@ const AuthService = {
 
             //Check password
             logger.debug(`Checking password hash for user: ${username}`, 'authenticate');
-            if(!(await bcrypt.compare(password, existingUser.passwordHash))){
+            if(!(await validatePassword(password, existingUser.passwordHash))){
                 logger.warn(`Login attempt for user: ${username} with invalid password.`, 'authenticate');
                 throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
             }
