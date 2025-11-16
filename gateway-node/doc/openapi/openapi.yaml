@@ -19,6 +19,6 @@ paths:
     $ref: './paths/auth/signup.yaml'
   /auth/login:
     $ref: './paths/auth/login.yaml'
-  /auth/user/{id}/get:
-    $ref: './paths/user/getUser.yaml'
+  /user/{id}:
+    $ref: './paths/user.yaml'
 

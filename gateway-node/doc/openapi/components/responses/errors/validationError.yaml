@@ -1,4 +1,4 @@
-description: The request could not be understood due to malformed syntax or invalid input.
+description: The request could not be fully processed due to invalid input in request body or parameters.
 content:
   application/json:
     schema:
