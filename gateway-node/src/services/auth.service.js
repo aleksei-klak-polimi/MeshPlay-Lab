@@ -7,15 +7,15 @@ import { toMySQLDateTime } from '../utils/time.js';
 import config from '../config/config.js';
 import { createLogger } from "../config/logger.js";
 import { ERROR_CODES } from '../constants/errorCodes.js';
+import { CONSTANTS } from  '../constants/constants.js';
 
 const logger = createLogger('auth.service');
-const SALT_ROUNDS = 10;
 
 const AuthService = {
     async create({username, password}){
         const now = new Date();
         const createdAt = toMySQLDateTime(now);
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+        const passwordHash = await bcrypt.hash(password, CONSTANTS.SALT_ROUNDS);
 
         let conn;
         try{
