@@ -43,3 +43,24 @@ export async function deleteUser(req, res) {
         
     }
 }
+
+export async function editUser(req, res) {
+    const id = req.params.id;
+    const user = req.user;
+    const { username } = req.body;
+
+    try{
+
+        logger.debug(`Edit request received for userid: ${id}`, 'editUser');
+        const updatedUser = await UserService.edit(id, user, { newUsername: username });
+        logger.info(`Edit request successful for resource: user by id: ${id}`, 'editUser');
+        return successResponse(res, 'User edited successfully', updatedUser, 200);
+
+    } catch (err) {
+
+        logger.error(`Edit user failed for user id: ${id}`, 'editUser', err);
+        const sanitizedError = handleError(err);
+        return errorResponse(res, sanitizedError);
+        
+    }
+}
