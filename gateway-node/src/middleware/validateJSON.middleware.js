@@ -35,6 +35,7 @@ export const jsonParserWithValidation = express.json({ verify: verifyJson });
  */
 export const invalidJsonErrorHandler = (err, req, res, next) => {
   if (err.isBodyParser || err instanceof SyntaxError) {
+    logger.setRequestId(req.meta.id);
     logger.warn(`Malformed JSON received: ${err.message}`);
     const error = new BadRequestError('Invalid JSON format in request body', 'BAD_REQUEST');
     return errorResponse(res, error);

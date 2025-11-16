@@ -3,6 +3,7 @@ jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorRespons
 jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => ({ handleError: jest.fn() }));
 jest.unstable_mockModule('../../../src/config/logger.js', () => ({
   createLogger: () => ({
+    setRequestId: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
@@ -33,6 +34,10 @@ const mockRes = () => ({
   json: jest.fn(),
 });
 
+const mockReq = () => ({
+  meta : {id: 'TestingId'}
+});
+
 const mockNext = jest.fn();
 
 // Reset mocks before each test
@@ -46,7 +51,8 @@ beforeEach(() => {
 // Test suite
 describe('authenticateToken middleware', () => {
   test('Returns 401 if Authorization header is missing', async () => {
-    const req = { headers: {} };
+    const req = mockReq();
+    req.headers = {};
     const res = mockRes();
 
     await authenticateToken(req, res, mockNext);
@@ -61,7 +67,8 @@ describe('authenticateToken middleware', () => {
 
 
   test('Returns 401 if token part is missing', async () => {
-    const req = { headers: { authorization: 'Bearer' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer' };
     const res = mockRes();
 
     await authenticateToken(req, res, mockNext);
@@ -74,7 +81,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Returns 401 if JWT expired', async () => {
-    const req = { headers: { authorization: 'Bearer valid.jwt.token' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer valid.jwt.token' };
     const res = mockRes();
 
     jwt.verify.mockImplementation(() => {
@@ -93,7 +101,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Returns 401 if JWT is invalid', async () => {
-    const req = { headers: { authorization: 'Bearer invalid.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer invalid.jwt' };
     const res = mockRes();
 
     jwt.verify.mockImplementation(() => {
@@ -112,7 +121,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Returns 400 if token schema invalid', async () => {
-    const req = { headers: { authorization: 'Bearer good.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer good.jwt' };
     const res = mockRes();
 
     jwt.verify.mockReturnValue({
@@ -128,7 +138,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Returns 401 if user not found in DB', async () => {
-    const req = { headers: { authorization: 'Bearer good.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer good.jwt' };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
 
@@ -152,7 +163,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Returns 401 if username mismatch', async () => {
-    const req = { headers: { authorization: 'Bearer good.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer good.jwt' };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
 
@@ -176,7 +188,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Handles DB connection error gracefully', async () => {
-    const req = { headers: { authorization: 'Bearer good.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer good.jwt' };
     const res = mockRes();
 
     jwt.verify.mockReturnValue({
@@ -196,7 +209,8 @@ describe('authenticateToken middleware', () => {
   });
 
   test('Calls next() and sets req.user if everything is valid', async () => {
-    const req = { headers: { authorization: 'Bearer good.jwt' } };
+    const req = mockReq();
+    req.headers = { authorization: 'Bearer good.jwt' };
     const res = mockRes();
     const fakeConn = { release: jest.fn() };
 

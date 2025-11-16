@@ -11,7 +11,9 @@ import { ERROR_CODES } from '../constants/errorCodes.js';
 const logger = createLogger('auth.service');
 
 const AuthService = {
-    async create({username, password}){
+    async create(requestId, {username, password}){
+        logger.setRequestId(requestId);
+
         const now = new Date();
         const createdAt = toMySQLDateTime(now);
         const passwordHash = await hashPassword(password);
@@ -23,15 +25,15 @@ const AuthService = {
 
             //Check if user already exists
             logger.debug(`Checking for existing user: ${username}`, 'create');
-            const existingUser = await UserModel.getByUsername(conn, username);
+            const existingUser = await UserModel.getByUsername(requestId, conn, username);
             if(existingUser){
                 logger.warn(`Signup attempt with existing username: ${username}`, 'create');
                 throw new ConflictError('Username already exists', ERROR_CODES.USER_EXISTS);
             }
 
             //Create new user
-            const userId = await UserModel.create(conn, {username, passwordHash, createdAt});
-            const createdUser = await UserModel.getById(conn, userId);
+            const userId = await UserModel.create(requestId, conn, {username, passwordHash, createdAt});
+            const createdUser = await UserModel.getById(requestId, conn, userId);
             delete createdUser.passwordHash;
 
             //Commit transaction
@@ -52,7 +54,8 @@ const AuthService = {
         }
     },
 
-    async authenticate (username, password){
+    async authenticate (requestId, username, password){
+        logger.setRequestId(requestId);
         const lastLogin = toMySQLDateTime();
 
         let conn
@@ -62,7 +65,7 @@ const AuthService = {
 
             //Check if user exists
             logger.debug(`Checking if user exists: ${username}`, 'authenticate');
-            const existingUser = await UserModel.getByUsername(conn, username);
+            const existingUser = await UserModel.getByUsername(requestId, conn, username);
             if(!existingUser){
                 logger.warn(`Login attempt with non-existing username: ${username}`, 'authenticate');
                 throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
@@ -86,7 +89,7 @@ const AuthService = {
 
             //Updating user last login
             logger.debug(`Updating last login for user: ${username}`, 'authenticate');
-            await UserModel.update(conn, existingUser.id, {lastLogin});
+            await UserModel.update(requestId, conn, existingUser.id, {lastLogin});
 
             //Commit transaction
             await conn.commit();

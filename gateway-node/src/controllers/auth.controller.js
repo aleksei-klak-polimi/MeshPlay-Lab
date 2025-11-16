@@ -6,11 +6,13 @@ import { createLogger } from "../config/logger.js";
 const logger = createLogger('auth.controller');
 
 export async function signup (req, res) {
+    const requestId = req.meta.id
+    logger.setRequestId(requestId);
     const {username, password} = req.body;
 
     try{
         logger.debug(`Signup request received for username: ${username}`, 'signup');
-        const user = await AuthService.create({username, password});
+        const user = await AuthService.create(requestId, {username, password});
         logger.info(`Signup successful for user: ${username}`, 'signup');
         return successResponse(res, 'User created successfully', user, 201);
 
@@ -22,11 +24,13 @@ export async function signup (req, res) {
 }
 
 export async function login (req, res) {
+    const requestId = req.meta.id
+    logger.setRequestId(requestId);
     const {username, password} = req.body;
 
     try{
         logger.debug(`Login request received for username: ${username}`, 'login');
-        const token = await AuthService.authenticate(username, password);
+        const token = await AuthService.authenticate(requestId, username, password);
         logger.info(`Login successful for user: ${username}`, 'login');
         return successResponse(res, 'Login successful', {token: token}, 200);
 

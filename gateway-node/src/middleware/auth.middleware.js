@@ -36,6 +36,8 @@ const tokenSchema = Joi.object({
  * @returns {Promise<void>} - Resolves once the middleware completes.
  */
 export async function authenticateToken(req, res, next){
+    const requestId = req.meta.id;
+    logger.setRequestId(requestId);
     logger.debug('Authenticating JWT token.', 'authenticateToken');
 
     const authHeader = req.headers['authorization'];
@@ -85,7 +87,7 @@ export async function authenticateToken(req, res, next){
         //Check if user exists
         conn = await getConnection();
 
-        const dbUserData = await UserModel.getById(conn, decoded.id);
+        const dbUserData = await UserModel.getById(requestId, conn, decoded.id);
         if(!dbUserData){
             logger.warn(`Attempted to use JWT of non existing user.`, 'authenticateToken');
             const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);

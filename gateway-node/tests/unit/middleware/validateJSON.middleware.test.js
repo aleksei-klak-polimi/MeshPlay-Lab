@@ -4,6 +4,7 @@ import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
 jest.unstable_mockModule('../../../src/config/logger.js', () => ({
   createLogger: () => ({
+    setRequestId: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
@@ -25,6 +26,10 @@ const mockRes = () => ({
   json: jest.fn(),
 });
 
+const mockReq = () => ({
+  meta : {id: 'TestingId'}
+});
+
 const mockNext = jest.fn();
 
 beforeEach(() => {
@@ -36,7 +41,7 @@ beforeEach(() => {
 // Test suite
 describe('verifyJson middleware', () => {
   test('Parse valid JSON without throwing error', () => {
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
 
     const validBody = Buffer.from(JSON.stringify({ foo: 'bar' }));
@@ -48,7 +53,7 @@ describe('verifyJson middleware', () => {
   });
 
   test('Throw error if invalid JSON is provided', () => {
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
     const invalidBody = Buffer.from('{"foo": invalid json}');
 
@@ -56,7 +61,7 @@ describe('verifyJson middleware', () => {
   });
 
   test('Mark error with isBodyParser = true when invalid JSON', () => {
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
     const invalidBody = Buffer.from('{"bad": json');
 
@@ -71,7 +76,7 @@ describe('verifyJson middleware', () => {
 describe('invalidJsonErrorHandler middleware', () => {
   test('Handle SyntaxError as invalid JSON', () => {
     const err = new SyntaxError('Unexpected token');
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
 
     invalidJsonErrorHandler(err, req, res, mockNext);
@@ -85,7 +90,7 @@ describe('invalidJsonErrorHandler middleware', () => {
 
   test('Handle custom error with isBodyParser flag', () => {
     const err = { message: 'Invalid body', isBodyParser: true };
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
 
     invalidJsonErrorHandler(err, req, res, mockNext);
@@ -98,7 +103,7 @@ describe('invalidJsonErrorHandler middleware', () => {
 
   test('Call next() for non-body parser errors', () => {
     const err = new Error('Some other error');
-    const req = {};
+    const req = mockReq();
     const res = mockRes();
 
     invalidJsonErrorHandler(err, req, res, mockNext);

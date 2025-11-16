@@ -8,7 +8,8 @@ import { NotFoundError, ForbiddenError, BadRequestError } from '../utils/errors.
 const logger = createLogger('user.service');
 
 const UserService = {
-    async get(id){
+    async get(requestId, id){
+        logger.setRequestId(requestId);
 
         let conn;
         try{
@@ -17,7 +18,7 @@ const UserService = {
             await conn.beginTransaction();
 
             logger.debug(`Getting user information by id: ${id}.`, 'get');
-            const user = await UserModel.getById(conn, id);
+            const user = await UserModel.getById(requestId, conn, id);
 
             if(!user){
                 logger.debug(`No user found by id: ${id}.`, 'get');
@@ -45,7 +46,8 @@ const UserService = {
         }
     },
 
-    async delete(id, user){
+    async delete(requestId, id, user){
+        logger.setRequestId(requestId);
 
         // Check if requesting user has permissions to delete
         if(id !== user.id){
@@ -60,7 +62,7 @@ const UserService = {
             await conn.beginTransaction();
 
             // Check if user to delete exists
-            const userToDelete = await UserModel.getById(conn, id);
+            const userToDelete = await UserModel.getById(requestId, conn, id);
             if(!userToDelete){
                 logger.warn(`Received request to delete non existing userId: ${id}`, 'delete');
                 return;
@@ -70,7 +72,7 @@ const UserService = {
 
             // Delete the user
             logger.debug(`Deleting user by id: ${id}.`, 'delete');
-            await UserModel.delete(conn, id);
+            await UserModel.delete(requestId, conn, id);
 
             //Commit transaction
             await conn.commit();
@@ -91,7 +93,8 @@ const UserService = {
         }
     },
 
-    async edit(id, user, { newUsername, newPassword }){
+    async edit(requestId, id, user, { newUsername, newPassword }){
+        logger.setRequestId(requestId);
 
         // Check if requesting user has permissions to edit
         if(id !== user.id){
@@ -120,7 +123,7 @@ const UserService = {
             await conn.beginTransaction();
 
             // Check if user to edit exists
-            const userToEdit = await UserModel.getById(conn, id);
+            const userToEdit = await UserModel.getById(requestId, conn, id);
             if(!userToEdit){
                 logger.warn(`Received request to edit non existing userId: ${id}`, 'edit');
                 return;
@@ -130,13 +133,13 @@ const UserService = {
 
             // Edit the user
             logger.debug(`Editing user by id: ${id}.`, 'edit');
-            await UserModel.update(conn, id, {username: newUsername, passwordHash: newPasswordHash});
+            await UserModel.update(requestId, conn, id, {username: newUsername, passwordHash: newPasswordHash});
 
             //Commit transaction
             await conn.commit();
 
             // retreive edited user
-            const user = await UserModel.getById(conn, id);
+            const user = await UserModel.getById(requestId, conn, id);
             logger.info(`Edited user: ${user}`, 'edit');
             delete user.passwordHash;
             return user;

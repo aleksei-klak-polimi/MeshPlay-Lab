@@ -16,7 +16,9 @@ function formatUser(user){
 }
 
 const UserModel = {
-    async create(conn, {username, passwordHash, createdAt}){
+    async create(requestId, conn, {username, passwordHash, createdAt}){
+        logger.setRequestId(requestId);
+
         try{
             logger.debug(`Inserting user: ${username}`, 'create');
             const result = normalizeRow(await conn.query(
@@ -33,7 +35,9 @@ const UserModel = {
         }
     },
 
-    async getById(conn, id){
+    async getById(requestId, conn, id){
+        logger.setRequestId(requestId);
+
         try {
             logger.debug(`Fetching user by ID: ${id}`, 'getById');
             const rows = normalizeRows(await conn.query(
@@ -55,7 +59,9 @@ const UserModel = {
         }
     },
 
-    async getByUsername(conn, username){
+    async getByUsername(requestId, conn, username){
+        logger.setRequestId(requestId);
+
         try {
             logger.debug(`Fetching user by username: ${username}`, 'getByUsername');
             const rows = normalizeRows(await conn.query(
@@ -77,7 +83,9 @@ const UserModel = {
         }
     },
 
-    async update(conn, id, {username, passwordHash, createdAt, lastLogin}){
+    async update(requestId, conn, id, {username, passwordHash, createdAt, lastLogin}){
+        logger.setRequestId(requestId);
+
         try {
             logger.debug(`Updating user ID: ${id}`, 'update');
 
@@ -108,9 +116,10 @@ const UserModel = {
         }
     },
 
-    async delete(conn, id){
-        try{
+    async delete(requestId, conn, id){
+        logger.setRequestId(requestId);
 
+        try{
             logger.debug(`Deleting user ID: ${id}`, 'delete');
 
             const result = await conn.query(

@@ -6,12 +6,14 @@ import { createLogger } from "../config/logger.js";
 const logger = createLogger('user.controller');
 
 export async function getUser(req, res) {
+    const requestId = req.meta.id
+    logger.setRequestId(requestId);
     const id = req.params.id;
 
     try{
 
         logger.debug(`Get request received for userid: ${id}`, 'getUser');
-        const user = await UserService.get(id);
+        const user = await UserService.get(requestId, id);
         logger.info(`Get request successful for resource: user by id: ${id}`, 'getUser');
         return successResponse(res, 'User fetched successfully', user, 200);
 
@@ -25,13 +27,15 @@ export async function getUser(req, res) {
 }
 
 export async function deleteUser(req, res) {
+    const requestId = req.meta.id
+    logger.setRequestId(requestId);
     const id = req.params.id;
     const user = req.user;
 
     try{
 
         logger.debug(`Delete request received for userid: ${id}`, 'deleteUser');
-        await UserService.delete(id, user);
+        await UserService.delete(requestId, id, user);
         logger.info(`Delete request successful for resource: user by id: ${id}`, 'deleteUser');
         return successResponse(res, 'User deleted successfully', null, 204);
 
@@ -45,6 +49,8 @@ export async function deleteUser(req, res) {
 }
 
 export async function editUser(req, res) {
+    const requestId = req.meta.id
+    logger.setRequestId(requestId);
     const id = req.params.id;
     const user = req.user;
     const { username, password } = req.body;
@@ -52,7 +58,7 @@ export async function editUser(req, res) {
     try{
 
         logger.debug(`Edit request received for userid: ${id}`, 'editUser');
-        const updatedUser = await UserService.edit(id, user, { newUsername: username, newPassword: password });
+        const updatedUser = await UserService.edit(requestId, id, user, { newUsername: username, newPassword: password });
         logger.info(`Edit request successful for resource: user by id: ${id}`, 'editUser');
         return successResponse(res, 'User edited successfully', updatedUser, 200);
 
