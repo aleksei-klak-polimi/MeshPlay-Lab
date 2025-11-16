@@ -66,11 +66,16 @@ const UserService = {
                 return;
             }
             logger.debug(`User by id: ${id} found.`, 'delete');
-            logger.trace(`User contents: ${user}`, 'delete');
+            logger.trace(`User contents: ${userToDelete}`, 'delete');
 
             // Delete the user
             logger.debug(`Deleting user by id: ${id}.`, 'delete');
             await UserModel.delete(conn, id);
+
+            //Commit transaction
+            await conn.commit();
+
+            logger.info(`Deleted user: ${userToDelete}`, 'delete');
 
         } catch(err) {
 
@@ -125,8 +130,12 @@ const UserService = {
             logger.trace(`New username: ${newUsername}`, 'edit');
             await UserModel.update(conn, {username: newUsername, passwordHash: newPasswordHash});
 
+            //Commit transaction
+            await conn.commit();
+
             // retreive edited user
             const user = await UserModel.getById(conn, id);
+            logger.info(`Edited user: ${user}`, 'edit');
             delete user.passwordHash;
             return user;
 
