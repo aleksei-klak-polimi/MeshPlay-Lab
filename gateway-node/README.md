@@ -60,7 +60,7 @@ Integration tests require:
 ## **Environment Variables**
 The gateway uses two separate environment files:
 - `.env` — for dev/prod
-- `.env`.test — for test environment
+- `.env.test` — for test environment
 
 A template for each exists in the project.
 
