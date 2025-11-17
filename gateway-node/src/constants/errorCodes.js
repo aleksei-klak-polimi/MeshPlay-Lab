@@ -1,0 +1,36 @@
+// src/constants/errorCodes.js
+export const ERROR_CODES = Object.freeze({
+    // Auth errors
+    MISSING_AUTH_HEADER: 'MISSING_AUTH_HEADER',
+    MISSING_JWT: 'MISSING_JWT',
+    EXPIRED_JWT: 'EXPIRED_JWT',
+    INVALID_JWT: 'INVALID_JWT',
+    INVALID_JWT_FORMAT: 'INVALID_JWT_FORMAT',
+    INVALID_JWT_CONTENT: 'INVALID_JWT_CONTENT',
+
+    //Login errors
+    INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+
+    //Signup errors
+    USER_EXISTS: 'USER_EXISTS',
+
+    //User errors
+    USER_NOT_FOUND: 'USER_NOT_FOUND',
+
+    // Request / validation errors
+    BAD_REQUEST: 'BAD_REQUEST',
+    VALIDATION_ERROR: 'VALIDATION_ERROR',
+    UNAUTHORIZED: 'UNAUTHORIZED',
+
+    //Permission errors
+    FORBIDDEN: 'FORBIDDEN',
+
+    // Database
+    DB_ERROR: 'DB_ERROR',
+    DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',
+
+    // General
+    INTERNAL_ERROR: 'INTERNAL_ERROR',
+    CONFLICT_ERROR: 'CONFLICT_ERROR',
+    NOT_FOUND: 'NOT_FOUND',
+});

@@ -1,0 +1,29 @@
+post:
+  summary: Authenticate and return token
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [username, password]
+          properties:
+            username:
+              type: string
+              example: test_user
+            password:
+              type: string
+              example: Passw0rd!
+  responses:
+    '200':
+      $ref: '../../components/responses/success/auth/authSuccess.yaml'
+    '400':
+      $ref: '../../components/responses/errors/badRequest.yaml'
+    '401':
+      $ref: '../../components/responses/errors/auth/unauthorizedLogin.yaml'
+    '422':
+      $ref: '../../components/responses/errors/validationError.yaml'
+    '500':
+      $ref: '../../components/responses/errors/internalError.yaml'

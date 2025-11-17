@@ -1,0 +1,28 @@
+description: An unexpected server error occurred.
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: '../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - INTERNAL_ERROR
+    examples:
+      internalServerError:
+        summary: Database or internal failure
+        value:
+          success: false
+          message: "Unexpected server error"
+          error:
+            code: INTERNAL_ERROR
+            details:
+              - "Unhandled exception in auth service"
+            meta:
+              requestId: "string"
+              timestamp: "2025-11-17T15:23:39.890Z"

@@ -1,0 +1,26 @@
+description: User not found.
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: '../../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - USER_NOT_FOUND
+    examples:
+      userNotFound:
+        summary: User not found
+        value:
+          success: false
+          message: "Could not find requested user"
+          error:
+            code: USER_NOT_FOUND
+          meta:
+            requestId: "string"
+            timestamp: "2025-11-17T15:23:39.890Z"

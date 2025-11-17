@@ -1,0 +1,28 @@
+description: The request could not be fully processed due to invalid input in request body or parameters.
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: '../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - VALIDATION_ERROR
+    examples:
+      validationError:
+        summary: Request body failed validation
+        value:
+          success: false
+          message: "One or more fields failed validation"
+          error:
+            code: VALIDATION_ERROR
+            details:
+              - "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character"
+            meta:
+              requestId: "string"
+              timestamp: "2025-11-17T15:23:39.890Z"
