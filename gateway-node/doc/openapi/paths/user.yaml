@@ -1,0 +1,121 @@
+get:
+  summary: Get a user by ID
+  tags:
+    - User
+  security:
+    - bearerAuth: []
+  parameters:
+  - in: path
+    name: id
+    required: true
+    description: Numeric ID of the user to retrieve
+    schema:
+      type: string
+      pattern: '^[0-9]+$'
+    examples:
+      validId:
+        value: "42"
+
+  responses:
+    '200':
+      $ref: '../components/responses/success/user/userRetrieved.yaml'
+    '400':
+      $ref: '../components/responses/errors/badRequest.yaml'
+    '401':
+      $ref: '../components/responses/errors/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/errors/user/userNotFound.yaml'
+    '422':
+      $ref: '../components/responses/errors/validationError.yaml'
+    '500':
+      $ref: '../components/responses/errors/internalError.yaml'
+
+delete:
+  summary: Delete a user by ID
+  tags:
+    - User
+  security:
+    - bearerAuth: []
+  parameters:
+  - in: path
+    name: id
+    required: true
+    description: Numeric ID of the user to delete
+    schema:
+      type: string
+      pattern: '^[0-9]+$'
+    examples:
+      validId:
+        value: "42"
+
+  responses:
+    '204':
+      $ref: '../components/responses/success/user/userDeleted.yaml'
+    '400':
+      $ref: '../components/responses/errors/badRequest.yaml'
+    '401':
+      $ref: '../components/responses/errors/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/errors/forbidden.yaml'
+    '422':
+      $ref: '../components/responses/errors/validationError.yaml'
+    '500':
+      $ref: '../components/responses/errors/internalError.yaml'
+
+patch:
+  summary: Edit an existing user
+  tags:
+    - User
+  security:
+    - bearerAuth: []
+  parameters:
+  - in: path
+    name: id
+    required: true
+    description: Numeric ID of the user to delete
+    schema:
+      type: string
+      pattern: '^[0-9]+$'
+    examples:
+      validId:
+        value: "42"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: test_user
+            password:
+              type: string
+              example: Passw0rd!
+        examples:
+          editUsername:
+            summary: Request body to edit username
+            value:
+              username: "newUsername"
+          editPassword:
+            summary: Request body to edit password
+            value:
+              password: "newPassw0rd!"
+          editUsernameAndPassword:
+            summary: Request body to edit username and password
+            value:
+              username: "newUsername"
+              password: "newPassw0rd!"
+  responses:
+    '200':
+      $ref: '../components/responses/success/user/userUpdated.yaml'
+    '400':
+      $ref: '../components/responses/errors/badRequest.yaml'
+    '401':
+      $ref: '../components/responses/errors/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/errors/forbidden.yaml'
+    '422':
+      $ref: '../components/responses/errors/validationError.yaml'
+    '500':
+      $ref: '../components/responses/errors/internalError.yaml'

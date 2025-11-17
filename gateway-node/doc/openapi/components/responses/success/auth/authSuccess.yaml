@@ -1,0 +1,20 @@
+description: Authentication success (login)
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "User authenticated successfully"
+        data:
+          $ref: '../../../schemas/auth.yaml#/AuthData'
+        meta:
+          $ref: '../../../schemas/common.yaml#/ResponseMeta'
+      required:
+        - success
+        - message
+        - data

@@ -1,0 +1,28 @@
+description: User does not have the required permissions to perform this action.
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: '../../schemas/common.yaml#/ErrorResponse'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - FORBIDDEN
+    examples:
+      internalServerError:
+        summary: Action not permitted
+        value:
+          success: false
+          message: "Action not permitted."
+          error:
+            code: FORBIDDEN
+            details:
+              - "You do not have the required permissions to perform this action."
+            meta:
+              requestId: "string"
+              timestamp: "2025-11-17T15:23:39.890Z"

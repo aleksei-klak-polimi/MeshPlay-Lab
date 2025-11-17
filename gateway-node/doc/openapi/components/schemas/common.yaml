@@ -1,0 +1,54 @@
+ResponseMeta:
+  type: object
+  properties:
+    requestId:
+      type: string
+    timestamp:
+      type: string
+      format: date-time
+
+StandardResponse:
+  description: Standard succes response envelope
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: true
+          message:
+            type: string
+            example: "Operation successful"
+          data:
+            type: object
+          meta:
+            $ref: './common.yaml#/ResponseMeta'
+        required:
+          - success
+          - message
+
+ErrorResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: false
+    message:
+      type: string
+      example: "Invalid request parameters"
+    error:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
+            type: string
+          example:
+            - "username is required"
+    meta:
+      $ref: './common.yaml#/ResponseMeta'
+  required:
+    - success
+    - message
+    - error
