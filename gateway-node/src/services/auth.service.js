@@ -29,13 +29,15 @@ const AuthService = {
      * @throws {Error} For database or hashing errors.
      */
     async create(requestId, {username, password}){
-        logger.setRequestId(requestId);
 
+        logger.setRequestId(requestId);
         const createdAt = new Date();
         const passwordHash = await hashPassword(password);
 
         let conn;
+
         try{
+
             conn = await getConnection();
             await conn.beginTransaction();
 
@@ -43,8 +45,10 @@ const AuthService = {
             logger.debug(`Checking for existing user: ${username}`, 'create');
             const existingUser = await UserModel.getByUsername(requestId, conn, username);
             if(existingUser){
-                logger.warn(`Signup attempt with existing username: ${username}`, 'create');
+
+                logger.info(`Signup attempt with existing username: ${username}`, 'create');
                 throw new ConflictError('Username already exists', ERROR_CODES.USER_EXISTS);
+
             }
 
             //Create new user
@@ -54,19 +58,21 @@ const AuthService = {
 
             //Commit transaction
             await conn.commit();
-
             logger.info(`New user created: ${createdUser}`, 'create');
-
             return createdUser;
 
         } catch (err){
+
             // Rollback if anything goes wrong
             if (conn) await conn.rollback();
-            logger.error(`Failed to create user: ${username}`, 'create');
+            if(!err.isAppError || err.status === 500) logger.error(`Failed to create user: ${username}`, 'create');
+            else logger.info(`Refused to create user: ${username}`, 'create');
             throw err;
             
         } finally {
+
             if (conn) await conn.release();
+
         }
     },
 
@@ -83,11 +89,13 @@ const AuthService = {
      * @throws {Error} For database or internal errors.
      */
     async authenticate (requestId, username, password){
+
         logger.setRequestId(requestId);
         const lastLogin = new Date();
-
         let conn
+
         try{
+
             conn = await getConnection();
             await conn.beginTransaction();
 
@@ -95,16 +103,20 @@ const AuthService = {
             logger.debug(`Checking if user exists: ${username}`, 'authenticate');
             const existingUser = await UserModel.getByUsername(requestId, conn, username);
             if(!existingUser){
-                logger.warn(`Login attempt with non-existing username: ${username}`, 'authenticate');
+
+                logger.info(`Login attempt with non-existing username: ${username}`, 'authenticate');
                 throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
+
             }
             logger.debug(`User exists: ${username}`, 'authenticate');
 
             //Check password
             logger.debug(`Checking password hash for user: ${username}`, 'authenticate');
             if(!(await validatePassword(password, existingUser.passwordHash))){
-                logger.warn(`Login attempt for user: ${username} with invalid password.`, 'authenticate');
+
+                logger.info(`Login attempt for user: ${username} with invalid password.`, 'authenticate');
                 throw new UnauthorizedError('Wrong username or password', ERROR_CODES.INVALID_CREDENTIALS);
+
             }
 
             //Generate JWST
@@ -121,19 +133,21 @@ const AuthService = {
 
             //Commit transaction
             await conn.commit();
-
-            logger.debug(`Last login for user: ${username} updated`, 'authenticate');
-
+            logger.info(`Returning login token for user: ${username}`, 'authenticate');
             return token;
 
         } catch (err) {
+
             // Rollback if anything goes wrong
             if (conn) await conn.rollback();
-            logger.error(`Failed to authenticate user: ${username}`, 'authenticate');
+            if(!err.isAppError || err.status === 500) logger.error(`Failed to authenticate user: ${username}`, 'authenticate');
+            else logger.info(`Refused to authenticate user: ${username}`, 'authenticate');
             throw err;
 
         } finally {
+
             if (conn) await conn.release();
+
         }
 
     }

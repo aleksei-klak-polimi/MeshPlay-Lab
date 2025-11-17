@@ -26,6 +26,7 @@ const logger = createLogger('user.controller');
  * @returns {Promise<import('express').Response>} JSON response with the user’s data.
  */
 export async function getUser(req, res) {
+
     const requestId = req.meta.id
     logger.setRequestId(requestId);
     const id = req.params.id;
@@ -39,8 +40,9 @@ export async function getUser(req, res) {
 
     } catch (err) {
 
-        logger.error(`Get User failed for user id: ${id}`, 'getUser', err);
         const sanitizedError = handleError(err);
+        if(sanitizedError.status === 500) logger.error(`Get User failed for user id: ${id}`, 'getUser', err);
+        else logger.info(`Get User failed for user id: ${id}`, 'getUser');
         return errorResponse(req, res, sanitizedError);
         
     }
@@ -58,6 +60,7 @@ export async function getUser(req, res) {
  * @returns {Promise<import('express').Response>} A 204 no-content response.
  */
 export async function deleteUser(req, res) {
+
     const requestId = req.meta.id
     logger.setRequestId(requestId);
     const id = req.params.id;
@@ -65,15 +68,15 @@ export async function deleteUser(req, res) {
 
     try{
 
-        logger.debug(`Delete request received for userid: ${id}`, 'deleteUser');
         await UserService.delete(requestId, id, user);
         logger.info(`Delete request successful for resource: user by id: ${id}`, 'deleteUser');
         return successResponse(req, res, 'User deleted successfully', null, 204);
 
     } catch (err) {
 
-        logger.error(`Delete user failed for user id: ${id}`, 'deleteUser', err);
         const sanitizedError = handleError(err);
+        if(sanitizedError.status === 500) logger.error(`Delete user failed for user id: ${id}`, 'deleteUser', err);
+        else logger.info(`Delete user failed for user id: ${id}`, 'deleteUser');
         return errorResponse(req, res, sanitizedError);
         
     }
@@ -91,6 +94,7 @@ export async function deleteUser(req, res) {
  * @returns {Promise<import('express').Response>} JSON response with the updated user.
  */
 export async function editUser(req, res) {
+    
     const requestId = req.meta.id
     logger.setRequestId(requestId);
     const id = req.params.id;
@@ -106,8 +110,9 @@ export async function editUser(req, res) {
 
     } catch (err) {
 
-        logger.error(`Edit user failed for user id: ${id}`, 'editUser', err);
         const sanitizedError = handleError(err);
+        if(sanitizedError.status === 500) logger.error(`Edit user failed for user id: ${id}`, 'editUser', err);
+        else logger.info(`Edit user failed for user id: ${id}`, 'editUser');
         return errorResponse(req, res, sanitizedError);
         
     }

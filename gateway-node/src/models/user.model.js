@@ -103,7 +103,7 @@ const UserModel = {
             if (rows.length === 0) {
                 logger.debug(`No user found with ID: ${id}`, 'getById');
             } else {
-                logger.trace?.(`Query result: ${JSON.stringify(rows[0])}`, 'getById');
+                logger.trace(`Query result: ${JSON.stringify(rows[0])}`, 'getById');
             }
 
             return rows[0] ? formatUser(rows[0]) : null;
@@ -138,7 +138,7 @@ const UserModel = {
             if (rows.length === 0) {
                 logger.debug(`No user found with username: ${username}`, 'getByUsername');
             } else {
-                logger.trace?.(`Query result: ${JSON.stringify(rows[0])}`, 'getByUsername');
+                logger.trace(`Query result: ${JSON.stringify(rows[0])}`, 'getByUsername');
             }
 
             return rows[0] ? formatUser(rows[0]) : null;
@@ -185,10 +185,17 @@ const UserModel = {
             }
 
             const query = `UPDATE ${TABLE} SET ${fields.join(", ")} WHERE id = ?`;
-            logger.trace?.(`Executing query: ${query} with values: ${JSON.stringify([...values, id])}`, 'update');
+            logger.trace(`Executing query: ${query} with values: ${JSON.stringify([...values, id])}`, 'update');
 
             const result = normalizeRow(await conn.query(query, [...values, id]));
-            logger.debug(`Updated user ID: ${id}, affectedRows: ${result.affectedRows}`, 'update');
+            const affectedRows = result.affectedRows;
+
+            if(affectedRows && affectedRows > 1){
+                logger.error(`Editing userid: ${id} affected ${affectedRows} rows in the DB!`, 'update');
+                throw new InternalError('Could not perform action "update user".');
+            }
+
+            logger.debug(`Updated user ID: ${id}, affectedRows: ${affectedRows}`, 'update');
 
             return result.affectedRows;
 
@@ -226,6 +233,8 @@ const UserModel = {
                 logger.error(`Deleting userid: ${id} deleted ${affectedRows} rows in the DB!`, 'delete');
                 throw new InternalError('Could not perform action "delete user".');
             }
+
+            logger.debug(`Deleted user ID: ${id}, affectedRows: ${affectedRows}`, 'delete');
 
             return affectedRows;
 

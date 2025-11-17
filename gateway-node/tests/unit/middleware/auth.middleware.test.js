@@ -1,6 +1,6 @@
 // Mock dependencies before imports
 jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
-jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => ({ handleError: jest.fn() }));
+jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => ({ handleError: jest.fn(() => {return {status: 500}}) }));
 jest.unstable_mockModule('../../../src/config/logger.js', () => ({
   createLogger: () => ({
     setRequestId: jest.fn(),

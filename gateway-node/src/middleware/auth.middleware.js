@@ -36,49 +36,61 @@ const tokenSchema = Joi.object({
  * @returns {Promise<void>} - Resolves once the middleware completes.
  */
 export async function authenticateToken(req, res, next){
+
     const requestId = req.meta.id;
     logger.setRequestId(requestId);
     logger.debug('Authenticating JWT token.', 'authenticateToken');
-
     const authHeader = req.headers['authorization'];
 
     if(!authHeader){
-        logger.debug('Missing Auth Header.', 'authenticateToken');
+
+        logger.info('Missing Auth Header.', 'authenticateToken');
         const error = new UnauthorizedError('Access denied. Missing Auth Header.', ERROR_CODES.MISSING_AUTH_HEADER);
         return errorResponse(req, res, error);
+
     }
 
     const token = authHeader.split(' ')[1];
 
     if(!token){
-        logger.debug('Missing JWT in Auth Header.', 'authenticateToken');
+
+        logger.info('Missing JWT in Auth Header.', 'authenticateToken');
         const error = new UnauthorizedError('Access denied. Token missing.', ERROR_CODES.MISSING_JWT);
         return errorResponse(req, res, error);
+
     }
 
 
     //Decode user data from jwt
     let decoded;
     try{
+
         decoded = jwt.verify(token, config.jwtSecret);
-        logger.trace(`JWT contents:\n${decoded}`);
+
     } catch (err){
+
         if (err.name === 'TokenExpiredError') {
-            logger.warn(`Provided JWT has expired`, 'authenticateToken');
+
+            logger.info(`Provided JWT has expired`, 'authenticateToken');
             const error = new UnauthorizedError('Access denied. Token expired.', ERROR_CODES.EXPIRED_JWT);
             return errorResponse(req, res, error);
+
         }
-        logger.warn(`Error while verifying token: ${err.name} ${err.message}`, 'authenticateToken');
+
+        logger.error(`Error while verifying token.`, 'authenticateToken', err);
         const error = new UnauthorizedError('Access denied. Invalid token.', ERROR_CODES.INVALID_JWT);
         return errorResponse(req, res, error);
+
     }
 
     //Check if user data is correctly formatted
     const {error: validationError} = tokenSchema.validate(decoded);
     if (validationError){
-        logger.warn(`Provided JWT has invalid format.`, 'authenticateToken');
+
+        logger.info(`Provided JWT has invalid format.`, 'authenticateToken');
         const error = new BadRequestError('Access denied. Invalid user token format.', ERROR_CODES.INVALID_JWT_FORMAT);
         return errorResponse(req, res, error);
+
     }
 
     //Check if user data matches to database
@@ -86,28 +98,37 @@ export async function authenticateToken(req, res, next){
     try{
         //Check if user exists
         conn = await getConnection();
-
         const dbUserData = await UserModel.getById(requestId, conn, decoded.id);
+
         if(!dbUserData){
-            logger.warn(`Attempted to use JWT of non existing user.`, 'authenticateToken');
+
+            logger.info(`Attempted to use JWT of non existing user.`, 'authenticateToken');
             const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
             return errorResponse(req, res, error);
+
         }
         //Check if username matches
         else if(dbUserData.username != decoded.username){
-            logger.warn(`Username in JWT does not match username in database`, 'authenticateToken');
+
+            logger.info(`Username in JWT does not match username in database`, 'authenticateToken');
             const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
             return errorResponse(req, res, error);
+
         }
     } 
     //Handle db access errors
     catch (err) {
+
         logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
         const sanitizedError = handleError(err);
+        if(sanitizedError.status === 500) logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
+        else logger.info(`JWT Authentication failed.`, 'authenticateToken');
         return errorResponse(req, res, sanitizedError);
 
     } finally {
+
         if (conn) await conn.release();
+
     }
 
     req.user = decoded;

@@ -25,40 +25,37 @@ const UserService = {
      * @throws {Error} For database errors.
      */
     async get(requestId, id){
-        logger.setRequestId(requestId);
 
+        logger.setRequestId(requestId);
         let conn;
+
         try{
 
             conn = await getConnection();
-            await conn.beginTransaction();
-
             logger.debug(`Getting user information by id: ${id}.`, 'get');
             const user = await UserModel.getById(requestId, conn, id);
 
             if(!user){
-                logger.debug(`No user found by id: ${id}.`, 'get');
+
+                logger.info(`No user found by id: ${id}.`, 'get');
                 throw new NotFoundError('User not found', ERROR_CODES.USER_NOT_FOUND);
+
             }
 
-            logger.debug(`User by id: ${id} found.`, 'get');
-            logger.trace(`User contents: ${user}`, 'get');
-
             delete user.passwordHash;
-
+            logger.info(`Returning requested user by id: ${id}.`, 'get');
             return user;
 
         } catch(err) {
 
-            // Rollback if anything goes wrong
-            if (conn) await conn.rollback();
-            logger.error(`Failed to get user by id: ${id}`, 'get');
+            if(!err.isAppError || err.status === 500) logger.error(`Failed to get user by id: ${id}`, 'get');
+            else logger.info(`Did not retreive user by id: ${id}`, 'get');
             throw err;
 
         } finally {
 
-            if (conn) conn.release();
-
+            if (conn) await conn.release();
+        
         }
     },
 
@@ -73,43 +70,46 @@ const UserService = {
      * @throws {Error} For database or transactional errors.
      */
     async delete(requestId, id, user){
+
         logger.setRequestId(requestId);
+        let conn;
 
         // Check if requesting user has permissions to delete
         if(id !== user.id){
-            logger.warn(`User by id: ${user.id} attempted to delete user by id: ${id}`, 'delete');
+
+            logger.info(`User by id: ${user.id} attempted to delete user by id: ${id}`, 'delete');
             throw new ForbiddenError();
+
         }
 
-        let conn;
         try{
 
             conn = await getConnection();
             await conn.beginTransaction();
-
             // Check if user to delete exists
             const userToDelete = await UserModel.getById(requestId, conn, id);
+
             if(!userToDelete){
-                logger.warn(`Received request to delete non existing userId: ${id}`, 'delete');
+
+                logger.info(`Received request to delete non existing userId: ${id}`, 'delete');
                 return;
+
             }
+
             logger.debug(`User by id: ${id} found.`, 'delete');
-            logger.trace(`User contents: ${userToDelete}`, 'delete');
-
-            // Delete the user
             logger.debug(`Deleting user by id: ${id}.`, 'delete');
+            // Delete the user
             await UserModel.delete(requestId, conn, id);
-
             //Commit transaction
             await conn.commit();
-
             logger.info(`Deleted user: ${userToDelete}`, 'delete');
 
         } catch(err) {
 
             // Rollback if anything goes wrong
             if (conn) await conn.rollback();
-            logger.error(`Failed to delete user by id: ${id}`, 'delete');
+            if(!err.isAppError || err.status === 500) logger.error(`Failed to delete user by id: ${id}`, 'delete');
+            else logger.info(`Refused to delete user by id: ${id}`, 'delete');
             throw err;
 
         } finally {
@@ -135,29 +135,31 @@ const UserService = {
      * @throws {Error} For database or transactional errors.
      */
     async edit(requestId, id, user, { newUsername, newPassword }){
+
         logger.setRequestId(requestId);
+        let conn;
 
         // Check if requesting user has permissions to edit
         if(id !== user.id){
-            logger.warn(`User by id: ${user.id} attempted to edit user by id: ${id}`, 'edit');
+
+            logger.info(`User by id: ${user.id} attempted to edit user by id: ${id}`, 'edit');
             throw new ForbiddenError();
+
         }
 
         // Checking if at least one parameter value was provided
         if(!newUsername && !newPassword){
-            logger.debug('Called edit user with no parameters to edit', 'edit');
-            throw new BadRequestError('No fields were provided for editing');
-        }
 
-        if(newUsername)
-            logger.trace(`New username to apply: ${newUsername}`, 'edit');
+            logger.info('Called edit user with no parameters to edit', 'edit');
+            throw new BadRequestError('No fields were provided for editing');
+
+        }
 
         let newPasswordHash;
         if(newPassword){
             newPasswordHash = await hashPassword(newPassword);
         }
 
-        let conn;
         try{
 
             conn = await getConnection();
@@ -166,22 +168,19 @@ const UserService = {
             // Check if user to edit exists
             const userToEdit = await UserModel.getById(requestId, conn, id);
             if(!userToEdit){
-                logger.warn(`Received request to edit non existing userId: ${id}`, 'edit');
+                logger.info(`Received request to edit non existing userId: ${id}`, 'edit');
                 return;
             }
             logger.debug(`User by id: ${id} found.`, 'edit');
-            logger.trace(`User contents: ${JSON.stringify(userToEdit)}`, 'edit');
 
             // Edit the user
             logger.debug(`Editing user by id: ${id}.`, 'edit');
             await UserModel.update(requestId, conn, id, {username: newUsername, passwordHash: newPasswordHash});
-
             //Commit transaction
             await conn.commit();
-
             // retreive edited user
+            logger.info(`Successfully edited user by id: ${id}`, 'edit');
             const user = await UserModel.getById(requestId, conn, id);
-            logger.info(`Edited user: ${user}`, 'edit');
             delete user.passwordHash;
             return user;
 
@@ -189,7 +188,8 @@ const UserService = {
 
             // Rollback if anything goes wrong
             if (conn) await conn.rollback();
-            logger.error(`Failed to edit user by id: ${id}`, 'edit');
+            if(!err.isAppError || err.status === 500) logger.error(`Failed to edit user by id: ${id}`, 'edit');
+            else logger.info(`Refused to edit user by id: ${id}`, 'edit');
             throw err;
 
         } finally {
