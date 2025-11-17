@@ -1,7 +1,7 @@
 # **Gateway Service (gateway-node)**
 
 ## **Overview**
-This service acts as the API gateway for the MeshPlay platform.
+This service acts as the API gateway for the MeshPlay-Lab platform.
 It exposes authentication functionality (signup/login) and basic user management (fetch, edit, delete) while enforcing validation, logging, authentication, and consistent API responses.
 
 It is built on Node.js + Express, with integrated OpenAPI documentation and both unit and integration testing.
