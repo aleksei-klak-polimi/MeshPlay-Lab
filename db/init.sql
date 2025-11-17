@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `Lobby` (
   INDEX `fk_Lobby_1_idx` (`game_id` ASC) VISIBLE,
   CONSTRAINT `fk_Lobby_1`
     FOREIGN KEY (`game_id`)
-    REFERENCES `MeshPlay-LabDB`.`Game` (`id`)
+    REFERENCES `Game` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -71,12 +71,12 @@ CREATE TABLE IF NOT EXISTS `LobbyUser` (
   INDEX `fk_LobbyUser_2_idx` (`lobbyId` ASC) VISIBLE,
   CONSTRAINT `fk_LobbyUser_1`
     FOREIGN KEY (`userId`)
-    REFERENCES `MeshPlay-LabDB`.`User` (`id`)
+    REFERENCES `User` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_LobbyUser_2`
     FOREIGN KEY (`lobbyId`)
-    REFERENCES `MeshPlay-LabDB`.`Lobby` (`id`)
+    REFERENCES `Lobby` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
