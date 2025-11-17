@@ -24,3 +24,6 @@ content:
             code: BAD_REQUEST
             details:
               - "Unexpected token in JSON at position 12"
+            meta:
+              requestId: "string"
+              timestamp: "2025-11-17T15:23:39.890Z"

@@ -23,3 +23,6 @@ content:
             code: VALIDATION_ERROR
             details:
               - "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character"
+            meta:
+              requestId: "string"
+              timestamp: "2025-11-17T15:23:39.890Z"

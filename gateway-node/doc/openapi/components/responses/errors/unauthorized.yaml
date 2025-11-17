@@ -22,6 +22,9 @@ content:
           message: "Missing Authorization header"
           error:
             code: MISSING_AUTH_HEADER
+          meta:
+            requestId: "string"
+            timestamp: "2025-11-17T15:23:39.890Z"
       invalidJwt:
         summary: Invalid JWT
         value:
@@ -29,3 +32,6 @@ content:
           message: "The provided JWT token is invalid or expired"
           error:
             code: INVALID_JWT
+          meta:
+            requestId: "string"
+            timestamp: "2025-11-17T15:23:39.890Z"
