@@ -26,10 +26,9 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 
-// Date-based filenames
-const dateStr = new Date().toISOString();
-const errorFile = path.join(logDir, `${dateStr}-error.log`);
-const combinedFile = path.join(logDir, `${dateStr}-app.log`);
+// Filenames
+const errorFile = path.join(logDir, `error.log`);
+const combinedFile = path.join(logDir, `app.log`);
 
 /**
  * Development log format.
