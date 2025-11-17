@@ -21,4 +21,5 @@ content:
           message: "Invalid username or password"
           error:
             code: INVALID_CREDENTIALS
-            details: "The provided username or password are wrong."
+            details:
+              - "The provided username or password are wrong."

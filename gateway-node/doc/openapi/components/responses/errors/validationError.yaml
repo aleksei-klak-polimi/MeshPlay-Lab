@@ -22,4 +22,4 @@ content:
           error:
             code: VALIDATION_ERROR
             details:
-              "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character"
+              - "Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character"

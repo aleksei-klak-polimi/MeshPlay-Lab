@@ -22,4 +22,4 @@ content:
           error:
             code: INTERNAL_ERROR
             details:
-              "Unhandled exception in auth service"
+              - "Unhandled exception in auth service"

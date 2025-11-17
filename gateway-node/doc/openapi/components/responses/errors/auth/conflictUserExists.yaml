@@ -21,4 +21,5 @@ content:
           message: "User already exists"
           error:
             code: USER_EXISTS
-            details: "This username is already in use by another user."
+            details:
+              - "This username is already in use by another user."
