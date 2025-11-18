@@ -6,7 +6,7 @@ import { UnauthorizedError, BadRequestError } from "../utils/errors.js";
 import UserModel from "@meshplaylab/shared/src/models/user.model.js";
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
-import { id, iat, exp, username } from '../schemas/fields.js';
+import { id, iat, exp, username } from '@meshplaylab/shared/src/schemas/fields.js';
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from "../constants/errorCodes.js";
 
