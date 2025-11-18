@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { getConnection, pool } from '../../src/config/db.js';
+import { getConnection, pool } from '@meshplaylab/shared/src/config/db.js';
 import app from '../../src/app.js';
 import jestOpenAPI from './common/openApiLoader.js';
 

@@ -11,7 +11,7 @@ jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
     trace: jest.fn(),
   }),
 }));
-jest.unstable_mockModule('../../../src/config/db.js', () => ({ getConnection: jest.fn() }));
+jest.unstable_mockModule('@meshplaylab/shared/src/config/db.js', () => ({ getConnection: jest.fn() }));
 jest.unstable_mockModule('jsonwebtoken', () => ({ default: { verify: jest.fn() } }));
 jest.unstable_mockModule('../../../src/models/user.model.js', () => ({ default: { getById: jest.fn() } }));
 
@@ -20,7 +20,7 @@ const { errorResponse } = await import('../../../src/utils/response.js');
 const { handleError } = await import('../../../src/utils/errorHandler.js');
 const { authenticateToken } = await import('../../../src/middleware/auth.middleware.js');
 const {default: jwt} = await import('jsonwebtoken');
-const {getConnection} = await import('../../../src/config/db.js');
+const {getConnection} = await import('@meshplaylab/shared/src/config/db.js');
 const {default: UserModel} = await import('../../../src/models/user.model.js');
 
 import {expect, jest} from '@jest/globals';

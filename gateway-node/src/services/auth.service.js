@@ -2,7 +2,7 @@
  *AuthService — Handles user signup and authentication logic.
  */
 
-import { getConnection } from '../config/db.js';
+import { getConnection } from "@meshplaylab/shared/src/config/db.js";
 import UserModel from '../models/user.model.js';
 import { hashPassword, validatePassword } from '../utils/hashPassword.js';
 import jwt from 'jsonwebtoken';

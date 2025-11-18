@@ -1,4 +1,4 @@
-import { getConnection } from "../config/db.js";
+import { getConnection } from "@meshplaylab/shared/src/config/db.js";
 import config from '../config/config.js';
 import { errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
