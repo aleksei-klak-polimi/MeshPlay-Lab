@@ -7,14 +7,19 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "date-fns-tz": "^3.2.0",
     "mariadb": "^3.4.5",
     "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "jest": "^30.2.0"
   }
 }

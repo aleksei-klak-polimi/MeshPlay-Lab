@@ -3,7 +3,7 @@ import config from '../config/config.js';
 import { errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import { UnauthorizedError, BadRequestError } from "../utils/errors.js";
-import UserModel from "../models/user.model.js";
+import UserModel from "@meshplaylab/shared/src/models/user.model.js";
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import { id, iat, exp, username } from '../schemas/fields.js';

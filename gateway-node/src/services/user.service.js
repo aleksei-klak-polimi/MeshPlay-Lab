@@ -3,7 +3,7 @@
  */
 
 import { getConnection } from "@meshplaylab/shared/src/config/db.js";
-import UserModel from '../models/user.model.js';
+import UserModel from "@meshplaylab/shared/src/models/user.model.js";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 import { hashPassword } from '../utils/hashPassword.js';

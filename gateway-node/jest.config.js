@@ -5,7 +5,7 @@ export default {
     moduleFileExtensions: ['js', 'json'],
     roots: ['<rootDir>/tests'],
     // setupFiles: ['dotenv/config'],
-    collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js', 'src/models/common/**/*.js'],
+    collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js'],
     coverageDirectory: 'coverage',
 
     globalSetup: './tests/integration/setup/globalSetup.js',

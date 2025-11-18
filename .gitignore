@@ -3,6 +3,7 @@ logs/*
 gateway-node/node_modules
 gateway-node/.env
 gateway-node/tests/.env.test
-gateway-node/coverage/*
+gateway-node/coverage
 gateway-node/doc/openapi/bundled.yaml
 shared/node/node_modules
+shared/node/coverage

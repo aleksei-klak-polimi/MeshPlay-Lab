@@ -17,7 +17,6 @@
     "@meshplaylab/shared": "file:../shared/node",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "date-fns-tz": "^3.2.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "joi": "^18.0.1",

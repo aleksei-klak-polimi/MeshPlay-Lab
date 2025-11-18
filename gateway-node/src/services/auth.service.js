@@ -3,7 +3,7 @@
  */
 
 import { getConnection } from "@meshplaylab/shared/src/config/db.js";
-import UserModel from '../models/user.model.js';
+import UserModel from "@meshplaylab/shared/src/models/user.model.js";
 import { hashPassword, validatePassword } from '../utils/hashPassword.js';
 import jwt from 'jsonwebtoken';
 import { ConflictError, UnauthorizedError } from '../utils/errors.js';
