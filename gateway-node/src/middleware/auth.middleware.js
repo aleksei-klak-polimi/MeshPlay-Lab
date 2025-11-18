@@ -7,7 +7,7 @@ import UserModel from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import { id, iat, exp, username } from '../schemas/fields.js';
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from "../constants/errorCodes.js";
 
 const logger = createLogger('auth.middleware');

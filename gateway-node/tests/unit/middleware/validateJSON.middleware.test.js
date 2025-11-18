@@ -2,7 +2,7 @@ import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 
 // Mock dependencies before imports
 jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
-jest.unstable_mockModule('../../../src/config/logger.js', () => ({
+jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
   createLogger: () => ({
     setRequestId: jest.fn(),
     debug: jest.fn(),

@@ -12,7 +12,7 @@
  *  - Logging is scoped per requestId.
  */
 
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { normalizeRow, normalizeRows } from "./common/normalize.js";
 import { toMySQLDateTime, fromMySQLDateTime } from "./common/time.js";
 

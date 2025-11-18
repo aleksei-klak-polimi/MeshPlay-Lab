@@ -8,7 +8,7 @@ import { hashPassword, validatePassword } from '../utils/hashPassword.js';
 import jwt from 'jsonwebtoken';
 import { ConflictError, UnauthorizedError } from '../utils/errors.js';
 import config from '../config/config.js';
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
 const logger = createLogger('auth.service');

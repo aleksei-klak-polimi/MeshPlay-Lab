@@ -1,5 +1,5 @@
 import express from 'express';
-import { createLogger } from '../config/logger.js';
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { BadRequestError } from '../utils/errors.js';
 import { errorResponse } from '../utils/response.js';
 

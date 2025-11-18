@@ -4,7 +4,7 @@
 
 import { getConnection } from '../config/db.js';
 import UserModel from '../models/user.model.js';
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 import { hashPassword } from '../utils/hashPassword.js';
 import { NotFoundError, ForbiddenError, BadRequestError } from '../utils/errors.js';

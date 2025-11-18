@@ -5,3 +5,4 @@ gateway-node/.env
 gateway-node/tests/.env.test
 gateway-node/coverage/*
 gateway-node/doc/openapi/bundled.yaml
+shared/node/node_modules

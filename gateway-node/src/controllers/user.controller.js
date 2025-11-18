@@ -10,7 +10,7 @@
 import { successResponse, errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import UserService from "../services/user.service.js";
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 
 const logger = createLogger('user.controller');
 
