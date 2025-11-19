@@ -5,5 +5,7 @@ gateway-node/.env
 gateway-node/tests/.env.test
 gateway-node/coverage
 gateway-node/doc/openapi/bundled.yaml
+gateway-ws/.env
+gateway-ws/node_modules
 shared/node/node_modules
 shared/node/coverage
