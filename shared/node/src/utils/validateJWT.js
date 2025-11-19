@@ -1,10 +1,10 @@
-import config from "../config/config";
-import UserModel from "../models/user.model";
-import { getConnection } from "../config/db";
+import config from "../config/config.js";
+import UserModel from "../models/user.model.js";
+import { getConnection } from "../config/db.js";
 import jwt from "jsonwebtoken";
 import Joi from 'joi';
 import { id, iat, exp, username } from '../schemas/fields.js';
-import { createLogger } from "../config/logger";
+import { createLogger } from "../config/logger.js";
 
 const logger = createLogger('shared.node.utils.validateJWT');
 
