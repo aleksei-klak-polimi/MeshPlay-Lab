@@ -30,7 +30,7 @@ export function broadcastToUser(userId, message) {
 
     const sockets = getUserSockets(userId);
     sockets.forEach((s) => {
-        if (s.readyState === 1) s.send(message);
+        if (s.readyState === s.OPEN) s.send(message);
     });
 
 };
