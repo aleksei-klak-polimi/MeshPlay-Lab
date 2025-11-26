@@ -2,6 +2,7 @@ import { errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import { UnauthorizedError, BadRequestError } from "../utils/errors.js";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
+import { HttpLoggerMetadata } from "../config/logger.js";
 import { ERROR_CODES } from "../constants/errorCodes.js";
 import { validateJWT } from "@meshplaylab/shared/src/utils/validateJWT.js";
 
@@ -25,8 +26,8 @@ const logger = createLogger('auth.middleware');
  */
 export async function authenticateToken(req, res, next){
 
-    const requestId = req.meta.id;
-    logger.setRequestId(requestId);
+    const metadata = new HttpLoggerMetadata(req.meta.id);
+    logger.setMetadata(metadata);
     logger.debug('Authenticating JWT token.', 'authenticateToken');
     const authHeader = req.headers['authorization'];
 
@@ -54,7 +55,7 @@ export async function authenticateToken(req, res, next){
 
     try{
 
-        decoded = await validateJWT(token, requestId);
+        decoded = await validateJWT(token, metadata);
 
     } catch ( err ) {
 

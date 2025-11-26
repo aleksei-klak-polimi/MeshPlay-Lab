@@ -40,10 +40,10 @@ const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
-  printf(({ level, message, timestamp, stack, module, method, requestId }) => {
-    const request = requestId ? `[requestId: ${requestId}]` : '';
+  printf(({ level, message, metadata, timestamp, module, method, stack}) => {
+    const meta = (metadata && metadata.toString) ? metadata.toString() : '';
     const location = module ? `[${module}${method ? '.' + method : ''}]` : '';
-    return `${timestamp} [${level}] ${request} ${location} ${stack || message}`;
+    return `${timestamp} [${level}] ${location} ${meta} ${message} ${stack ? stack : ''}`;
   })
 );
 
@@ -101,16 +101,17 @@ baseLogger.stream = {
 
 /**
  * Creates a contextual logger for a specific module file.
+ * Supports metadata to display information like request Ids or socket Ids through the setMetadata function.
  *
  * This allows logs to automatically include:
  * - module name
  * - method name
- * - request ID (set per incoming request)
+ * - request ID or any other metadata included in the call to setMetadata().
  *
  * @param {string} moduleName - Name of the module using this logger.
  * 
  * @returns {{
- *   setRequestId(reqId: string): void,
+ *   setMetadata(meta: { toString: function(): string }): void,
  *   trace(message: string, method?: string): void,
  *   debug(message: string, method?: string): void,
  *   verbose(message: string, method?: string): void,
@@ -120,18 +121,20 @@ baseLogger.stream = {
  * }} A module-scoped logger with request-aware logging methods.
  */
 export function createLogger(moduleName) {
-  let requestId = null;
+
+  let metadata = null;
 
   return {
-    setRequestId: (reqId) => { requestId = reqId },
-
-    trace: (message, method) => baseLogger.trace(message, { module: moduleName, method, requestId }),
-    debug: (message, method) => baseLogger.debug(message, { module: moduleName, method, requestId }),
-    verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method, requestId }),
-    info: (message, method) => baseLogger.info(message, { module: moduleName, method, requestId }),
-    warn: (message, method) => baseLogger.warn(message, { module: moduleName, method, requestId }),
+    setMetadata : (meta) => { metadata = meta },
+    
+    trace: (message, method) => baseLogger.trace(message, { module: moduleName, method, metadata }),
+    debug: (message, method) => baseLogger.debug(message, { module: moduleName, method, metadata }),
+    verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method, metadata }),
+    info: (message, method) => baseLogger.info(message, { module: moduleName, method, metadata }),
+    warn: (message, method) => baseLogger.warn(message, { module: moduleName, method, metadata }),
     error: (message, method, err) =>
-      baseLogger.error(err || message, { module: moduleName, method, stack: err?.stack, requestId }),
+      baseLogger.error(err || message, { module: moduleName, method, stack: err?.stack, metadata }),
+
   };
 }
 

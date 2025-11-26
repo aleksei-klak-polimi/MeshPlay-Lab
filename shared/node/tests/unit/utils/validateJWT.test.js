@@ -1,7 +1,7 @@
 // Mock dependencies before imports
 jest.unstable_mockModule('../../../src/config/logger.js', () => ({
   createLogger: () => ({
-    setRequestId: jest.fn(),
+    setMetadata: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),

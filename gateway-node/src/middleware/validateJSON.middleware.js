@@ -1,5 +1,6 @@
 import express from 'express';
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
+import { HttpLoggerMetadata } from "../config/logger.js";
 import { BadRequestError } from '../utils/errors.js';
 import { errorResponse } from '../utils/response.js';
 
@@ -35,7 +36,9 @@ export const jsonParserWithValidation = express.json({ verify: verifyJson });
  */
 export const invalidJsonErrorHandler = (err, req, res, next) => {
   if (err.isBodyParser || err instanceof SyntaxError) {
-    logger.setRequestId(req.meta.id);
+
+    const metadata = new HttpLoggerMetadata(req.meta.id);
+    logger.setMetadata(metadata);
     logger.info(`Malformed JSON received: ${err.message}`);
     const error = new BadRequestError('Invalid JSON format in request body', 'BAD_REQUEST');
     return errorResponse(req, res, error);

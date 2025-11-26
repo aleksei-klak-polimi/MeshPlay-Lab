@@ -44,24 +44,25 @@ function formatUser(user){
     return formattedUser;
 }
 
-const UserModel = {
 
+
+const UserModel = {
     /**
      * Insert a new user into the database.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {Object} conn - MySQL connection.
      * @param {Object} data
      * @param {string} data.username
      * @param {string} data.passwordHash
      * @param {Date}   data.createdAt
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<number>} The newly inserted user ID.
      * 
      * @throws {Error} Raw database errors.
      */
-    async create(requestId, conn, {username, passwordHash, createdAt}){
-        logger.setRequestId(requestId);
+    async create(conn, {username, passwordHash, createdAt}, metadata){
+        logger.setMetadata(metadata);
 
         try{
             logger.debug(`Inserting user: ${username}`, 'create');
@@ -82,16 +83,16 @@ const UserModel = {
     /**
      * Retrieve a user by ID.
      *
-     * @param {string} requestId - Request identifier.
      * @param {Object} conn - MySQL connection.
      * @param {number} id - User ID.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<Object|null>} Formatted user object or null if not found.
      * 
      * @throws {Error} Raw database errors.
      */
-    async getById(requestId, conn, id){
-        logger.setRequestId(requestId);
+    async getById(conn, id, metadata){
+        logger.setMetadata(metadata);
 
         try {
             logger.debug(`Fetching user by ID: ${id}`, 'getById');
@@ -117,16 +118,16 @@ const UserModel = {
     /**
      * Retrieve a user by username.
      *
-     * @param {string} requestId - Request identifier.
      * @param {Object} conn - MySQL connection.
      * @param {string} username
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<Object|null>} Formatted user object or null if not found.
      * 
      * @throws {Error} Raw database errors.
      */
-    async getByUsername(requestId, conn, username){
-        logger.setRequestId(requestId);
+    async getByUsername(conn, username, metadata){
+        logger.setMetadata(metadata);
 
         try {
             logger.debug(`Fetching user by username: ${username}`, 'getByUsername');
@@ -152,7 +153,6 @@ const UserModel = {
     /**
      * Update fields for a given user ID.
      *
-     * @param {string} requestId - Request identifier.
      * @param {Object} conn - MySQL connection.
      * @param {number} id - User ID.
      * @param {Object} fields - Optional fields to update.
@@ -160,13 +160,14 @@ const UserModel = {
      * @param {string} [fields.passwordHash]
      * @param {Date}   [fields.createdAt]
      * @param {Date}   [fields.lastLogin]
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<number|null>} Number of affected rows, or null if no fields were provided.
      * 
      * @throws {Error} Raw database errors.
      */
-    async update(requestId, conn, id, {username, passwordHash, createdAt, lastLogin}){
-        logger.setRequestId(requestId);
+    async update(conn, id, {username, passwordHash, createdAt, lastLogin}, metadata){
+        logger.setMetadata(metadata);
 
         try {
             logger.debug(`Updating user ID: ${id}`, 'update');
@@ -208,14 +209,16 @@ const UserModel = {
     /**
      * Delete a user by ID.
      *
-     * @param {string} requestId - Request identifier.
      * @param {Object} conn - MySQL connection.
      * @param {number} id - User ID.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
+     * 
      * @returns {Promise<number>} Number of affected rows (0 or 1).
+     * 
      * @throws {Error} Raw database errors.
      */
-    async delete(requestId, conn, id){
-        logger.setRequestId(requestId);
+    async delete(conn, id, metadata){
+        logger.setMetadata(metadata);
 
         try{
             logger.debug(`Deleting user ID: ${id}`, 'delete');

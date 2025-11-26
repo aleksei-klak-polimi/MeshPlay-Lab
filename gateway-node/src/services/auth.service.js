@@ -18,19 +18,19 @@ const AuthService = {
     /**
      * Create a new user account.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {Object} data - User creation payload.
      * @param {string} data.username - Username to register.
      * @param {string} data.password - Raw password to hash.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<Object>} The newly created user (without passwordHash).
      * 
      * @throws {ConflictError} If the username already exists.
      * @throws {Error} For database or hashing errors.
      */
-    async create(requestId, {username, password}){
+    async create({username, password}, metadata){
 
-        logger.setRequestId(requestId);
+        logger.setMetadata(metadata);
         const createdAt = new Date();
         const passwordHash = await hashPassword(password);
 
@@ -43,7 +43,7 @@ const AuthService = {
 
             //Check if user already exists
             logger.debug(`Checking for existing user: ${username}`, 'create');
-            const existingUser = await UserModel.getByUsername(requestId, conn, username);
+            const existingUser = await UserModel.getByUsername(conn, username, metadata);
             if(existingUser){
 
                 logger.info(`Signup attempt with existing username: ${username}`, 'create');
@@ -52,8 +52,8 @@ const AuthService = {
             }
 
             //Create new user
-            const userId = await UserModel.create(requestId, conn, {username, passwordHash, createdAt});
-            const createdUser = await UserModel.getById(requestId, conn, userId);
+            const userId = await UserModel.create(conn, {username, passwordHash, createdAt}, metadata);
+            const createdUser = await UserModel.getById(conn, userId, metadata);
             delete createdUser.passwordHash;
 
             //Commit transaction
@@ -79,18 +79,18 @@ const AuthService = {
     /**
      * Authenticate a user and generate a JWT.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {string} username - Username attempting login.
      * @param {string} password - Raw password to validate.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<string>} JWT token for authenticated session.
      * 
      * @throws {UnauthorizedError} If credentials are invalid.
      * @throws {Error} For database or internal errors.
      */
-    async authenticate (requestId, username, password){
+    async authenticate (username, password, metadata){
 
-        logger.setRequestId(requestId);
+        logger.setMetadata(metadata);
         const lastLogin = new Date();
         let conn
 
@@ -101,7 +101,7 @@ const AuthService = {
 
             //Check if user exists
             logger.debug(`Checking if user exists: ${username}`, 'authenticate');
-            const existingUser = await UserModel.getByUsername(requestId, conn, username);
+            const existingUser = await UserModel.getByUsername(conn, username, metadata);
             if(!existingUser){
 
                 logger.info(`Login attempt with non-existing username: ${username}`, 'authenticate');
@@ -129,7 +129,7 @@ const AuthService = {
 
             //Updating user last login
             logger.debug(`Updating last login for user: ${username}`, 'authenticate');
-            await UserModel.update(requestId, conn, existingUser.id, {lastLogin});
+            await UserModel.update(conn, existingUser.id, {lastLogin}, metadata);
 
             //Commit transaction
             await conn.commit();

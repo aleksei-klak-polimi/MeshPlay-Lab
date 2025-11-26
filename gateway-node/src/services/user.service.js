@@ -16,24 +16,24 @@ const UserService = {
     /**
      * Retrieve a user by ID.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {number} id - User ID to fetch.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
      * 
      * @returns {Promise<Object>} User object without passwordHash.
      * 
      * @throws {NotFoundError} If the user does not exist.
      * @throws {Error} For database errors.
      */
-    async get(requestId, id){
+    async get(id, metadata){
 
-        logger.setRequestId(requestId);
+        logger.setMetadata(metadata);
         let conn;
 
         try{
 
             conn = await getConnection();
             logger.debug(`Getting user information by id: ${id}.`, 'get');
-            const user = await UserModel.getById(requestId, conn, id);
+            const user = await UserModel.getById(conn, id, metadata);
 
             if(!user){
 
@@ -62,16 +62,18 @@ const UserService = {
     /**
      * Delete a user by ID.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {number} id - ID of the user to delete.
      * @param {Object} user - Authenticated user performing the request.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
+     * 
      * @returns {Promise<void>}
+     * 
      * @throws {ForbiddenError} If the requesting user attempts to delete another user.
      * @throws {Error} For database or transactional errors.
      */
-    async delete(requestId, id, user){
+    async delete(id, user, metadata){
 
-        logger.setRequestId(requestId);
+        logger.setMetadata(metadata);
         let conn;
 
         // Check if requesting user has permissions to delete
@@ -87,7 +89,7 @@ const UserService = {
             conn = await getConnection();
             await conn.beginTransaction();
             // Check if user to delete exists
-            const userToDelete = await UserModel.getById(requestId, conn, id);
+            const userToDelete = await UserModel.getById(conn, id, metadata);
 
             if(!userToDelete){
 
@@ -99,7 +101,7 @@ const UserService = {
             logger.debug(`User by id: ${id} found.`, 'delete');
             logger.debug(`Deleting user by id: ${id}.`, 'delete');
             // Delete the user
-            await UserModel.delete(requestId, conn, id);
+            await UserModel.delete(conn, id, metadata);
             //Commit transaction
             await conn.commit();
             logger.info(`Deleted user: ${userToDelete}`, 'delete');
@@ -122,21 +124,23 @@ const UserService = {
     /**
      * Edit the username and/or password of a user.
      *
-     * @param {string} requestId - Request identifier for logging.
      * @param {number} id - ID of the user to edit.
      * @param {Object} user - Authenticated user performing the operation.
      * @param {Object} data - Fields to update.
      * @param {string} [data.newUsername] - New username.
      * @param {string} [data.newPassword] - New raw password.
+     * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
+     * 
      * @returns {Promise<Object>} Updated user object without passwordHash.
+     * 
      * @throws {ForbiddenError} If the requesting user attempts to edit another user.
      * @throws {BadRequestError} If no fields were provided.
      * @throws {NotFoundError} If the user does not exist.
      * @throws {Error} For database or transactional errors.
      */
-    async edit(requestId, id, user, { newUsername, newPassword }){
+    async edit(id, user, { newUsername, newPassword }, metadata){
 
-        logger.setRequestId(requestId);
+        logger.setMetadata(metadata);
         let conn;
 
         // Check if requesting user has permissions to edit
@@ -166,7 +170,7 @@ const UserService = {
             await conn.beginTransaction();
 
             // Check if user to edit exists
-            const userToEdit = await UserModel.getById(requestId, conn, id);
+            const userToEdit = await UserModel.getById(conn, id, metadata);
             if(!userToEdit){
                 logger.info(`Received request to edit non existing userId: ${id}`, 'edit');
                 return;
@@ -175,12 +179,12 @@ const UserService = {
 
             // Edit the user
             logger.debug(`Editing user by id: ${id}.`, 'edit');
-            await UserModel.update(requestId, conn, id, {username: newUsername, passwordHash: newPasswordHash});
+            await UserModel.update(conn, id, {username: newUsername, passwordHash: newPasswordHash}, metadata);
             //Commit transaction
             await conn.commit();
             // retreive edited user
             logger.info(`Successfully edited user by id: ${id}`, 'edit');
-            const user = await UserModel.getById(requestId, conn, id);
+            const user = await UserModel.getById(conn, id, metadata);
             delete user.passwordHash;
             return user;
 

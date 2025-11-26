@@ -1,55 +1,54 @@
 import { validateJWT } from '@meshplaylab/shared/src/utils/validateJWT.js';
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 
-export async function authenticateConnection(message, socket, next) {
-    // Avoids race conditions between events if validateJWT takes too long.
-    // If pendingAuth is false or is not a property (default),
-    // then the auth handler starts the auth process and sets it to true.
-    // If pendingAuth is true then other requests by the client before auth is done will be ignored.
-    if (socket.pendingAuth) {
-        console.log('Ignoring message: authentication pending.');
-        return;
-    }
-    else if (socket.user) {
-        console.log('Ignoring message: user JWT already authenticated.');
-        return;
-    }
-    else
-        socket.pendingAuth = true;
+export async function authenticateConnection(message, socket, metadata) {
+
+    const logger = createLogger('auth.authenticateConnection');
+    logger.setMetadata(metadata);
 
     // First message expected is the JWT for authentication, if no valid JWT is provided
     // then return error and close the connection, otherwise switch to the authenticated function.
-    let msg;
     try {
-        msg = JSON.parse(message);
+        let msg;
+        try {
+            msg = JSON.parse(message);
+        } catch (err) {
+
+            logger.info('User provided Invalid JSON, terminating connection.');
+            socket.terminate();
+            return;
+        }
+
+        const token = msg.token;
+        if (!token) {
+
+            logger.info('User message is missing the JWT, terminating connection.');
+            socket.terminate();
+            return;
+        }
+
+        let decoded;
+        try {
+
+            logger.debug('Decoding JWT...');
+            decoded = await validateJWT(token, metadata);
+            logger.debug('JWT decoded successfully.');
+
+        } catch (err) {
+
+            logger.info('invalid JWT, terminating connection.');
+            socket.terminate();
+            return;
+
+        }
+
+        socket.user = { id: decoded.id, username: decoded.username };
+        logger.info('Connection authenticated successfully.');
+
     } catch (err) {
-        console.log('Invalid JSON format');
+
+        logger.error(`Unexpected error while authenticating user, terminating connection.`, '', err);
         socket.terminate();
-        return;
-    }
-
-    const token = msg.token;
-    if (!token) {
-        console.log('Missing JWT.');
-        socket.terminate();
-        return;
-    }
-
-    let decoded;
-    try {
-
-        decoded = await validateJWT(token);
-        console.log('Authentication successful');
-
-    } catch (err) {
-
-        console.log('Invalid JWT.');
-        socket.terminate();
-        return;
 
     }
-
-    socket.user = { id: decoded.id, username: decoded.username };
-    delete socket.pendingAuth;
-    
-    next();
 }

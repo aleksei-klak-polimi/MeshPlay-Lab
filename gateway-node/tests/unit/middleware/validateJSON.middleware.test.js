@@ -4,7 +4,7 @@ import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
   createLogger: () => ({
-    setRequestId: jest.fn(),
+    setMetadata: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),

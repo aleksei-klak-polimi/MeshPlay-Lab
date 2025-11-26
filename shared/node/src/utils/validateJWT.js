@@ -27,7 +27,7 @@ const tokenSchema = Joi.object({
  * This function does **not** send responses — it throws errors.
  *
  * @param {string} token      - The JWT string extracted from the Authorization header.
- * @param {string} requestId  - Unique request ID used for logging correlation.
+ * @param {{ toString: function(): string }} metadata - Metadata for logging including for example requestID.
  *
  * @returns {Promise<Object>} The decoded JWT payload if validation succeeds.
  *
@@ -40,10 +40,9 @@ const tokenSchema = Joi.object({
  * 
  * @throws {*}                 Any other error thrown by validateJWT() or db connection.
  */
-export async function validateJWT (token, requestId = null) {
+export async function validateJWT (token, metadata) {
+    logger.setMetadata(metadata);
 
-    if(requestId)
-        logger.setRequestId(requestId);
     logger.debug('Decoding JWT.', 'validateJWT');
     
     let decoded;
@@ -71,7 +70,7 @@ export async function validateJWT (token, requestId = null) {
         //Check if user exists
         logger.debug('Retreiving user from db.', 'validateJWT');
         conn = await getConnection();
-        const dbUserData = await UserModel.getById(requestId, conn, decoded.id);
+        const dbUserData = await UserModel.getById(conn, decoded.id, metadata);
 
         if (!dbUserData) {
 
