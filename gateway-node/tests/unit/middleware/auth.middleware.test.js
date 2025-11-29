@@ -3,6 +3,7 @@ jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorRespons
 jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => ({ handleError: jest.fn(() => {return {status: 500}}) }));
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
   createLogger: () => ({
+    resetMetadata: jest.fn(),
     setMetadata: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),

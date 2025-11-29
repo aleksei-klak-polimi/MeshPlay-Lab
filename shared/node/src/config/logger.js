@@ -40,10 +40,22 @@ const devFormat = combine(
   colorize(),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
-  printf(({ level, message, metadata, timestamp, module, method, stack}) => {
+  printf(({ level, message, metadata, timestamp, module, method, error }) => {
     const meta = (metadata && metadata.toString) ? metadata.toString() : '';
     const location = module ? `[${module}${method ? '.' + method : ''}]` : '';
-    return `${timestamp} [${level}] ${location} ${meta} ${message} ${stack ? stack : ''}`;
+    const errorString = (function (error){
+      let string = '';
+      if(error){
+        if(error.name) string += `\nError name: ${error.name} `;
+        if(error.message) string += `\nError message: ${error.message} `;
+        if(error.stack) string += `\nStack: ${error.stack}`;
+
+        string += '\n';
+      }
+      return string;
+    })(error);
+
+    return `${timestamp} [${level}] ${location} ${meta} ${message} ${errorString}`;
   })
 );
 
@@ -112,6 +124,7 @@ baseLogger.stream = {
  * 
  * @returns {{
  *   setMetadata(meta: { toString: function(): string }): void,
+ *   resetMetadata(): void,
  *   trace(message: string, method?: string): void,
  *   debug(message: string, method?: string): void,
  *   verbose(message: string, method?: string): void,
@@ -126,14 +139,15 @@ export function createLogger(moduleName) {
 
   return {
     setMetadata : (meta) => { metadata = meta },
+    resetMetadata : () => { metadata = null },
     
     trace: (message, method) => baseLogger.trace(message, { module: moduleName, method, metadata }),
     debug: (message, method) => baseLogger.debug(message, { module: moduleName, method, metadata }),
     verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method, metadata }),
     info: (message, method) => baseLogger.info(message, { module: moduleName, method, metadata }),
     warn: (message, method) => baseLogger.warn(message, { module: moduleName, method, metadata }),
-    error: (message, method, err) =>
-      baseLogger.error(err || message, { module: moduleName, method, stack: err?.stack, metadata }),
+    error: (message, method, error) =>
+      baseLogger.error( message, { module: moduleName, method, error, metadata }),
 
   };
 }
