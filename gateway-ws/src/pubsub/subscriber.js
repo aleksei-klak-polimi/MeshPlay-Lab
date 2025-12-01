@@ -1,6 +1,8 @@
 import { redisSub } from "../config/redis.js";
 import { broadcastToUser } from "../server/connectionManager.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
+import parse from "../utils/parseMessage.js";
+import { validateRedis as validate } from "../utils/validateMessage.js";
 
 const logger = createLogger('subscriber');
 
@@ -14,32 +16,21 @@ export function initRedisSubscriber() {
 
     try {
 
-      const { userId, message } = JSON.parse(rawMessage);
-
-      if(!userId || !message){
-        logger.error('Received message from redis is missing userId or message fields. Ignoring message.',
-          'redisSub.on("message")');
+      let parsed;
+      try{
+        parsed = parse(rawMessage);
+        validate(parsed);
+      } catch (err){
+        logger.error('Received invalid message from redis. Will not broadcast message.',
+          'redisSub.on("message")', err);
         return;
       }
 
-      if(!message.source){
-        logger.error('Received message from redis is missing "source" field. Ignoring message.',
-          'redisSub.on("message")');
-        return;
-      }
-
-      if(!message.payload){
-        logger.error('Received message from redis is missing "payload" field. Ingoring message.',
-          'redisSub.on("message")');
-        return;
-      }
-
+      const { userId, message } = parsed;
       broadcastToUser(userId, message);
 
     } catch (err) {
-
-      logger.error('Error while processing message from redis.', 'redisSub.on("message")', err);
-
+      logger.error('Unexpected error while processing message from redis.', 'redisSub.on("message")', err);
     }
 
   });

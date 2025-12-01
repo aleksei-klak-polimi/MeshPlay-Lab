@@ -1,4 +1,4 @@
-import validate from "../utils/validateMessage.js";
+import { validateClient } from "../utils/validateMessage.js";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { sanitizeError } from "../utils/errorSanitizer.js";
 import { errorResponse } from "../utils/response.js";
@@ -10,7 +10,7 @@ export default function (socket, message, requestId, closeOnFail, loggerMeta){
 
     try{
 
-        validate(message, requestId, loggerMeta);
+        validateClient(message, requestId, loggerMeta);
         return true;
 
     } catch (err){
