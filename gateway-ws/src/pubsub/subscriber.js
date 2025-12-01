@@ -9,10 +9,38 @@ export function initRedisSubscriber() {
 
   redisSub.subscribe("ws.outgoing");
 
-  redisSub.on("message", (channel, message) => {
+  redisSub.on("message", (channel, rawMessage) => {
+    logger.debug('Received message from redis.', 'redisSub.on("message")');
 
-    const { userId, payload } = JSON.parse(message);
-    broadcastToUser(userId, payload);
+    try {
+
+      const { userId, message } = JSON.parse(rawMessage);
+
+      if(!userId || !message){
+        logger.error('Received message from redis is missing userId or message fields. Ignoring message.',
+          'redisSub.on("message")');
+        return;
+      }
+
+      if(!message.source){
+        logger.error('Received message from redis is missing "source" field. Ignoring message.',
+          'redisSub.on("message")');
+        return;
+      }
+
+      if(!message.payload){
+        logger.error('Received message from redis is missing "payload" field. Ingoring message.',
+          'redisSub.on("message")');
+        return;
+      }
+
+      broadcastToUser(userId, message);
+
+    } catch (err) {
+
+      logger.error('Error while processing message from redis.', 'redisSub.on("message")', err);
+
+    }
 
   });
 

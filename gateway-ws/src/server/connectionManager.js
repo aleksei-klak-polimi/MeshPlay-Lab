@@ -1,3 +1,5 @@
+import { eventResponse } from "../utils/response.js";
+
 const userSockets = new Map(); // userId -> Set<WebSocket>
 
 
@@ -30,7 +32,7 @@ export function broadcastToUser(userId, message) {
 
     const sockets = getUserSockets(userId);
     sockets.forEach((s) => {
-        if (s.readyState === s.OPEN) s.send(message);
+        eventResponse(s, message.source, message.payload);
     });
 
 };
