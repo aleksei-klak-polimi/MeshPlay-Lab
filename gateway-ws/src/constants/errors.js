@@ -9,7 +9,7 @@ export class AppError{
     }
 }
 
-export class InvalidRequestFormat extends AppError{
+export class InvalidMessageFormat extends AppError{
     constructor(message = 'Request is formatted incorrectly.'){
         super(codes.INVALID_INPUT, message);
         this.name = 'InvalidRequestFormat';

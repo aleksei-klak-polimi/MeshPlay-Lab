@@ -9,19 +9,11 @@ import { AuthenticationError } from '../constants/errors.js';
  * 
  * @returns 
  */
-export async function authenticateConnection(payload, metadata) {
+export async function authenticateConnection(token, metadata) {
 
     const logger = createLogger('auth.authenticateConnection');
     logger.setMetadata(metadata);
 
-    if (!payload.token) {
-
-        logger.info('User message is missing the JWT, could not authenticate.');
-        throw new AuthenticationError('Missing JWT in payload.');
-
-    }
-
-    const token = payload.token;
     let decoded;
     try {
 

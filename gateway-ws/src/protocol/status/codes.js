@@ -1,10 +1,13 @@
 export default {
 
-    //Ack codes
+    // Ack codes
     RECEIVED:       10000,
 
-    //Success codes
+    // Success codes
     AUTH_SUCCESS:   20001,
+
+    // Server Ready
+    SERVER_READY:   30000,
 
     // Error codes
     GENERIC_ERROR:  40000,

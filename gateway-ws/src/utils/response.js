@@ -62,7 +62,7 @@ export function ackResponse(socket, loggerMetadata, resMetadata = null){
     const status = {
         code: codes.RECEIVED,
         severity: 'ok',
-        message: 'Message received.'
+        message: 'Message forwarded.'
     }
 
     const response = new UpdateResponse('server', status, resMetadata);
