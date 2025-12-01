@@ -50,7 +50,9 @@ async function handleFirstMessage(rawMessage, socket) {
     const message = parse(socket, rawMessage, true, logMeta);
     if (!message) return;
 
-    if (!validate(socket, message, requestId, true, logMeta)) return;
+    if (!validate(socket, message, true, logMeta)) return;
+
+    message.metadata.serverSideReqId = requestId;
 
     if (! await auth(socket, message, true, logMeta)) return;
 
@@ -85,7 +87,9 @@ function handleMessage(socket, rawMessage) {
     const message = parse(socket, rawMessage, false, logMeta);
     if (!message) return;
 
-    if (!validate(socket, message, requestId, false, logMeta)) return;
+    if (!validate(socket, message, false, logMeta)) return;
+
+    message.metadata.serverSideReqId = requestId;
 
     // Route message
     try {

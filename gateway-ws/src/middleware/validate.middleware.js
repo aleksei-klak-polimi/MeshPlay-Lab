@@ -5,12 +5,12 @@ import { errorResponse } from "../utils/response.js";
 
 const logger = createLogger('validate.middleware');
 
-export default function (socket, message, requestId, closeOnFail, loggerMeta){
+export default function (socket, message, closeOnFail, loggerMeta){
     logger.setMetadata(loggerMeta);
 
     try{
 
-        validateClient(message, requestId, loggerMeta);
+        validateClient(message, loggerMeta);
         return true;
 
     } catch (err){

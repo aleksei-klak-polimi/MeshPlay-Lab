@@ -3,7 +3,7 @@ import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 
 
 // Client messages validator
-export function validateClient(message, requestId, loggerMeta) {
+export function validateClient(message, loggerMeta) {
   const logger = createLogger('validateMessage.validateClient');
 
   logger.setMetadata(loggerMeta);
@@ -15,7 +15,6 @@ export function validateClient(message, requestId, loggerMeta) {
   validateFieldAndType(message.metadata, 'metadata', 'object', logger);
   validateFieldAndType(message.metadata.userReqId, 'metadata.userReqId', 'string', logger);
 
-  message.metadata.serverSideReqId = requestId;
   logger.debug('Message successfuly validated.');
 
   return true;
