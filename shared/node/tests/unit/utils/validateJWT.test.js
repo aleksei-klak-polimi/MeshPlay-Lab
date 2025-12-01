@@ -1,25 +1,22 @@
-// Mock dependencies before imports
-jest.unstable_mockModule('../../../src/config/logger.js', () => ({
-  createLogger: () => ({
-    resetMetadata: jest.fn(),
-    setMetadata: jest.fn(),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    trace: jest.fn(),
-  }),
-}));
-jest.unstable_mockModule('../../../src/config/db.js', () => ({ getConnection: jest.fn() }));
-jest.unstable_mockModule('jsonwebtoken', () => ({ default: { verify: jest.fn() } }));
-jest.unstable_mockModule('../../../src/models/user.model.js', () => ({ default: { getById: jest.fn() } }));
+// Mock dependencies before src imports
+import {expect, jest} from '@jest/globals';
+import createLoggerMock from '../../mocks/config/logger.mock.js';
+jest.unstable_mockModule('../../../src/config/logger.js', () => createLoggerMock() );
+import UserModelMock from '../../mocks/models/user.model.mock.js';
+jest.unstable_mockModule('../../../src/models/user.model.js', () => UserModelMock());
+import dbMock from '../../mocks/config/db.mock.js';
+jest.unstable_mockModule('../../../src/config/db.js', () => dbMock());
+import jwtMock from '../../mocks/modules/jsonwebtoken.mock.js';
+jest.unstable_mockModule('jsonwebtoken', () => jwtMock());
+
+
+
+
 //Structure imports this way to ensure they happen after mocks.
 const { validateJWT } = await import('../../../src/utils/validateJWT.js');
 const {default: jwt} = await import('jsonwebtoken');
 const {getConnection} = await import('../../../src/config/db.js');
 const {default: UserModel} = await import('../../../src/models/user.model.js');
-
-import {expect, jest} from '@jest/globals';
 
 
 // Reset mocks before each test

@@ -1,26 +1,24 @@
+import {expect, jest} from '@jest/globals';
+import { BadRequestError, UnauthorizedError } from '../../../src/utils/errors.js';
+
 // Mock dependencies before imports
-jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
-jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => ({ handleError: jest.fn(() => {return {status: 500}}) }));
-jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
-  createLogger: () => ({
-    resetMetadata: jest.fn(),
-    setMetadata: jest.fn(),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    trace: jest.fn(),
-  }),
-}));
-jest.unstable_mockModule('@meshplaylab/shared/src/utils/validateJWT.js', () => ({validateJWT: jest.fn()}));
+import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock.js';
+jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
+import responseMock from '../../mocks/utils/response.mock.js';
+jest.unstable_mockModule('../../../src/utils/response.js', () => responseMock());
+import errorHandMock from '../../mocks/utils/errorHanlder.mock.js';
+jest.unstable_mockModule('../../../src/utils/errorHandler.js', () => errorHandMock());
+import validateJWTMock from '@meshplaylab/shared/tests/mocks/utils/validateJWT.mock.js';
+jest.unstable_mockModule('@meshplaylab/shared/src/utils/validateJWT.js', () => validateJWTMock());
+
+
+
+
 //Structure imports this way to ensure they happen after mocks.
 const { errorResponse } = await import('../../../src/utils/response.js');
 const { handleError } = await import('../../../src/utils/errorHandler.js');
 const { authenticateToken } = await import('../../../src/middleware/auth.middleware.js');
 const { validateJWT } = await import('@meshplaylab/shared/src/utils/validateJWT.js');
-
-import {expect, jest} from '@jest/globals';
-import { BadRequestError, UnauthorizedError } from '../../../src/utils/errors.js';
 
 
 

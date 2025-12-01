@@ -1,18 +1,10 @@
 import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 
 // Mock dependencies before imports
-jest.unstable_mockModule('../../../src/utils/response.js', () => ({ errorResponse: jest.fn() }));
-jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => ({
-  createLogger: () => ({
-    resetMetadata: jest.fn(),
-    setMetadata: jest.fn(),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    trace: jest.fn(),
-  }),
-}));
+import responseMock from '../../mocks/utils/response.mock.js';
+jest.unstable_mockModule('../../../src/utils/response.js', () => responseMock());
+import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock.js';
+jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
 
 
 // Import actual module after mocks
