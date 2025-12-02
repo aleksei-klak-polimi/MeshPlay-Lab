@@ -9,7 +9,7 @@ export default {
     coverageDirectory: 'coverage',
 
     globalSetup: './tests/integration/setup/globalSetup.js',
-    globalTeardown: './tests/integration/setup/teardownDB.js',
+    globalTeardown: './tests/integration/setup/globalTeardown.js',
 
     testTimeout: 20000, // Increase for async DB operations
 };

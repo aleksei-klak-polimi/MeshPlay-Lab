@@ -3,8 +3,8 @@ import { getConnection, pool } from '@meshplaylab/shared/src/config/db.js';
 import app from '../../src/app.js';
 import jestOpenAPI from './common/openApiLoader.js';
 
-import setupDB from './setup/setupDB.js';
-import teardownDB from './setup/teardownDB.js';
+import setupDB from '@meshplaylab/shared/tests/integration/setup/setupDB.js';
+import teardownDB from '@meshplaylab/shared/tests/integration/setup/teardownDB.js';
 import { afterAll, afterEach, beforeAll, beforeEach, expect } from '@jest/globals';
 
 
