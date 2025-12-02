@@ -5,9 +5,8 @@
 import { getConnection } from "@meshplaylab/shared/src/config/db.js";
 import UserModel from "@meshplaylab/shared/src/models/user.model.js";
 import { hashPassword, validatePassword } from '../utils/hashPassword.js';
-import jwt from 'jsonwebtoken';
+import sign from "@meshplaylab/shared/src/utils/generateJWT.js";
 import { ConflictError, UnauthorizedError } from '../utils/errors.js';
-import config from '../config/config.js';
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { ERROR_CODES } from '../constants/errorCodes.js';
 
@@ -121,11 +120,7 @@ const AuthService = {
 
             //Generate JWST
             logger.debug(`Generating token for user: ${username}`, 'authenticate');
-            const token = jwt.sign(
-                {id: existingUser.id, username: existingUser.username},
-                config.jwtSecret,
-                {expiresIn: config.jwtExpiration}
-            );
+            const token = sign(existingUser.id, existingUser.username);
 
             //Updating user last login
             logger.debug(`Updating last login for user: ${username}`, 'authenticate');
