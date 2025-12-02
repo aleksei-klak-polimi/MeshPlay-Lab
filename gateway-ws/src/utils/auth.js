@@ -9,17 +9,19 @@ import { AuthenticationError } from '../constants/errors.js';
  * 
  * @returns 
  */
-export async function authenticateConnection(token, metadata) {
+export default async function auth(token, metadata) {
 
-    const logger = createLogger('auth.authenticateConnection');
+    const logger = createLogger('auth');
     logger.setMetadata(metadata);
 
-    let decoded;
     try {
 
         logger.debug('Decoding JWT...');
-        decoded = await validateJWT(token, metadata);
+        const decoded = await validateJWT(token, metadata);
         logger.debug('JWT decoded successfully.');
+
+        logger.info('Connection authenticated successfully.');
+        return { id: decoded.id, username: decoded.username };
 
     } catch (err) {
 
@@ -33,8 +35,10 @@ export async function authenticateConnection(token, metadata) {
                 logger.warn('Decodeding token produced a generic JsonWebTokenError.');
                 throw new AuthenticationError('Invalid JWT.');
             }
-
-            case 'UserNotFound', 'UsernamesDontMatch', 'InvalidTokenFormat': {
+            
+            case 'UserNotFound':
+            case 'UsernamesDontMatch':
+            case 'InvalidTokenFormat': {
                 logger.info(`JWT validation didn't match database contents:${err.name}`);
                 throw new AuthenticationError('Invalid JWT.');
             }
@@ -45,7 +49,4 @@ export async function authenticateConnection(token, metadata) {
             }
         }
     }
-
-    logger.info('Connection authenticated successfully.');
-    return { id: decoded.id, username: decoded.username };
 }

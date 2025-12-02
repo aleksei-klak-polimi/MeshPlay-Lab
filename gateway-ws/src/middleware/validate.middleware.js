@@ -10,8 +10,8 @@ export default function (socket, message, closeOnFail, loggerMeta){
 
     try{
 
-        validateClient(message, loggerMeta);
-        return true;
+        if(validateClient(message, loggerMeta))
+            return true;
 
     } catch (err){
 

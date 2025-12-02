@@ -1,4 +1,4 @@
-import { authenticateConnection } from '../utils/auth.js';
+import auth from '../utils/auth.js';
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { AuthenticationError, InvalidMessageFormat } from '../constants/errors.js';
 import { sanitizeError } from "../utils/errorSanitizer.js";
@@ -30,7 +30,7 @@ export default async function (socket, message, closeOnFail, loggerMeta) {
         }
 
         // Validate the JWT in message payload.
-        socket.user = await authenticateConnection(message.payload.token, loggerMeta);
+        socket.user = await auth(message.payload.token, loggerMeta);
         successResponse(socket, 'auth', codes.AUTH_SUCCESS, 'Authenticated successfully.', loggerMeta, message.metadata);
         return true;
 
