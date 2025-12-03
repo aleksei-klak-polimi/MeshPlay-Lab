@@ -1,4 +1,5 @@
 import { redisSub } from "../config/redis.js";
+import config from "../config/config.js";
 import { broadcastToUser } from "../server/connectionManager.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
 import parse from "../utils/parseMessage.js";
@@ -6,11 +7,12 @@ import { validateRedis as validate } from "../utils/validateMessage.js";
 
 const logger = createLogger('subscriber');
 const redisPrefix = config.redisPrefix;
+const channel = `${redisPrefix}.ws.outgoing`;
 
 export function initRedisSubscriber() {
   logger.info('Initializing Redis subscribe', 'initRedisSubscriber');
 
-  redisSub.subscribe(`${redisPrefix}.ws.outgoing`);
+  redisSub.subscribe(channel);
 
   redisSub.on("message", (channel, rawMessage) => {
     logger.debug('Received message from redis.', 'redisSub.on("message")');
@@ -37,4 +39,9 @@ export function initRedisSubscriber() {
   });
 
   logger.info('Redis subscribe initialized', 'initRedisSubscriber');
+}
+
+export async function closeRedisSubscriber() {
+  await redisSub.unsubscribe(channel);
+  redisSub.removeAllListeners();
 }

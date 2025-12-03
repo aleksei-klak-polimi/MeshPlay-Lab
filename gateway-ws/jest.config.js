@@ -8,5 +8,8 @@ export default {
     collectCoverageFrom: ['src/utils/**/*.js', 'src/middleware/**/*.js'],
     coverageDirectory: 'coverage',
 
+    globalSetup: './tests/integration/setup/globalSetup.js',
+    globalTeardown: './tests/integration/setup/globalTeardown.js',
+
     testTimeout: 20000, // Increase for async DB operations
 };

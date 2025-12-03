@@ -13,5 +13,10 @@ app.on('upgrade', async function(request, socket, head) {
   await authMiddleware(request, socket, head, wss);
 });
 
+app.closeAsync = async () => {
+  await wss.closeAsync();
+  wss.close();
+}
+
 export default app;
 

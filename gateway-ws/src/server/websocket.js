@@ -5,7 +5,7 @@ import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
 import { successResponse, errorResponse, ackResponse } from "../utils/response.js";
 import { registerSocket, unregisterSocket } from "./connectionManager.js";
-import { initRedisSubscriber } from '../pubsub/subscriber.js';
+import { initRedisSubscriber, closeRedisSubscriber } from '../pubsub/subscriber.js';
 import codes from "../protocol/status/codes.js";
 import { validateClient } from "../utils/validateMessage.js";
 import parse from "../utils/parseMessage.js";
@@ -51,6 +51,9 @@ export default function createWebSocketServer(server) {
   }, 30000);
 
   logger.info('Socket server Initialized');
+
+  wss.closeAsync = async () => { await closeRedisSubscriber() };
+
   return wss;
 }
 
