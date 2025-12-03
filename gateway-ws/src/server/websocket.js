@@ -5,28 +5,50 @@ import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { registerSocket, unregisterSocket } from "./connectionManager.js";
+import { initRedisSubscriber } from '../pubsub/subscriber.js';
 import codes from "../protocol/status/codes.js";
 import validate from "../middleware/validate.middleware.js";
 import parse from "../middleware/parse.middleware.js";
-import auth from "../middleware/auth.middleware.js";
 import routeMessage from "./router.js";
 
 export default function createWebSocketServer(server) {
   const logger = createLogger('websocket');
   logger.info('Initializing socket server', 'createWebSocketServer');
 
-  const wss = new WebSocketServer({ server });
+  initRedisSubscriber();
 
-  wss.on("connection", async (socket, req) => {
-    // Assign random id to connection
+  const wss = new WebSocketServer(server);
+
+  wss.on("connection", async (socket) => {
     socket.id = randomUUID();
+    registerSocket(socket);
+    socket.isAlive = true;
 
-    logger.info(`New user connected to the ws server from: ${req.socket.remoteAddress}.
-Socket ID: ${socket.id} assigned to connection.`, 'wss.on("connection")');
-
-    socket.on('message', (message) => handleFirstMessage(message, socket));
+    socket.on('pong', () => { socket.isAlive = true; });
+    socket.on('message', (message) => handleMessage(message, socket));
     socket.on('close', () => handleClose(socket));
+
+    // Tell client server is ready for messages.
+    successResponse(socket, 'server', codes.SERVER_READY, 'Server is ready to receive messages.');
   });
+
+  wss.on('close', function close() {
+    clearInterval(interval);
+  });
+
+  //Ping-Pong timer logic
+  const interval = setInterval(function ping(){
+    wss.clients.forEach((socket) => {
+
+      if(socket.isAlive === false){
+        logger.debug(`SocketID: ${socket.id} did not respond to ping, calling terminate().`);
+        return socket.terminate();
+      }
+
+      socket.isAlive = false;
+      socket.ping();
+    })
+  }, 30000);
 
   logger.info('Socket server Initialized');
   return wss;
@@ -35,47 +57,6 @@ Socket ID: ${socket.id} assigned to connection.`, 'wss.on("connection")');
 
 
 // Socket functions
-async function handleFirstMessage(rawMessage, socket) {
-  const logger = createLogger('websocket.handleFirstMessage');
-  const requestId = randomUUID();
-  const logMeta = new SocketLoggerMetadata(socket.id, requestId);
-  logger.setMetadata(logMeta);
-
-  try {
-    // If no mutex then this is the first message received.
-    // If there is a mutex then the first message was already received. Ignore this new message.
-    if (!getMutex(socket, logger)) triggerMutex(socket);
-    else return;
-
-    const message = parse(socket, rawMessage, true, logMeta);
-    if (!message) return;
-
-    if (!validate(socket, message, true, logMeta)) return;
-
-    message.metadata.serverSideReqId = requestId;
-
-    if (! await auth(socket, message, true, logMeta)) return;
-
-    // Switch to actual message handler
-    socket.removeAllListeners('message');
-    registerSocket(socket);
-    socket.on("message", (message) => handleMessage(socket, message));
-    removeMutex(socket);
-
-    // Tell client server is ready for messages.
-    successResponse(socket, 'server', codes.SERVER_READY, 'Server is ready to receive messages.', logMeta);
-
-  } catch (err) {
-
-    logger.error('Encountered unexpected error while processing the first message. Closing connection.',
-      null, err);
-    const sanitized = sanitizeError(err, 'Unexpected error while processing message.', logMeta);
-    errorResponse(socket, 'auth', sanitized, logMeta);
-    socket.terminate();
-
-  }
-}
-
 function handleMessage(socket, rawMessage) {
   const logger = createLogger('websocket.handleFirstMessage');
   const requestId = randomUUID();
@@ -125,28 +106,3 @@ function handleClose(socket) {
 
   logger.info(`Socket closed.`);
 }
-
-
-
-// Helper functions
-function getMutex(socket, logger) {
-  if (socket.pendingAuth) {
-    logger.warn(`Received another message while authentication still pending, ignoring message.`, 'getMutex');
-    return true;
-  }
-  else if (socket.user) {
-    logger.error(`Received message but user already authenticated, ignoring message.`, 'getMutex');
-    return true;
-  }
-}
-
-function triggerMutex(socket) {
-  socket.pendingAuth = true;
-}
-
-function removeMutex(socket) {
-  delete socket.pendingAuth;
-}
-
-
-

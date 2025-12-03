@@ -29,10 +29,3 @@ export class InternalError extends AppError{
         this.name = 'InternalError';
     }
 }
-
-export class AuthenticationError extends AppError{
-    constructor(message = 'Invalid credentials.'){
-        super(codes.AUTH_ERROR, message);
-        this.name = 'AuthenticationError';
-    }
-}

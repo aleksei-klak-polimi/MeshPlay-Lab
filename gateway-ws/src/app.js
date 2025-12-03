@@ -1,15 +1,17 @@
 import http from 'http';
 import createWebSocketServer from "./server/websocket.js";
-import { initRedisSubscriber } from './pubsub/subscriber.js';
+import authMiddleware from './middleware/auth.middleware.js';
 
 const app = http.createServer((req, res) => {
   res.writeHead(200);
   res.end('Web Socket server is running.');
 });
 
-initRedisSubscriber();
+const wss = createWebSocketServer({ clientTracking: true, noServer: true });
 
-createWebSocketServer(app);
+app.on('upgrade', async function(request, socket, head) {
+  await authMiddleware(request, socket, head, wss);
+});
 
 export default app;
 

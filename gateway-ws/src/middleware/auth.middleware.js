@@ -1,51 +1,118 @@
-import auth from '../utils/auth.js';
+import { validateJWT } from '@meshplaylab/shared/src/utils/validateJWT.js';
+import { randomUUID } from "crypto";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
-import { AuthenticationError, InvalidMessageFormat } from '../constants/errors.js';
-import { sanitizeError } from "../utils/errorSanitizer.js";
-import { errorResponse, successResponse } from "../utils/response.js";
-import codes from "../protocol/status/codes.js";
+import { SocketLoggerMetadata } from '../config/logger.js';
 
 const logger = createLogger('auth.middleware');
 
-export default async function (socket, message, closeOnFail, loggerMeta) {
-    logger.setMetadata(loggerMeta);
-
+export default async function (req, socket, head, wss) {
     try {
 
-        // Check if message is for authentication.
-        if (message.target !== 'auth') {
-            logger.debug('Received message not adressed to auth.');
-            throw new AuthenticationError('Expecting Auth message.');
+        const requestId = randomUUID();
+        const logMeta = new SocketLoggerMetadata(null, requestId);
+        logger.setMetadata(logMeta);
+
+        logger.debug(`Received new authentication request from ip: ${socket.remoteAddress}`);
+
+        const authHeader = req.headers['authorization'];
+
+        if (!authHeader) {
+
+            logger.info('Missing Auth Header.');
+            handleError(401, 'Missing Auth Header', socket);
+            return;
+
         }
 
-        // Check if message contains token.
-        if(!message.payload.token){
-            logger.debug('Received message is missing the "token" field in the payload.');
-            throw new InvalidMessageFormat('Auth message missing "token" field in payload.');
+        const token = authHeader.split(' ')[1];
+
+        if (!token) {
+
+            logger.info('Missing JWT in Auth Header.');
+            handleError(401, 'Missing JWT in Auth Header.', socket);
+            return;
+
         }
 
-        if(typeof message.payload.token !== 'string') {
-            logger.debug('Received message field "token" is not a string.');
-            throw new InvalidMessageFormat('Auth message invalid "token" field format in payload.');
+        //Decode user data from jwt
+        let decoded
+
+        logger.debug('Decoding JWT.');
+        try { decoded = await validateJWT(token, logMeta); }
+        catch (err) {
+
+            handleJWTError(err, socket);
+            return;
+
         }
 
-        // Validate the JWT in message payload.
-        socket.user = await auth(message.payload.token, loggerMeta);
-        successResponse(socket, 'auth', codes.AUTH_SUCCESS, 'Authenticated successfully.', loggerMeta, message.metadata);
-        return true;
+        logger.debug('Client authenticated successfully, upgrading connection.');
+
+        wss.handleUpgrade(req, socket, head, function (ws) {
+            ws.user = decoded;
+            wss.emit('connection', ws, req);
+        });
+
 
     } catch (err) {
 
-        logger.info('Authentication failed.');
-        const sanitized = sanitizeError(err, 'Unexpected error while authenticating connection.', loggerMeta);
-        errorResponse(socket, 'auth', sanitized, loggerMeta);
+        logger.error('Unexpected error while authenticating connection.', '', err);
+        handleError(500, 'Internal error', socket);
 
-        if (closeOnFail) {
-            logger.info('Closing connection.');
-            socket.terminate();
+    }
+}
+
+
+// Helper functions
+function handleError(code, message, socket) {
+    socket.write(`HTTP/1.1 ${code} ${message}\r\n\r\n`);
+    socket.destroy();
+    return;
+}
+
+function handleJWTError(err, socket) {
+    switch (err.name) {
+
+        case 'TokenExpiredError': {
+
+            logger.info(`Provided JWT has expired`);
+            handleError(401, 'JWT Expired', socket);
+
         }
 
-        return false; // Returning false to signal error handled.
+        case 'JsonWebTokenError': {
 
+            logger.info(`Error while verifying token.`, '', err);
+            handleError(401, 'Invalid JWT', socket);
+
+        }
+
+        case 'InvalidTokenFormat': {
+
+            logger.info(`Provided JWT has invalid format.`);
+            handleError(401, 'Invalid JWT format', socket);
+
+        }
+
+        case 'UserNotFound': {
+
+            logger.info(`Attempted to use JWT of non existing user.`);
+            handleError(401, 'Invalid JWT contents', socket);
+
+        }
+
+        case 'UsernamesDontMatch': {
+
+            logger.info(`Username in JWT does not match username in database.`);
+            handleError(401, 'Invalid JWT contents', socket);
+
+        }
+
+        default: {
+
+            logger.error(`Error while authenticating user JWT: `, '', err);
+            handleError(500, 'Internal error', socket);
+
+        }
     }
 }
