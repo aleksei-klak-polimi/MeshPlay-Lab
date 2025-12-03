@@ -3,9 +3,6 @@ export default {
     // Ack codes
     RECEIVED:       10000,
 
-    // Success codes
-    AUTH_SUCCESS:   20001,
-
     // Server Ready
     SERVER_READY:   30000,
 
@@ -14,8 +11,5 @@ export default {
     INTERNAL_ERROR: 50000,
     INVALID_INPUT:  40001,
     INVALID_TARGET: 40401,
-
-    // Auth errors codes
-    AUTH_ERROR:     40100,
 
 }

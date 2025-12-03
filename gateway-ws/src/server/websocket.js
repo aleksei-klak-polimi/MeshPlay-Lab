@@ -3,12 +3,12 @@ import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
-import { successResponse, errorResponse } from "../utils/response.js";
+import { successResponse, errorResponse, ackResponse } from "../utils/response.js";
 import { registerSocket, unregisterSocket } from "./connectionManager.js";
 import { initRedisSubscriber } from '../pubsub/subscriber.js';
 import codes from "../protocol/status/codes.js";
-import validate from "../middleware/validate.middleware.js";
-import parse from "../middleware/parse.middleware.js";
+import { validateClient } from "../utils/validateMessage.js";
+import parse from "../utils/parseMessage.js";
 import routeMessage from "./router.js";
 
 export default function createWebSocketServer(server) {
@@ -37,10 +37,10 @@ export default function createWebSocketServer(server) {
   });
 
   //Ping-Pong timer logic
-  const interval = setInterval(function ping(){
+  const interval = setInterval(function ping() {
     wss.clients.forEach((socket) => {
 
-      if(socket.isAlive === false){
+      if (socket.isAlive === false) {
         logger.debug(`SocketID: ${socket.id} did not respond to ping, calling terminate().`);
         return socket.terminate();
       }
@@ -65,29 +65,38 @@ function handleMessage(socket, rawMessage) {
 
   try {
 
-    const message = parse(socket, rawMessage, false, logMeta);
-    if (!message) return;
+    // Validate message
+    try {
 
-    if (!validate(socket, message, false, logMeta)) return;
+      const message = parse(rawMessage, logMeta);
+      if (!validateClient(message, logMeta)) return;
+      message.metadata.serverSideReqId = requestId;
 
-    message.metadata.serverSideReqId = requestId;
+    } catch (err) {
+      logger.info('Client message failed parsing or validation.');
+      throw err;
+    }
 
     // Route message
     try {
-      routeMessage(socket, message, logMeta);
+      routeMessage(socket.user.id, message, logMeta);
     } catch (err) {
-      logger.info('Error while routing user message. Sending back error.');
-      const sanitized = sanitizeError(err, 'Unexpected error while routing the message.', logMeta);
-      errorResponse(socket, 'server', sanitized, logMeta, message.metadata);
-      return;
+      logger.info('Error while routing client message. Sending back error.');
+      throw err;
     }
+
+    // Send ack to client
+    ackResponse(socket, logMeta, message.metadata);
 
   } catch (err) {
 
-    logger.error('Encountered unexpected error while processing the message.',
-      null, err);
-    const sanitized = sanitizeError(err, 'Unexpected error while processing message.', logMeta);
-    errorResponse(socket, 'auth', sanitized, logMeta);
+    const sanitized = sanitizeError(err, 'Unexpected error while processing message.');
+
+    if (sanitized.code === codes.INTERNAL_ERROR)
+      logger.error('Encountered unexpected error while processing the message.',
+        null, err);
+
+    errorResponse(socket, 'server', sanitized, logMeta);
 
   }
 }

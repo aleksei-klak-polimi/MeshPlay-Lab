@@ -5,11 +5,12 @@ import parse from "../utils/parseMessage.js";
 import { validateRedis as validate } from "../utils/validateMessage.js";
 
 const logger = createLogger('subscriber');
+const redisPrefix = config.redisPrefix;
 
 export function initRedisSubscriber() {
   logger.info('Initializing Redis subscribe', 'initRedisSubscriber');
 
-  redisSub.subscribe("ws.outgoing");
+  redisSub.subscribe(`${redisPrefix}.ws.outgoing`);
 
   redisSub.on("message", (channel, rawMessage) => {
     logger.debug('Received message from redis.', 'redisSub.on("message")');
