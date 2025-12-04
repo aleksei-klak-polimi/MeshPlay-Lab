@@ -45,10 +45,3 @@ export function broadcastToUser(userId, message) {
         sendResponse(s, message);
     });
 };
-
-
-
-
-
-
-
