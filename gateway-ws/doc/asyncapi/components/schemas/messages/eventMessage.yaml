@@ -1,0 +1,23 @@
+name: eventMessage
+title: Event Message (Server -> Client)
+summary: |
+  Event messages are sent asynchronously from the server or microservices
+  to clients. These represent state changes or broadcasts that are not necessarily
+  tied to a specific user request.
+payload:
+  type: object
+  required: [type, source, payload]
+  properties:
+    type:
+      type: string
+      enum: [event]
+    source:
+      type: string
+      description: >
+        Microservice name or "server".
+      example: chat
+    payload:
+      type: object
+      description: |
+        JSON payload describing a state update or event.  
+        Refer to microservice documentation for details.

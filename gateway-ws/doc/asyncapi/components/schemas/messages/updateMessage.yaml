@@ -1,0 +1,35 @@
+name: updateMessage
+title: Update Message (Server -> Client)
+summary: |
+  Sent in response to user requests.
+  These messages report progress, status changes, acknowledgements,
+  errors, or final results for user-initiated requests.
+payload:
+  type: object
+  required: [type, source, status, metadata]
+  properties:
+    type:
+      type: string
+      enum: [update]
+    source:
+      type: string
+      description: >
+        Microservice name (e.g. "chat", "game") or "server".
+      example: server
+    status:
+      type: object
+      required: [code, severity, message]
+      properties:
+        code:
+          type: integer
+          description: Request lifecycle code.
+          example: 10000
+        severity:
+          type: string
+          enum: [ok, error]
+        message:
+          type: string
+          description: Human-readable summary or description.
+          example: Message forwarded.
+    metadata:
+      $ref: '../metadata/serverMessageMetadata.yaml'

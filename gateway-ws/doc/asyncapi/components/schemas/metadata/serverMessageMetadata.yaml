@@ -1,0 +1,11 @@
+type: object
+required: [userReqId, serverSideReqId]
+properties:
+  userReqId:
+    type: string
+    description: Correlates server replies to the originating client request.
+    example: xyz789
+  serverSideReqId:
+    type: string
+    description: ID used serverside to identify the original client request. Used for debugging/log tracing.
+    example: abc123

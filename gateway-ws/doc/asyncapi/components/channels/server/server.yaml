@@ -1,0 +1,13 @@
+description: >
+  WebSocket gateway-level channel.  
+  Handles authentication, connection lifecycle, and generic server events.
+
+# Server -> Client
+subscribe:
+  message:
+    oneOf:
+      - $ref: './subscribe/ServerReady.yaml'
+      - $ref: './subscribe/Received.yaml'
+      - $ref: './subscribe/InternalError.yaml'
+      - $ref: './subscribe/InvalidInput.yaml'
+      - $ref: './subscribe/InvalidTarget.yaml'

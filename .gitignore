@@ -9,5 +9,6 @@ gateway-ws/.env
 gateway-ws/tests/.env.test
 gateway-ws/node_modules
 gateway-ws/coverage
+gateway-ws/doc/asyncapi/generated
 shared/node/node_modules
 shared/node/coverage

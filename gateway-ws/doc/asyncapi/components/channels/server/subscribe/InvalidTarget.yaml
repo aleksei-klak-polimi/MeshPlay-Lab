@@ -1,0 +1,26 @@
+name: InvalidTarget
+title: Invalid Message Target
+summary: Sent by the server if no handler was found to handle the request.
+payload:
+  type: object
+  properties:
+    type:
+      type: string
+      example: update
+    source:
+      type: string
+      example: server
+    status:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 40401
+        severity:
+          type: string
+          example: error
+        message:
+          type: string
+          example: No handler found for message target.
+    metadata:
+      $ref: '../../../schemas/metadata/serverMessageMetadata.yaml'

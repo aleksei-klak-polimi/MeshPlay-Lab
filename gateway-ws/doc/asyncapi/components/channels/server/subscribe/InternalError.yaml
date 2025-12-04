@@ -1,0 +1,26 @@
+name: InternalError
+title: Internal Error
+summary: Sent by the server if the request could not be processed due to an internal error.
+payload:
+  type: object
+  properties:
+    type:
+      type: string
+      example: update
+    source:
+      type: string
+      example: server
+    status:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 50000
+        severity:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Internal Error.
+    metadata:
+      $ref: '../../../schemas/metadata/serverMessageMetadata.yaml'
