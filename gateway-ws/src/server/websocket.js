@@ -4,7 +4,8 @@ import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
 import { successResponse, errorResponse, ackResponse } from "../utils/response.js";
-import { registerSocket, unregisterSocket } from "./connectionManager.js";
+import { registerSocket, unregisterSocket, getUserSockets } from "./connectionManager.js";
+import discnHandler from "../handlers/disconnection.handler.js";
 import { initRedisSubscriber, closeRedisSubscriber } from '../pubsub/subscriber.js';
 import codes from "../protocol/status/codes.js";
 import { validateClient } from "../utils/validateMessage.js";
@@ -115,9 +116,13 @@ function handleClose(socket) {
 
   logger.info(`Close called on socket.`, 'handleClose');
 
-  if (socket.user) {
-    logger.debug(`Socket was authenticated, proceeding to unregister socket`);
-    unregisterSocket(socket);
+  unregisterSocket(socket);
+
+  //Check if user has any more sockets left
+  const userId = socket.user.id;
+  if (getUserSockets(userId).size === 0){
+    logger.debug(`UserId: ${userId} lost all connections, notifying other services...`);
+    discnHandler(userId);
   }
 
   logger.info(`Socket closed.`);
