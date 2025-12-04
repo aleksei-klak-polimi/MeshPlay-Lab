@@ -4,6 +4,7 @@ import { broadcastToUser } from "../server/connectionManager.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
 import parse from "../utils/parseMessage.js";
 import { validateRedis as validate } from "../utils/validateMessage.js";
+import { EventResponse, UpdateResponse } from "../protocol/frames/response.js";
 
 const logger = createLogger('subscriber');
 const redisPrefix = config.redisPrefix;
@@ -30,7 +31,15 @@ export function initRedisSubscriber() {
       }
 
       const { userId, message } = parsed;
-      broadcastToUser(userId, message);
+
+      let protocolMessage
+
+      if(message.type === 'event')
+        protocolMessage = new EventResponse(message.source, message.payload);
+      else
+        protocolMessage = new UpdateResponse(message.source, message.status, message.metadata);
+
+      broadcastToUser(userId, protocolMessage);
 
     } catch (err) {
       logger.error('Unexpected error while processing message from redis.', 'redisSub.on("message")', err);

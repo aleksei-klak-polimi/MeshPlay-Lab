@@ -78,30 +78,12 @@ export function ackResponse(socket, loggerMetadata, resMetadata = null){
     socket.send(serialized);
 }
 
-export function eventResponse(socket, source, payload){
-    logger.resetMetadata();
-
-    const response = new EventResponse(source, payload);
-
-    let serialized;
-    try{
-        serialized = response.serialize();
-    } catch (err){
-        logger.error('Error while serializing response object, message not sent to client.', 'eventResponse', err);
-        return;
-    }
-
-    socket.send(serialized);
-}
-
-export function updateResponse(socket, source, status, loggerMetadata, resMetadata){
+export function sendResponse(socket, message, loggerMetadata){
     logger.setMetadata(loggerMetadata);
 
-    const response = new UpdateResponse(source, status, resMetadata);
-
     let serialized;
     try{
-        serialized = response.serialize();
+        serialized = message.serialize();
     } catch (err){
         logger.error('Error while serializing response object, message not sent to client.', 'updateResponse', err);
         return;

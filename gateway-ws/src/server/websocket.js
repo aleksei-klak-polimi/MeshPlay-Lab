@@ -3,7 +3,7 @@ import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
-import { successResponse, errorResponse, ackResponse } from "../utils/response.js";
+import { successResponse, errorResponse, ackResponse } from "../utils/sendResponse.js";
 import { registerSocket, unregisterSocket, getUserSockets } from "./connectionManager.js";
 import discnHandler from "../handlers/disconnection.handler.js";
 import { initRedisSubscriber, closeRedisSubscriber } from '../pubsub/subscriber.js';

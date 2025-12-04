@@ -5,8 +5,6 @@ import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
 import validateJWTMock from '@meshplaylab/shared/tests/mocks/utils/validateJWT.mock.js';
 jest.unstable_mockModule('@meshplaylab/shared/src/utils/validateJWT.js', () => validateJWTMock());
-import responseMock from '../../mocks/utils/response.mock.js';
-jest.unstable_mockModule("../../../src/utils/response.js", () => responseMock());
 
 // Import AFTER mocks
 const { default: authMiddleware } = await import("../../../src/middleware/auth.middleware.js");

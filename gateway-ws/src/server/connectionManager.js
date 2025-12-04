@@ -1,4 +1,4 @@
-import { eventResponse, updateResponse } from "../utils/response.js";
+import { sendResponse } from "../utils/sendResponse.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
 
 const userSockets = new Map(); // userId -> Set<WebSocket>
@@ -39,20 +39,11 @@ export function broadcastToUser(userId, message) {
     const sockets = getUserSockets(userId);
     logger.debug(`Found ${sockets.size} sockets for userId: ${userId}.`);
 
-    if(message.type === 'event'){
-        logger.debug(`Broadcasting event message to userId: ${userId}.`);
+    logger.debug(`Broadcasting message to userId: ${userId}.`);
 
-        sockets.forEach((s) => {
-            eventResponse(s, message.source, message.payload);
-        });
-    } else if(message.type === 'update'){
-        logger.debug(`Broadcasting update message to userId: ${userId}.`);
-
-        sockets.forEach((s) => {
-            updateResponse(s, message.source, message.status, null, message.metadata);
-        });
-    }
-
+    sockets.forEach((s) => {
+        sendResponse(s, message);
+    });
 };
 
 
