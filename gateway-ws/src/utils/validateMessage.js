@@ -77,13 +77,13 @@ function validateRedisUpdate(message){
 function validateFieldAndType(field, fieldName, type, logger){
   if(!field){
     const error = new InvalidMessageFormat(`Missing required field "${fieldName}" in message.`);
-    logger.error(`Invalid Message, missing required field "${fieldName}". Message is not valid.`);
+    logger.info(`Invalid Message, missing required field "${fieldName}". Message is not valid.`);
     throw error;
   }
 
   if(typeof field !== type){
     const error = new InvalidMessageFormat(`Field "${fieldName}" in message is not ${type}.`);
-    logger.error(`Field "${fieldName}" in message is not ${type}. Message is not valid.`);
+    logger.info(`Field "${fieldName}" in message is not ${type}. Message is not valid.`);
     throw error;
   }
 }

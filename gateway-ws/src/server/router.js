@@ -12,8 +12,8 @@ export default function routeMessage(userId, message, loggerMeta) {
 
   if (!handler) {
 
-    logger.info(`No handler found for message type: ${message.target}.`);
-    throw new InvalidTarget(`No handler found for message type: ${message.target}.`);
+    logger.info(`No handler found for message target: ${message.target}.`);
+    throw new InvalidTarget(`No handler found for message target: ${message.target}.`);
     
   }
 
