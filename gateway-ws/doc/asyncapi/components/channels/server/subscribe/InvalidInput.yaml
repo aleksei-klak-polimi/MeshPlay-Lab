@@ -3,24 +3,23 @@ title: Invalid Message
 summary: Sent by the server if the request JSON or its contents are malformed.
 payload:
   type: object
+  required: [type, source, status]
   properties:
     type:
       type: string
-      example: update
+      enum: [update]
     source:
       type: string
-      example: server
+      enum: [server]
     status:
       type: object
       properties:
         code:
           type: integer
-          example: 40001
+          enum: [40001]
         severity:
           type: string
-          example: error
+          enum: [error]
         message:
           type: string
           example: Request is formatted incorrectly.
-    metadata:
-      $ref: '../../../schemas/metadata/serverMessageMetadata.yaml'

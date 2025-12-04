@@ -5,22 +5,23 @@ summary: >
   This message is sent as the first successful response to any request.
 payload:
   type: object
+  required: [type, source, status, metadata]
   properties:
     type:
       type: string
-      example: update
+      enum: [update]
     source:
       type: string
-      example: server
+      enum: [server]
     status:
       type: object
       properties:
         code:
           type: integer
-          example: 10000
+          enum: [10000]
         severity:
           type: string
-          example: ok
+          enum: [ok]
         message:
           type: string
           example: Message forwarded.

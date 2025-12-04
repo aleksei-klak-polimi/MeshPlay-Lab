@@ -3,22 +3,23 @@ title: Internal Error
 summary: Sent by the server if the request could not be processed due to an internal error.
 payload:
   type: object
+  required: [type, source, status, metadata]
   properties:
     type:
       type: string
-      example: update
+      enum: [update]
     source:
       type: string
-      example: server
+      enum: [server]
     status:
       type: object
       properties:
         code:
           type: integer
-          example: 50000
+          enum: [50000]
         severity:
           type: string
-          example: error
+          enum: [error]
         message:
           type: string
           example: Internal Error.

@@ -7,7 +7,7 @@ payload:
   properties:
     target:
       type: string
-      example: chat
+      enum: [chat]
     payload:
       type: object
       description: |
