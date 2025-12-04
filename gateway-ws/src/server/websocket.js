@@ -25,7 +25,7 @@ export default function createWebSocketServer(server) {
     socket.isAlive = true;
 
     socket.on('pong', () => { socket.isAlive = true; });
-    socket.on('message', (message) => handleMessage(message, socket));
+    socket.on('message', (message) => handleMessage(socket, message));
     socket.on('close', () => handleClose(socket));
 
     // Tell client server is ready for messages.
@@ -61,21 +61,23 @@ export default function createWebSocketServer(server) {
 
 // Socket functions
 function handleMessage(socket, rawMessage) {
-  const logger = createLogger('websocket.handleFirstMessage');
+  const logger = createLogger('websocket.handleMessage');
   const requestId = randomUUID();
   const logMeta = new SocketLoggerMetadata(socket.id, requestId);
   logger.setMetadata(logMeta);
 
-  try {
+  let message;
 
+  try {
     // Validate message
     try {
 
-      const message = parse(rawMessage, logMeta);
+      message = parse(rawMessage, logMeta);
       if (!validateClient(message, logMeta)) return;
       message.metadata.serverSideReqId = requestId;
 
     } catch (err) {
+      message = null;
       logger.info('Client message failed parsing or validation.');
       throw err;
     }
@@ -99,8 +101,10 @@ function handleMessage(socket, rawMessage) {
       logger.error('Encountered unexpected error while processing the message.',
         null, err);
 
-    errorResponse(socket, 'server', sanitized, logMeta);
-
+    if(message)
+      errorResponse(socket, 'server', sanitized, logMeta, message.metadata);
+    else
+      errorResponse(socket, 'server', sanitized, logMeta);
   }
 }
 
