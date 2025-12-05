@@ -3,7 +3,8 @@ import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
-import { successResponse, errorResponse, ackResponse } from "../utils/sendResponse.js";
+import { errorResponse, ackResponse, serverReadyResponse } from "../protocol/frames/customResponses.js";
+import sendMessage from "../utils/sendMessage.js";
 import { registerSocket, unregisterSocket, getUserSockets } from "./connectionManager.js";
 import discnHandler from "../handlers/disconnection.handler.js";
 import { initSubscriber, closeSubscriber } from '../pubsub/subscriber.js';
@@ -32,7 +33,7 @@ export default async function createWebSocketServer(server, {redisPub, redisSub}
     socket.on('close', () => handleClose(socket));
 
     // Tell client server is ready for messages.
-    successResponse(socket, 'server', codes.SERVER_READY, 'Server is ready to receive messages.');
+    sendMessage(socket, serverReadyResponse());
   });
 
   wss.on('close', function close() {
@@ -94,7 +95,7 @@ export function handleMessage(socket, rawMessage) {
     }
 
     // Send ack to client
-    ackResponse(socket, logMeta, message.metadata);
+    sendMessage(socket, ackResponse(message.metadata), logMeta);
 
   } catch (err) {
 
@@ -105,9 +106,9 @@ export function handleMessage(socket, rawMessage) {
         null, err);
 
     if(message)
-      errorResponse(socket, 'server', sanitized, logMeta, message.metadata);
+      sendMessage(socket, errorResponse(sanitized, message.metadata), logMeta);
     else
-      errorResponse(socket, 'server', sanitized, logMeta);
+      sendMessage(socket, errorResponse(sanitized), logMeta);
   }
 }
 

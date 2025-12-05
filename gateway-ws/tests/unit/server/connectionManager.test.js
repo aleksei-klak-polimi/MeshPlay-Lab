@@ -1,7 +1,7 @@
 import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 
 describe('connectionManager', () => {
-    let registerSocket, unregisterSocket, getUserSockets, broadcastToUser, sendResponse;
+    let registerSocket, unregisterSocket, getUserSockets, broadcastToUser, sendMessage;
 
     beforeEach(async () => {
         //Needed to reset the internal state of connectionManager.js
@@ -10,12 +10,12 @@ describe('connectionManager', () => {
         // Mock dependencies here because of jest.resetModules();
         const { default: createLoggerMock } = await import('@meshplaylab/shared/tests/mocks/config/logger.mock.js');
         jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
-        const { default: sendResponseMock } = await import('../../mocks/utils/sendResponse.mock.js');
-        jest.unstable_mockModule('../../../src/utils/sendResponse.js', () => sendResponseMock());
+        const { default: sendMessageMock } = await import('../../mocks/utils/sendMessage.mock.js');
+        jest.unstable_mockModule('../../../src/utils/sendMessage.js', () => sendMessageMock());
         
         // Re-import fresh module after mocks
         // Import in beforeEach to reset state across tests.
-        ({ sendResponse } = await import('../../../src/utils/sendResponse.js'));
+        ({ default: sendMessage } = await import('../../../src/utils/sendMessage.js'));
         ({ registerSocket, unregisterSocket, getUserSockets, broadcastToUser } = await import('../../../src/server/connectionManager.js'));
     });
 
@@ -83,9 +83,9 @@ describe('connectionManager', () => {
 
         broadcastToUser('u1', message);
 
-        expect(sendResponse).toHaveBeenCalledTimes(2);
-        expect(sendResponse).toHaveBeenCalledWith(s1, message);
-        expect(sendResponse).toHaveBeenCalledWith(s2, message);
+        expect(sendMessage).toHaveBeenCalledTimes(2);
+        expect(sendMessage).toHaveBeenCalledWith(s1, message);
+        expect(sendMessage).toHaveBeenCalledWith(s2, message);
 
     });
 });

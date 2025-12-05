@@ -1,4 +1,4 @@
-import { sendResponse } from "../utils/sendResponse.js";
+import sendMessage from "../utils/sendMessage.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
 
 const userSockets = new Map(); // userId -> Set<WebSocket>
@@ -41,7 +41,5 @@ export function broadcastToUser(userId, message) {
 
     logger.debug(`Broadcasting message to userId: ${userId}.`);
 
-    sockets.forEach((s) => {
-        sendResponse(s, message);
-    });
+    sockets.forEach((s) => { sendMessage(s, message); });
 };
