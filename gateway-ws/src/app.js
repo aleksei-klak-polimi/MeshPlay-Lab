@@ -2,6 +2,7 @@ import http from 'http';
 import createWebSocketServer from "./server/websocket.js";
 import authMiddleware from './middleware/auth.middleware.js';
 import config from './config/config.js';
+import { createRedis, closeRedis } from './config/redis.js';
 
 
 // Api docs html logic
@@ -42,7 +43,9 @@ const app = http.createServer((req, res) => {
   }
 });
 
-const wss = createWebSocketServer({ clientTracking: true, noServer: true });
+const redisPub = createRedis();
+const redisSub = createRedis();
+const wss = await createWebSocketServer({ clientTracking: true, noServer: true }, {redisPub, redisSub});
 
 app.on('upgrade', async function (request, socket, head) {
   await authMiddleware(request, socket, head, wss);
@@ -51,6 +54,8 @@ app.on('upgrade', async function (request, socket, head) {
 app.closeAsync = async () => {
   await wss.closeAsync();
   wss.close();
+  await closeRedis(redisPub);
+  await closeRedis(redisSub);
 }
 
 export default app;

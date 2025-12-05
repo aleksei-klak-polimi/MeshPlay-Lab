@@ -6,17 +6,19 @@ import { sanitizeError } from "../utils/errorSanitizer.js";
 import { successResponse, errorResponse, ackResponse } from "../utils/sendResponse.js";
 import { registerSocket, unregisterSocket, getUserSockets } from "./connectionManager.js";
 import discnHandler from "../handlers/disconnection.handler.js";
-import { initRedisSubscriber, closeRedisSubscriber } from '../pubsub/subscriber.js';
+import { initSubscriber, closeSubscriber } from '../pubsub/subscriber.js';
+import { initPublisher, closePublisher } from "../pubsub/publisher.js";
 import codes from "../protocol/status/codes.js";
 import { validateClient } from "../utils/validateMessage.js";
 import parse from "../utils/parseMessage.js";
 import routeMessage from "./router.js";
 
-export default function createWebSocketServer(server) {
+export default async function createWebSocketServer(server, {redisPub, redisSub}) {
   const logger = createLogger('websocket');
   logger.info('Initializing socket server', 'createWebSocketServer');
 
-  initRedisSubscriber();
+  await initSubscriber(redisSub);
+  initPublisher(redisPub);
 
   const wss = new WebSocketServer(server);
 
@@ -53,7 +55,7 @@ export default function createWebSocketServer(server) {
 
   logger.info('Socket server Initialized');
 
-  wss.closeAsync = async () => { await closeRedisSubscriber() };
+  wss.closeAsync = async () => { await closeSubscriber(); closePublisher() };
 
   return wss;
 }
@@ -61,7 +63,7 @@ export default function createWebSocketServer(server) {
 
 
 // Socket functions
-function handleMessage(socket, rawMessage) {
+export function handleMessage(socket, rawMessage) {
   const logger = createLogger('websocket.handleMessage');
   const requestId = randomUUID();
   const logMeta = new SocketLoggerMetadata(socket.id, requestId);
@@ -109,7 +111,7 @@ function handleMessage(socket, rawMessage) {
   }
 }
 
-function handleClose(socket) {
+export function handleClose(socket) {
   const logger = createLogger('websocket.handleClose');
   const logMeta = new SocketLoggerMetadata(socket.id);
   logger.setMetadata(logMeta);

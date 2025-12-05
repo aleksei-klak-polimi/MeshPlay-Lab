@@ -1,4 +1,3 @@
-import { redisSub } from "../config/redis.js";
 import config from "../config/config.js";
 import { broadcastToUser } from "../server/connectionManager.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
@@ -9,17 +8,40 @@ import { EventResponse, UpdateResponse } from "../protocol/frames/response.js";
 const logger = createLogger('subscriber');
 const redisPrefix = config.redisPrefix;
 const channel = `${redisPrefix}.ws.outgoing`;
+let redis = null;
 
-export function initRedisSubscriber() {
-  logger.info('Initializing Redis subscribe', 'initRedisSubscriber');
+/**
+ * 
+ * @param {import('ioredis').Redis} redisSub 
+ */
+export async function initSubscriber(redisSub) {
+  logger.info('Initializing Redis subscribe', 'initSubscriber');
 
-  redisSub.subscribe(channel);
+  redis = redisSub;
+  await redis.subscribe(channel);
+  redis.on('message', onMessage);
 
-  redisSub.on("message", (channel, rawMessage) => {
-    logger.debug('Received message from redis.', 'redisSub.on("message")');
+  logger.info('Redis subscribe initialized', 'initSubscriber');
+}
 
-    try {
+export async function closeSubscriber() {
+  if(redis){
+    logger.debug('Found redis connection, unsubscribing and removing listener.');
+    await redis.unsubscribe(channel);
+    redis.removeListener('message', onMessage);
+    redis = null;
+    return;
+  } else {
+    logger.debug('No redis connection was found.');
+    return;
+  }
+}
 
+
+function onMessage(channel, rawMessage){
+  logger.debug('Received message from redis.', 'redisSub.on("message")');
+
+  try {
       let parsed;
       try{
         parsed = parse(rawMessage);
@@ -44,13 +66,6 @@ export function initRedisSubscriber() {
     } catch (err) {
       logger.error('Unexpected error while processing message from redis.', 'redisSub.on("message")', err);
     }
-
-  });
-
-  logger.info('Redis subscribe initialized', 'initRedisSubscriber');
 }
 
-export async function closeRedisSubscriber() {
-  await redisSub.unsubscribe(channel);
-  redisSub.removeAllListeners();
-}
+
