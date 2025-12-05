@@ -5,7 +5,6 @@ import UserModel from '@meshplaylab/shared/src/models/user.model';
 import sign from '@meshplaylab/shared/src/utils/generateJWT';
 import http from 'http';
 import app from '../../src/app';
-import codes from '../../src/protocol/status/codes';
 import crypto from 'crypto';
 
 import setupDB from '@meshplaylab/shared/tests/integration/setup/setupDB.js';
@@ -27,7 +26,6 @@ beforeAll(async () => {
 afterAll(async () => {
     app.close();
     await app.closeAsync();
-
     await pool.end();
 
     await redisPub.quit();
@@ -54,7 +52,7 @@ async function deleteUser(userId) {
     let connection;
     try {
         connection = await getConnection();
-        const id = await UserModel.delete(connection, userId);
+        await UserModel.delete(connection, userId);
     } finally {
         if (connection) connection.release();
     }
@@ -210,12 +208,6 @@ describe('Integration tests for the websocket gateway', () => {
 
             expect(result.type).toBe("upgrade");
             expect(result.socket).toBeDefined();
-
-            // Test that server sent SERVER_READY after connection:
-            result.socket.on("message", msg => {
-                const parsed = JSON.parse(msg.toString());
-                expect(parsed.code).toBe( codes.SERVER_READY );
-            });
 
             result.socket.destroy();
 
