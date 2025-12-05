@@ -19,7 +19,7 @@ export default function sendMessage(socket, message, logMeta){
     }
 
     try{
-        if(socket.readyState === 'OPEN')
+        if(socket.readyState === 1)
             socket.send(serialized);
         else
             logger.warn('Could not send message to socket, socket is not OPEN.');
