@@ -1,11 +1,12 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { redisPub, redisSub } from '../../src/config/redis';
 import { getConnection, pool } from '@meshplaylab/shared/src/config/db.js';
-import UserModel from '@meshplaylab/shared/src/models/user.model';
 import sign from '@meshplaylab/shared/src/utils/generateJWT';
 import http from 'http';
 import app from '../../src/app';
 import crypto from 'crypto';
+
+// Import utils
+import { createTestUser, deleteUser } from './testHelpers/utils';
 
 import setupDB from '@meshplaylab/shared/tests/integration/setup/setupDB.js';
 import teardownDB from '@meshplaylab/shared/tests/integration/setup/teardownDB.js';
@@ -28,36 +29,12 @@ afterAll(async () => {
     await app.closeAsync();
     await pool.end();
 
-    await redisPub.quit();
-    await redisSub.quit();
-
     // Delete database to avoid cross test contamination
     await teardownDB(false);
 });
 
 
 // Helper functions
-async function createTestUser(username, password) {
-    let connection;
-    try {
-        connection = await getConnection();
-        const id = await UserModel.create(connection, { username, passwordHash: password, createdAt: new Date() });
-        return id;
-    } finally {
-        if (connection) connection.release();
-    }
-}
-
-async function deleteUser(userId) {
-    let connection;
-    try {
-        connection = await getConnection();
-        await UserModel.delete(connection, userId);
-    } finally {
-        if (connection) connection.release();
-    }
-}
-
 function upgradeRequest(options) {
     return new Promise((resolve, reject) => {
         const req = http.request(options);
@@ -155,7 +132,7 @@ describe('Integration tests for the websocket gateway', () => {
                 passHash: 'PassHash',
             }
 
-            testUser.id = await createTestUser(testUser.username, testUser.passHash);
+            testUser.id = await createTestUser(testUser.username, testUser.passHash, getConnection);
 
             const expiredToken = sign(testUser.id, testUser.username, -10);
 
@@ -176,7 +153,7 @@ describe('Integration tests for the websocket gateway', () => {
             expect(type).toBe("response");
             expect(res.statusCode).toBe(401);
 
-            await deleteUser(testUser.id);
+            await deleteUser(testUser.id, getConnection);
         });
 
 
@@ -188,7 +165,7 @@ describe('Integration tests for the websocket gateway', () => {
                 passHash: 'PassHash',
             }
 
-            testUser.id = await createTestUser(testUser.username, testUser.passHash);
+            testUser.id = await createTestUser(testUser.username, testUser.passHash, getConnection);
 
             const validToken = sign(testUser.id, testUser.username);
 
@@ -211,7 +188,7 @@ describe('Integration tests for the websocket gateway', () => {
 
             result.socket.destroy();
 
-            await deleteUser(testUser.id);
+            await deleteUser(testUser.id, getConnection);
         });
 
 
