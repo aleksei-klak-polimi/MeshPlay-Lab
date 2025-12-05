@@ -1,7 +1,5 @@
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 
-const logger = createLogger('utils.response');
-
 /**
  * 
  * @param {import('ws').WebSocket} socket 
@@ -9,15 +7,24 @@ const logger = createLogger('utils.response');
  * @param {{ toString: function(): string }} logMeta 
  */
 export default function sendMessage(socket, message, logMeta){
+    const logger = createLogger('utils.sendMessage');
     logger.setMetadata(logMeta);
 
     let serialized;
     try{
         serialized = message.serialize();
     } catch (err){
-        logger.error('Error while serializing response object, message not sent to client.', 'updateResponse', err);
+        logger.error('Error while serializing response object, message not sent to client.', err);
         return;
     }
 
-    socket.send(serialized);
+    try{
+        if(socket.readyState === 'OPEN')
+            socket.send(serialized);
+        else
+            logger.warn('Could not send message to socket, socket is not OPEN.');
+    } catch(err) {
+        logger.error('Error while sending message to client. Message not sent.', err);
+    }
+    
 }
