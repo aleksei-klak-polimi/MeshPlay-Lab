@@ -1,5 +1,5 @@
-import { UpdateResponse } from "./response";
-import codes from "../status/codes";
+import { UpdateResponse } from "./response.js";
+import codes from "../status/codes.js";
 
 export function errorResponse(error, metadata = null) {
     const status = {
