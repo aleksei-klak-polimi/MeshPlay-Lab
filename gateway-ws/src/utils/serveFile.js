@@ -2,7 +2,13 @@ import path from 'path';
 import fs from 'fs';
 
 
-function serveDoc(res, filepath) {
+export default function serveFile(req, res){
+    const filePath = getFilePath(req);
+    serve(res, filePath);
+    return;
+}
+
+function serve(res, filepath) {
 
     const baseDir = path.resolve(process.cwd(), './doc/asyncapi/generated');
 
@@ -24,13 +30,9 @@ function serveDoc(res, filepath) {
     stream.pipe(res);
 }
 
-export function serveDocs(req, res) {
-    const filePath = function () {
-        const parts = req.url.split('/').filter(Boolean);
-        return "/" + parts.slice(1).join("/");
-    }()
-
-    serveDoc(res, filePath);
+function getFilePath(req) {
+    const parts = req.url.split('/').filter(Boolean);
+    return "/" + parts.slice(1).join("/");
 }
 
 

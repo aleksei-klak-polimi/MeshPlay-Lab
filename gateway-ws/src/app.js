@@ -3,7 +3,7 @@ import createWebSocketServer from "./server/websocket.js";
 import authMiddleware from './middleware/auth.middleware.js';
 import config from './config/config.js';
 import { createRedis, closeRedis } from './config/redis.js';
-import { serveDocs } from './utils/serveDocs.js';
+import serveFile from './utils/serveFile.js';
 
 
 // ---- WebSocket + HTTP server ----
@@ -37,7 +37,7 @@ app.closeAsync = async () => {
 // Api docs html logic
 function exposeDocs(req, res){
   if(config.env === 'development'){
-    serveDocs(req, res);
+    serveFile(req, res);
     return true;
   } else return false;
 }
