@@ -1,4 +1,13 @@
-export default {
+/**
+ * @namespace codes
+ * @property {number} RECEIVED
+ * @property {number} SERVER_READY
+ * @property {number} GENERIC_ERROR
+ * @property {number} INTERNAL_ERROR
+ * @property {number} INVALID_INPUT
+ * @property {number} INVALID_TARGET
+ */
+const codes = {
 
     // Ack codes
     RECEIVED:       10000,
@@ -13,3 +22,5 @@ export default {
     INVALID_TARGET: 40401,
 
 }
+
+export default codes;

@@ -5,6 +5,26 @@ import { SocketLoggerMetadata } from '../config/logger.js';
 
 const logger = createLogger('auth.middleware');
 
+/**
+ * Handles authentication for WebSocket upgrade requests.
+ *
+ * This middleware intercepts incoming HTTP `Upgrade` requests, validates 
+ * the Authorization header, verifies the provided JWT, and on success 
+ * upgrades the connection to a WebSocket by delegating to `wss.handleUpgrade()`.
+ *
+ * On failure, the connection is rejected with the appropriate HTTP status code.
+ *
+ * Expected JWT format in the Authorization header:
+ *    `Authorization: Bearer <token>`
+ *
+ * @async
+ * @param {import('http').IncomingMessage} req - The incoming HTTP request object sent during WebSocket upgrade.
+ * @param {import('net').Socket} socket - The raw network socket used for the upgrade handshake.
+ * @param {Buffer} head - The first packet of the upgraded stream; usually unused.
+ * @param {import('ws').WebSocketServer} wss - The WebSocket server instance responsible for managing connections.
+ *
+ * @returns {Promise<void>} Resolves when the request is either upgraded or rejected.
+ */
 export default async function (req, socket, head, wss) {
     try {
 
