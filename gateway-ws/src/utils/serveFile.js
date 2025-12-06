@@ -2,15 +2,13 @@ import path from 'path';
 import fs from 'fs';
 
 
-export default function serveFile(req, res){
+export default function serveFile(req, res, baseDir){
     const filePath = getFilePath(req);
-    serve(res, filePath);
+    serve(res, baseDir, filePath);
     return;
 }
 
-function serve(res, filepath) {
-
-    const baseDir = path.resolve(process.cwd(), './doc/asyncapi/generated');
+function serve(res, baseDir, filepath) {
 
     // Normalize and construct file path
     const requested = filepath === "/" ? "/index.html" : filepath;

@@ -4,6 +4,7 @@ import authMiddleware from './middleware/auth.middleware.js';
 import config from './config/config.js';
 import { createRedis, closeRedis } from './config/redis.js';
 import serveFile from './utils/serveFile.js';
+import path from 'path';
 
 
 // ---- WebSocket + HTTP server ----
@@ -37,7 +38,8 @@ app.closeAsync = async () => {
 // Api docs html logic
 function exposeDocs(req, res){
   if(config.env === 'development'){
-    serveFile(req, res);
+    const baseDir = path.resolve(process.cwd(), './doc/asyncapi/generated');
+    serveFile(req, res, baseDir);
     return true;
   } else return false;
 }
