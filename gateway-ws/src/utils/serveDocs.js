@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 
 
-export function serveDocs(req, res, filepath) {
+function serveDoc(res, filepath) {
 
     const baseDir = path.resolve(process.cwd(), './doc/asyncapi/generated');
 
@@ -22,6 +22,15 @@ export function serveDocs(req, res, filepath) {
         res.writeHead(404).end("404 Not Found");
     });
     stream.pipe(res);
+}
+
+export function serveDocs(req, res) {
+    const filePath = function () {
+        const parts = req.url.split('/').filter(Boolean);
+        return "/" + parts.slice(1).join("/");
+    }()
+
+    serveDoc(res, filePath);
 }
 
 
