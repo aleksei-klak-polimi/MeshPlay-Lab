@@ -11,7 +11,7 @@ import discnHandler from "../handlers/disconnection.handler.js";
 import { initSubscriber, closeSubscriber } from '../pubsub/subscriber.js';
 import { initPublisher, closePublisher } from "../pubsub/publisher.js";
 import codes from "../protocol/status/codes.js";
-import { validateClient } from "../utils/validateMessage.js";
+import { validateClient } from "../protocol/validators/validateMessage.js";
 import parse from "../utils/parseMessage.js";
 import routeMessage from "./router.js";
 

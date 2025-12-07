@@ -5,8 +5,8 @@ import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
 
 // Import after mocks
-const { validateClient, validateRedis } = await import('../../../src/utils/validateMessage.js');
-const { InvalidMessageFormat } = await import('../../../src/constants/errors.js');
+const { validateClient, validateRedis } = await import('../../../../src/protocol/validators/validateMessage.js');
+const { InvalidMessageFormat } = await import('../../../../src/constants/errors.js');
 
 beforeEach(() => {
     jest.clearAllMocks();
