@@ -21,7 +21,7 @@ const customLevels = {
 winston.addColors(customLevels.colors);
 
 // Ensure log directory exists
-const logDir = process.env.LOG_DIR || '../logs/gateway-node';
+const logDir = process.env.LOG_DIR || '../logs/node/default';
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
