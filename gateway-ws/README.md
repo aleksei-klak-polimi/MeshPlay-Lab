@@ -202,7 +202,7 @@ A template for each exists in the project.
     PORT=5001
 
     # Logging
-    LOG_DIR=../logs/gateway-ws
+    LOG_DIR=../logs/gateway-ws/dev
     LOG_LEVEL=trace
 
     # Database
