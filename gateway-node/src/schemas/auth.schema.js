@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { username, password } from "./fields.js";
+import { username, password } from "@meshplaylab/shared/src/schemas/fields.js";
 
 export const signupSchema = Joi.object({
     username:   username.required()

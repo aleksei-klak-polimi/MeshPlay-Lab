@@ -1,7 +1,7 @@
 import express from 'express';
 import config from './config/config.js';
 import morgan from 'morgan';
-import { createLogger } from './config/logger.js';
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 import { jsonParserWithValidation, invalidJsonErrorHandler } from './middleware/validateJSON.middleware.js';
 import { signRequest } from './middleware/requestSignature.middleware.js';
 

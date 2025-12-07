@@ -1,18 +1,8 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-
-import setupDB from "./setupDB.js";
+import setupDB from '@meshplaylab/shared/tests/integration/setup/setupDB.js';
+import setupEnv from '@meshplaylab/shared/tests/integration/setup/setupEnv.js';
 
 export default function globalSetup(){
-    initializeTestEnviroment();
+    setupEnv();
+    console.log(`Should see test variable: ${process.env.TEST_FIELD}`);
     setupDB();
-}
-
-// Setup process.env to reference .env.test
-function initializeTestEnviroment(){
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const envPath = path.resolve(__dirname, '../../.env.test');
-    dotenv.config({ path: envPath });
 }

@@ -1,0 +1,25 @@
+name: ServerReady
+title: Server is Ready
+summary: Sent after successful WebSocket upgrade, signal to the client that the server is listening for any new message.
+payload:
+  type: object
+  required: [type, source, status]
+  properties:
+    type:
+      type: string
+      enum: [update]
+    source:
+      type: string
+      enum: [server]
+    status:
+      type: object
+      properties:
+        code:
+          type: integer
+          enum: [30000]
+        severity:
+          type: string
+          enum: [ok]
+        message:
+          type: string
+          example: Server is ready to receive messages.

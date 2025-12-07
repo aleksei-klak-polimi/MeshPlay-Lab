@@ -1,0 +1,96 @@
+asyncapi: '2.6.0'
+info:
+  title: MeshPlay WebSocket Protocol
+  version: '0.0.1'
+  description: |
+    Bidirectional WebSocket protocol for communication between clients and the MeshPlay
+    gateway server.  
+    Messages are asynchronous and may be:
+      - **User messages** (client -> server)
+      - **Update messages** (server -> client)
+      - **Event messages** (server -> client, broadcast)
+
+    ### 1. User Messages (Client -> Server)
+    Structure:
+    ```json
+    {
+      "target": "chat",
+      "payload": { ... },
+      "metadata": {
+        "userReqId": "xyz789"
+      }
+    }
+    ```
+
+    ### 2. Server Messages (Server -> Client)
+
+    #### Update Messages
+    Sent in response to user requests.
+    These messages report progress, status changes, acknowledgements,
+    errors, or final results for user-initiated requests.
+
+    Structure:
+    ```json
+    {
+      "type": "update",
+      "source": "server",
+      "status": { "code": 1000, "severity": "ok", "message": "Received" },
+      "metadata": {
+        "userReqId": "xyz789",
+        "serverSideReqId": "abc123"
+      }
+    }
+    ```
+
+    #### Event Messages
+    Event messages are sent asynchronously from the server or microservices
+    to clients. These represent state changes or broadcasts that are not necessarily
+    tied to a specific user request.
+
+    Structure:
+    ```json
+    {
+      "type": "event",
+      "source": "chat",
+      "payload": { ... }
+    }
+    ```
+
+defaultContentType: application/json
+
+components:
+  messages:
+
+    UserMessage:
+      $ref: './components/schemas/messages/userMessage.yaml'
+
+    UpdateMessage:
+      $ref: './components/schemas/messages/updateMessage.yaml'
+
+    EventMessage:
+      $ref: './components/schemas/messages/eventMessage.yaml'
+  
+  # ---------------------------------------------------
+  # SECURITY
+  # ---------------------------------------------------
+  securitySchemes:
+    jwt:
+      type: httpApiKey
+      name: Authorization
+      in: header
+      description: |
+        Must be provided during the HTTP Upgrade request:
+        ```
+        Authorization: Bearer <JWT>
+        ```
+
+servers:
+  development:
+    url: ws://localhost:5001
+    protocol: wss
+    security:
+      - jwt: []
+
+
+channels:
+  $ref: './components/channels/channels.yaml'

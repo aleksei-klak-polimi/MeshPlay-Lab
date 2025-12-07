@@ -1,0 +1,155 @@
+import winston from 'winston';
+import path from 'path';
+import fs from 'fs';
+import config from './config.js';
+
+const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+/**
+ * Custom Winston log level definitions used by the application.
+ *
+ * Additional level "trace" is added for extremely verbose diagnostic output.
+ *
+ * @typedef {Object} CustomLogLevels
+ * @property {Object<string, number>} levels - Log level names mapped to numeric severity.
+ * @property {Object<string, string>} colors - ANSI colors applied to custom log levels.
+ */
+const customLevels = {
+  levels: { error: 0, warn: 1, info: 2, http: 3, verbose: 4, debug: 5, trace: 6 },
+  colors: { trace: 'magenta' }
+};
+winston.addColors(customLevels.colors);
+
+// Ensure log directory exists
+const logDir = process.env.LOG_DIR || '../logs/gateway-node';
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+// Filenames
+const errorFile = path.join(logDir, `error.log`);
+const combinedFile = path.join(logDir, `app.log`);
+
+/**
+ * Development log format.
+ * Adds colors, timestamps, stack traces, and request contextual metadata.
+ *
+ * @type {winston.Logform.Format}
+ */
+const devFormat = combine(
+  colorize(),
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  errors({ stack: true }),
+  printf(({ level, message, metadata, timestamp, module, method, error }) => {
+    const meta = (metadata && metadata.toString) ? metadata.toString() : '';
+    const location = module ? `[${module}${method ? '.' + method : ''}]` : '';
+    const errorString = (function (error){
+      let string = '';
+      if(error){
+        if(error.name) string += `\nError name: ${error.name} `;
+        if(error.message) string += `\nError message: ${error.message} `;
+        if(error.stack) string += `\nStack: ${error.stack}`;
+
+        string += '\n';
+      }
+      return string;
+    })(error);
+
+    return `${timestamp} [${level}] ${location} ${meta} ${message} ${errorString}`;
+  })
+);
+
+/**
+ * Production JSON log format optimized for log aggregation systems such as
+ * Elastic, Grafana Loki, or CloudWatch.
+ *
+ * @type {winston.Logform.Format}
+ */
+
+const prodFormat = combine(
+  timestamp(),
+  errors({ stack: true }),
+  winston.format.json()
+);
+
+/**
+ * Base Winston logger instance used throughout the application.
+ * 
+ * Provides:
+ * - File logging (rotating by size)
+ * - Console logging
+ * - Error stack capture
+ * - JSON output in production
+ *
+ * @type {winston.Logger}
+ */
+const baseLogger = winston.createLogger({
+  levels: customLevels.levels,
+  level: process.env.LOG_LEVEL || (config.env === 'development' ? 'debug' : 'info'),
+  format: config.env === 'development' ? devFormat : prodFormat,
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: errorFile, 
+      level: 'error',
+      maxsize: 5 * 1024 * 1024, // 5 MB per file
+      maxFiles: 10 }),
+    new winston.transports.File({
+      filename: combinedFile,
+      maxsize: 5 * 1024 * 1024, // 5 MB per file
+      maxFiles: 10 }),
+  ],
+});
+
+/**
+ * Writable stream interface used by HTTP loggers such as Morgan.
+ * Allows Morgan to forward its logs directly into Winston.
+ *
+ * @type {{ write(message: string): void }}
+ */
+baseLogger.stream = {
+  write: (message) => baseLogger.info(message.trim()),
+};
+
+/**
+ * Creates a contextual logger for a specific module file.
+ * Supports metadata to display information like request Ids or socket Ids through the setMetadata function.
+ *
+ * This allows logs to automatically include:
+ * - module name
+ * - method name
+ * - request ID or any other metadata included in the call to setMetadata().
+ *
+ * @param {string} moduleName - Name of the module using this logger.
+ * 
+ * @returns {{
+ *   setMetadata(meta: { toString: function(): string }): void,
+ *   resetMetadata(): void,
+ *   trace(message: string, method?: string): void,
+ *   debug(message: string, method?: string): void,
+ *   verbose(message: string, method?: string): void,
+ *   info(message: string, method?: string): void,
+ *   warn(message: string, method?: string): void,
+ *   error(message: string, method?: string, err?: Error): void
+ * }} A module-scoped logger with request-aware logging methods.
+ */
+export function createLogger(moduleName) {
+
+  let metadata = null;
+
+  return {
+    setMetadata : (meta) => { metadata = meta },
+    resetMetadata : () => { metadata = null },
+    
+    trace: (message, method) => baseLogger.trace(message, { module: moduleName, method, metadata }),
+    debug: (message, method) => baseLogger.debug(message, { module: moduleName, method, metadata }),
+    verbose: (message, method) => baseLogger.verbose(message, { module: moduleName, method, metadata }),
+    info: (message, method) => baseLogger.info(message, { module: moduleName, method, metadata }),
+    warn: (message, method) => baseLogger.warn(message, { module: moduleName, method, metadata }),
+    error: (message, method, error) =>
+      baseLogger.error( message, { module: moduleName, method, error, metadata }),
+
+  };
+}
+
+export default baseLogger;

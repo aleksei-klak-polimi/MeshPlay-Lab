@@ -89,6 +89,29 @@ A template for each exists in the project.
 >- Test environment credentials must match the isolated test database.
 >- MariaDB must be running in order to execute integration tests.
 
+## **Shared Module Dependency (`@meshplay-lab/shared`)**
+This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/shared` for the following functionalities:
+- Logging Utilities
+- MariaDB connection pooling
+- Model modules for basic `CRUD` logic
+- JWT creation and verification helpers
+- Testing utilities such as:
+    - `.env.test` loader
+    - Test database initialization (schema creation, seeding)
+
+## **Development Workflow**
+
+### **Install dependencies**
+    npm install
+### **Start the server**
+    npm start
+### **Build AsyncAPI docs**
+    npm run bundle:docs
+### **Run tests**
+    npm test
+### **Run in development mode with autoreload**
+    npm run dev
+
 ## **Directory Structure**
     gateway-node/
     ├─ doc/

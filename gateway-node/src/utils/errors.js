@@ -13,6 +13,7 @@ export class AppError extends Error {
     this.status = status;
     this.code = code;
     this.isAppError = true;
+    this.name = 'AppError';
 
     // Normalize details
     if (details == null) {
@@ -32,6 +33,7 @@ export class InternalError extends AppError {
     details
   ) {
     super(message, 500, code, details);
+    this.name = 'InternalError';
   }
 }
 
@@ -42,6 +44,7 @@ export class ConflictError extends AppError {
     details
   ) {
     super(message, 409, code, details);
+    this.name = 'ConflictError';
   }
 }
 
@@ -52,6 +55,7 @@ export class ValidationError extends AppError {
     details
   ) {
     super(message, 422, code, details);
+    this.name = 'ValidationError';
   }
 }
 
@@ -62,6 +66,7 @@ export class NotFoundError extends AppError {
     details
   ) {
     super(message, 404, code, details);
+    this.name = 'NotFoundError';
   }
 }
 
@@ -72,6 +77,7 @@ export class UnauthorizedError extends AppError {
     details
   ) {
     super(message, 401, code, details);
+    this.name = 'UnauthorizedError';
   }
 }
 
@@ -82,6 +88,7 @@ export class BadRequestError extends AppError {
     details
   ) {
     super(message, 400, code, details);
+    this.name = 'BadRequestError';
   }
 }
 
@@ -92,5 +99,6 @@ export class ForbiddenError extends AppError {
     details
   ) {
     super(message, 403, code, details);
+    this.name = 'ForbiddenError';
   }
 }

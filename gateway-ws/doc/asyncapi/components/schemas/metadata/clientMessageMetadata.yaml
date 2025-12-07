@@ -1,0 +1,7 @@
+type: object
+required: [userReqId]
+properties:
+  userReqId:
+    type: string
+    description: Correlates server replies to the originating client request.
+    example: xyz789

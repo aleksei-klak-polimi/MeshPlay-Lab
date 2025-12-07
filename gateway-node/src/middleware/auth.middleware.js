@@ -1,31 +1,19 @@
-import { getConnection } from "../config/db.js";
-import config from '../config/config.js';
 import { errorResponse } from "../utils/response.js";
 import { handleError } from "../utils/errorHandler.js";
 import { UnauthorizedError, BadRequestError } from "../utils/errors.js";
-import UserModel from "../models/user.model.js";
-import jwt from 'jsonwebtoken';
-import Joi from 'joi';
-import { id, iat, exp, username } from '../schemas/fields.js';
-import { createLogger } from "../config/logger.js";
+import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
+import { HttpLoggerMetadata } from "../config/logger.js";
 import { ERROR_CODES } from "../constants/errorCodes.js";
+import { validateJWT } from "@meshplaylab/shared/src/utils/validateJWT.js";
 
 const logger = createLogger('auth.middleware');
-
-const tokenSchema = Joi.object({
-    id: id.required(),
-    iat: iat.required(),
-    exp: exp.required(),
-    username: username.required()
-});
-
 
 /**
  * Express middleware that authenticates incoming requests using a JWT token.
  *
- * Validates the presence and format of the `Authorization` header,
- * verifies the token signature, checks the token’s payload structure,
- * and ensures the user exists and matches in the database.
+ * Validates presence and structure of the `Authorization` header.
+ * Extracts the JWT.
+ * Calls `validateJWT()` to verify signature, payload structure, and user existence.
  *
  * On success, attaches the decoded token payload to `req.user` and calls `next()`.
  * On failure, responds with an appropriate error JSON.
@@ -33,12 +21,13 @@ const tokenSchema = Joi.object({
  * @param {import('express').Request} req - Express request object.
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next middleware callback.
+ * 
  * @returns {Promise<void>} - Resolves once the middleware completes.
  */
 export async function authenticateToken(req, res, next){
 
-    const requestId = req.meta.id;
-    logger.setRequestId(requestId);
+    const metadata = new HttpLoggerMetadata(req.meta.id);
+    logger.setMetadata(metadata);
     logger.debug('Authenticating JWT token.', 'authenticateToken');
     const authHeader = req.headers['authorization'];
 
@@ -62,75 +51,68 @@ export async function authenticateToken(req, res, next){
 
 
     //Decode user data from jwt
-    let decoded;
+    let decoded
+
     try{
 
-        decoded = jwt.verify(token, config.jwtSecret);
+        decoded = await validateJWT(token, metadata);
 
-    } catch (err){
+    } catch ( err ) {
 
-        if (err.name === 'TokenExpiredError') {
+        switch (err.name) {
 
-            logger.info(`Provided JWT has expired`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Token expired.', ERROR_CODES.EXPIRED_JWT);
-            return errorResponse(req, res, error);
+            case 'TokenExpiredError':{
 
+                logger.info(`Provided JWT has expired`, 'authenticateToken');
+                const error = new UnauthorizedError('Access denied. Token expired.', ERROR_CODES.EXPIRED_JWT);
+                return errorResponse(req, res, error);
+                
+            }
+
+            case 'JsonWebTokenError':{
+
+                logger.info(`Error while verifying token.`, 'authenticateToken', err);
+                const error = new UnauthorizedError('Access denied. Invalid user token format.', ERROR_CODES.INVALID_JWT_FORMAT);
+                return errorResponse(req, res, error);
+
+            }
+                
+            case 'InvalidTokenFormat':{
+
+                logger.info(`Provided JWT has invalid format.`, 'authenticateToken');
+                const error = new BadRequestError('Access denied. Invalid user token format.', ERROR_CODES.INVALID_JWT_FORMAT);
+                return errorResponse(req, res, error);
+
+            }
+
+            case 'UserNotFound':{
+
+                logger.info(`Attempted to use JWT of non existing user.`, 'authenticateToken');
+                const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
+                return errorResponse(req, res, error);
+
+            }
+
+            case 'UsernamesDontMatch':{
+
+                logger.info(`Username in JWT does not match username in database`, 'authenticateToken');
+                const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
+                return errorResponse(req, res, error);
+
+            }
+        
+            default:{
+
+                logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
+                const sanitizedError = handleError(err);
+                if(sanitizedError.status === 500) logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
+                else logger.info(`JWT Authentication failed.`, 'authenticateToken');
+                return errorResponse(req, res, sanitizedError);
+
+            }
         }
-
-        logger.error(`Error while verifying token.`, 'authenticateToken', err);
-        const error = new UnauthorizedError('Access denied. Invalid token.', ERROR_CODES.INVALID_JWT);
-        return errorResponse(req, res, error);
-
     }
-
-    //Check if user data is correctly formatted
-    const {error: validationError} = tokenSchema.validate(decoded);
-    if (validationError){
-
-        logger.info(`Provided JWT has invalid format.`, 'authenticateToken');
-        const error = new BadRequestError('Access denied. Invalid user token format.', ERROR_CODES.INVALID_JWT_FORMAT);
-        return errorResponse(req, res, error);
-
-    }
-
-    //Check if user data matches to database
-    let conn;
-    try{
-        //Check if user exists
-        conn = await getConnection();
-        const dbUserData = await UserModel.getById(requestId, conn, decoded.id);
-
-        if(!dbUserData){
-
-            logger.info(`Attempted to use JWT of non existing user.`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
-            return errorResponse(req, res, error);
-
-        }
-        //Check if username matches
-        else if(dbUserData.username != decoded.username){
-
-            logger.info(`Username in JWT does not match username in database`, 'authenticateToken');
-            const error = new UnauthorizedError('Access denied. Invalid user token contents.', ERROR_CODES.INVALID_JWT_CONTENT);
-            return errorResponse(req, res, error);
-
-        }
-    } 
-    //Handle db access errors
-    catch (err) {
-
-        logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
-        const sanitizedError = handleError(err);
-        if(sanitizedError.status === 500) logger.error(`Error while authenticating user JWT: `, 'authenticateToken', err);
-        else logger.info(`JWT Authentication failed.`, 'authenticateToken');
-        return errorResponse(req, res, sanitizedError);
-
-    } finally {
-
-        if (conn) await conn.release();
-
-    }
-
+    
     req.user = decoded;
     next();
 }
