@@ -1,7 +1,7 @@
-# **Gateway Service (gateway-node)**
+# **Gateway Service (gateway-http)**
 
 ## **Overview**
-This service acts as the API gateway for the MeshPlay-Lab platform.
+This service acts as the HTTP API gateway for the MeshPlay-Lab platform.
 It exposes authentication functionality (signup/login) and basic user management (fetch, edit, delete) while enforcing validation, logging, authentication, and consistent API responses.
 
 It is built on Node.js + Express, with integrated OpenAPI documentation and both unit and integration testing.
@@ -50,7 +50,7 @@ This is required because **integration tests validate the API responses against 
 ### **Test Coverage**
 Coverage output is generated under:
 
-    gateway-node/coverage
+    gateway-http/coverage
 
 Integration tests require:
 - MariaDB running
@@ -69,7 +69,7 @@ A template for each exists in the project.
     PORT=5000
 
     # Logging
-    LOG_DIR=../logs/gateway-node
+    LOG_DIR=../logs/gateway-http/dev
     LOG_LEVEL=trace
 
     # Database
@@ -113,7 +113,7 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     npm run dev
 
 ## **Directory Structure**
-    gateway-node/
+    gateway-http/
     ├─ doc/
     │  ├─ openapi/
     │  └─ README.md

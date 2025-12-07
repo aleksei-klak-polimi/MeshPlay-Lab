@@ -15,7 +15,7 @@ MeshPlay-Lab is in an early but functional stage.
 The following core components are now implemented:
 
 ### **Gateway Service (Node.js)**
-Located under `/gateway-node`.  
+Located under `/gateway-http`.  
 Provides:
 - User signup & login (JWT)
 - User retrieval, editing, and deletion (self-service logic)

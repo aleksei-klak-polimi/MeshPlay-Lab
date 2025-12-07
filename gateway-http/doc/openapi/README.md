@@ -15,7 +15,7 @@ However, **Swagger UI only works after generating the bundled OpenAPI file**.
 
 The bundling step merges all specification fragments under:
 
-    gateway-node/doc/openapi/
+    gateway-http/doc/openapi/
 
 into a single `bundled.yaml` file used by both:
 - Swagger UI

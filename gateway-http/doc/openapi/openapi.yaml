@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: MeshPlay-Lab Gateway API
+  title: MeshPlay-Lab HTTP Gateway API
   version: 0.0.1
   description: REST API documentation for the MeshPlay-Lab Gateway Service.
 

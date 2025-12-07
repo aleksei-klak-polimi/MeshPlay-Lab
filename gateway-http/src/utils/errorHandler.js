@@ -12,7 +12,7 @@ import { InternalError } from "./errors.js";
  * 
  * @param {Error} err - The error object to process. May be an `AppError` or any other `Error`.
  * 
- * @returns {import('../utils/errors.js').AppError} - Returns the same error if it's an application error, or a new `InternalError` otherwise.
+ * @returns {import('./errors.js').AppError} - Returns the same error if it's an application error, or a new `InternalError` otherwise.
  * 
  * @throws {TypeError} If the provided argument is `null` or `undefined`.
  */

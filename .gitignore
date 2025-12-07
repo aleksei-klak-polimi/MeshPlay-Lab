@@ -1,10 +1,10 @@
 db/.env
 logs/*
-gateway-node/node_modules
-gateway-node/.env
-gateway-node/tests/.env.test
-gateway-node/coverage
-gateway-node/doc/openapi/bundled.yaml
+gateway-http/node_modules
+gateway-http/.env
+gateway-http/tests/.env.test
+gateway-http/coverage
+gateway-http/doc/openapi/bundled.yaml
 gateway-ws/.env
 gateway-ws/tests/.env.test
 gateway-ws/node_modules
