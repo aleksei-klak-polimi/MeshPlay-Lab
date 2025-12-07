@@ -7,7 +7,7 @@ import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
  * It logs any serialization errors or issues with sending the message if the socket is not open.
  *
  * @param {import('ws').WebSocket} socket - The WebSocket client to send the message to.
- * @param {import('../protocol/frames/response.js').BaseResponse} message - The response object to send.
+ * @param {import('../../protocol/frames/response.js').BaseResponse} message - The response object to send.
  *  Can be an instance of `BaseResponse` or any class that extends it.
  * @param {{ toString: () => string }} logMeta - Metadata used for logging context, must implement `toString()` for display.
  * 

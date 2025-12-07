@@ -1,7 +1,7 @@
 import config from "../config/config.js";
 import { broadcastToUser } from "../server/connectionManager.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
-import parse from "../utils/parseMessage.js";
+import parse from "../server/utils/parseMessage.js";
 import { validateRedis as validate } from "../protocol/validators/validateMessage.js";
 import { EventResponse, UpdateResponse } from "../protocol/frames/response.js";
 

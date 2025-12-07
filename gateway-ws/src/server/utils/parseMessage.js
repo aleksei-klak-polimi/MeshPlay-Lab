@@ -1,4 +1,4 @@
-import { InvalidMessageFormat } from "../constants/errors.js";
+import { InvalidMessageFormat } from "../../constants/errors.js";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
 
 /**
