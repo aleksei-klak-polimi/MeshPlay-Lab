@@ -1,0 +1,5 @@
+server:
+  $ref: './server/server.yaml'
+
+chat:
+  $ref: './chat/chat.yaml'

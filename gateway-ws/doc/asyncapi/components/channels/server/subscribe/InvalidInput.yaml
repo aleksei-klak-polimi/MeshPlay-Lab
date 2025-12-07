@@ -1,0 +1,25 @@
+name: InvalidInput
+title: Invalid Message
+summary: Sent by the server if the request JSON or its contents are malformed.
+payload:
+  type: object
+  required: [type, source, status]
+  properties:
+    type:
+      type: string
+      enum: [update]
+    source:
+      type: string
+      enum: [server]
+    status:
+      type: object
+      properties:
+        code:
+          type: integer
+          enum: [40001]
+        severity:
+          type: string
+          enum: [error]
+        message:
+          type: string
+          example: Request is formatted incorrectly.

@@ -1,0 +1,15 @@
+description: >
+  Chat microservice channel.
+  Handles sending chat messages and receiving chat-related updates/events.
+
+# Client -> Server
+publish:
+  message:
+    $ref: './publish/ChatMessage.yaml'
+
+# Server -> Client
+subscribe:
+  message:
+    oneOf:
+      - $ref: '../../schemas/messages/updateMessage.yaml'
+      - $ref: '../../schemas/messages/eventMessage.yaml'

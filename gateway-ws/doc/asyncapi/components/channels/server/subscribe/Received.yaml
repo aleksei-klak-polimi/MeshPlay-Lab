@@ -1,0 +1,29 @@
+name: Received
+title: Message Received
+summary: > 
+  Sent by the server if the request was structurally valid and the request has been forwarded to the appropriate handler.
+  This message is sent as the first successful response to any request.
+payload:
+  type: object
+  required: [type, source, status, metadata]
+  properties:
+    type:
+      type: string
+      enum: [update]
+    source:
+      type: string
+      enum: [server]
+    status:
+      type: object
+      properties:
+        code:
+          type: integer
+          enum: [10000]
+        severity:
+          type: string
+          enum: [ok]
+        message:
+          type: string
+          example: Message forwarded.
+    metadata:
+      $ref: '../../../schemas/metadata/serverMessageMetadata.yaml'

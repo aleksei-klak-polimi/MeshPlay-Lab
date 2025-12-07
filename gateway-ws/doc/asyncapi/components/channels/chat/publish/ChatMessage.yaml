@@ -1,0 +1,16 @@
+name: ChatMessage
+title: Chat Message
+summary: Message sent from Client to Chat.
+payload:
+  type: object
+  required: [target, payload, metadata]
+  properties:
+    target:
+      type: string
+      enum: [chat]
+    payload:
+      type: object
+      description: |
+        JSON payload specific to the chat microservice.
+    metadata:
+      $ref: '../../../schemas/metadata/clientMessageMetadata.yaml'
