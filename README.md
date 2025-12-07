@@ -14,7 +14,7 @@ The project allows experimentation with:
 MeshPlay-Lab is in an early but functional stage.  
 The following core components are now implemented:
 
-### **Gateway Service (Node.js)**
+### **Gateway-HTTP (Node.js - REST API)**
 Located under `/gateway-http`.  
 Provides:
 - User signup & login (JWT)
@@ -33,7 +33,42 @@ Access via:
     http://localhost:5000/api/docs
 
 A dedicated README for the gateway exists at:  
-`/gateway-node/README.md`
+`/gateway-http/README.md`
+
+### **Gateway-WS (Node.js - WebSocket Server)**
+Located under `/gateway-ws`.
+Implements the platform’s **real-time communication layer**:
+Provides:
+- Authenticated WebSocket upgrades (JWT)
+- Multi-socket sessions per user
+- Heartbeat (ping/pong)
+- Message routing into Redis channels (chat/game/etc.)
+- Forwarding microservice events to connected clients
+- AsyncAPI 3.0 documentation of the real-time protocol
+- JSON Schema validation for incoming/outgoing WS messages
+- Integration tests + protocol compliance tests
+
+HTML documentation is available after running the following command:
+
+    npm run bundle:docs
+
+Access via:
+
+    http://localhost:5001/asyncapi/
+
+A dedicated README for the gateway exists at:  
+`/gateway-ws/README.md`
+
+### **Shared Library (`@meshplay-lab/shared`)**
+Located under `/shared/node`.
+Contains logic shared by both gateway services
+- Logging setup
+- Database connection pool
+- Reusable CRUD helpers
+- JWT validation & generation
+- Test environment initializer (load `.env.test`, setup/teardown DB)
+
+This ensures consistent behavior and removes duplication across services.
 
 ### **Database Layer (MariaDB)**
 Located under `/db`.  
@@ -49,7 +84,8 @@ Relevant documentation:
 
 ## **Project Structure**
     /
-    ├── gateway-node/        # API Gateway (Node.js)
+    ├── gateway-http/        # HTTP REST API Gateway (Node.js)
+    ├── gateway-ws/          # WebSocket Gateway (real-time) (Node.js)
     ├── db/                  # SQL schema + database scripts
     ├── frontend/            # (Upcoming) React + TypeScript UI
     ├── services/            # (Upcoming) Game engines + AI players
@@ -67,24 +103,42 @@ Tasks include:
 - Seeding data
 - Configuring environment variables
 
-### **2. Setting up the Gateway**
+### **2. Setting up the shared module**
 See:  
-`/gateway-node/README.md`
+`/shared/node/README.md`
 
-Includes:
+Tasks include:
+- Installing dependencies
+- Running tests
+
+### **3. Setting up the HTTP Gateway**
+See:  
+`/gateway-http/README.md`
+
+Tasks include:
 - Installing dependencies
 - Setting up environment variables
 - Running tests
 - Bundling OpenAPI
 - Starting the API server
 
+### **4. Setting up the WS Gateway**
+See:  
+`/gateway-ws/README.md`
+
+Tasks include:
+- Installing dependencies
+- Setting up environment variables
+- Running tests
+- Bundling AsyncAPI
+- Starting the WS server
+
 ## **Development Roadmap**
 The next steps for MeshPlay-Lab focus on expanding the platform:
 
 ### **Backend**
-- Add WebSocket support to the gateway
-- Introduce additional microservices (Java, Go, etc.)
-- Implement shared events/messages (Kafka, NATS, or Redis Streams)
+- Add chat+lobby microservice (Java)
+- Add additional microservices (Java, Go, etc.)
 
 ### **Frontend**
 - Build the initial React + TypeScript UI
