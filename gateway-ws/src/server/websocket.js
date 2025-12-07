@@ -5,14 +5,14 @@ import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
 import { errorResponse, ackResponse, serverReadyResponse } from "../protocol/frames/customResponses.js";
-import sendMessage from "./utils/sendMessage.js";
+import sendMessage from "./utils/sender.js";
 import { registerSocket, unregisterSocket, getUserSockets } from "./connectionManager.js";
 import discnHandler from "../handlers/disconnection.handler.js";
 import { initSubscriber, closeSubscriber } from '../pubsub/subscriber.js';
 import { initPublisher, closePublisher } from "../pubsub/publisher.js";
 import codes from "../protocol/status/codes.js";
-import { validateClient } from "../protocol/validators/validateMessage.js";
-import parse from "./utils/parseMessage.js";
+import { validateClient } from "../protocol/validators/validator.js";
+import parse from "./utils/parser.js";
 import routeMessage from "./router.js";
 
 /**

@@ -8,8 +8,8 @@ describe("handleClose", () => {
 
         const { default: createLoggerMock } = await import('@meshplaylab/shared/tests/mocks/config/logger.mock.js');
         jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
-        const { default: sendResponseMock } = await import('../../mocks/server/connectionManager.mock.js');
-        jest.unstable_mockModule('../../../src/server/connectionManager.js', () => sendResponseMock());
+        const { default: connectionManagerMock } = await import('../../mocks/server/connectionManager.mock.js');
+        jest.unstable_mockModule('../../../src/server/connectionManager.js', () => connectionManagerMock());
         jest.unstable_mockModule("../../../src/handlers/disconnection.handler.js", () => ({ default: jest.fn() }));
         jest.unstable_mockModule("../../../src/server/router.js", () => ({ default: jest.fn() }));
 

@@ -10,12 +10,12 @@ describe('connectionManager', () => {
         // Mock dependencies here because of jest.resetModules();
         const { default: createLoggerMock } = await import('@meshplaylab/shared/tests/mocks/config/logger.mock.js');
         jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
-        const { default: sendMessageMock } = await import('../../mocks/server/utils/sendMessage.mock.js');
-        jest.unstable_mockModule('../../../src/server/utils/sendMessage.js', () => sendMessageMock());
+        const { default: senderMock } = await import('../../mocks/server/utils/sender.mock.js');
+        jest.unstable_mockModule('../../../src/server/utils/sender.js', () => senderMock());
         
         // Re-import fresh module after mocks
         // Import in beforeEach to reset state across tests.
-        ({ default: sendMessage } = await import('../../../src/server/utils/sendMessage.js'));
+        ({ default: sendMessage } = await import('../../../src/server/utils/sender.js'));
         ({ registerSocket, unregisterSocket, getUserSockets, broadcastToUser } = await import('../../../src/server/connectionManager.js'));
     });
 

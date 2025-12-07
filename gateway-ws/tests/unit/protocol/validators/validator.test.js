@@ -5,7 +5,7 @@ import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
 
 // Import after mocks
-const { validateClient, validateRedis } = await import('../../../../src/protocol/validators/validateMessage.js');
+const { validateClient, validateRedis } = await import('../../../../src/protocol/validators/validator.js');
 const { InvalidMessageFormat } = await import('../../../../src/constants/errors.js');
 
 beforeEach(() => {
@@ -16,7 +16,7 @@ beforeEach(() => {
 
 
 // validateClient
-describe('validateMessage.validateClient', () => {
+describe('validator.validateClient', () => {
     const meta = { requestId: 'abc' };
 
     const baseMessage = {
@@ -80,7 +80,7 @@ describe('validateMessage.validateClient', () => {
 
 
 // validateRedis
-describe('validateMessage.validateRedis', () => {
+describe('validator.validateRedis', () => {
     const validEvent = {
         userId: '1',
         message: {

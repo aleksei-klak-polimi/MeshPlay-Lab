@@ -1,4 +1,4 @@
-import sendMessage from "./utils/sendMessage.js";
+import sendMessage from "./utils/sender.js";
 import { createLogger } from "@meshplaylab/shared/src/config/logger.js";
 
 const userSockets = new Map(); // userId -> Set<WebSocket>

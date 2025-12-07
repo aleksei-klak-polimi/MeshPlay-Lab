@@ -5,7 +5,7 @@ import createLoggerMock from '@meshplaylab/shared/tests/mocks/config/logger.mock
 jest.unstable_mockModule('@meshplaylab/shared/src/config/logger.js', () => createLoggerMock());
 
 // Import after mocks
-const { default: parse } = await import('../../../../src/server/utils/parseMessage.js');
+const { default: parse } = await import('../../../../src/server/utils/parser.js');
 const { InvalidMessageFormat } = await import('../../../../src/constants/errors.js');
 
 
@@ -17,7 +17,7 @@ beforeEach(() => {
 
 
 // Test Suite
-describe('parseMessage.parse', () => {
+describe('parser.parse', () => {
   const meta = { requestId: 'xyz' };
 
   test('Parses valid JSON messages', () => {
