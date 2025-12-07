@@ -99,6 +99,19 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     - `.env.test` loader
     - Test database initialization (schema creation, seeding)
 
+## **Development Workflow**
+
+### **Install dependencies**
+    npm install
+### **Start the server**
+    npm start
+### **Build AsyncAPI docs**
+    npm run bundle:docs
+### **Run tests**
+    npm test
+### **Run in development mode with autoreload**
+    npm run dev
+
 ## **Directory Structure**
     gateway-node/
     ├─ doc/
