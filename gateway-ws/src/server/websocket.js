@@ -1,5 +1,6 @@
 import { WebSocketServer } from "ws";
 import { createLogger } from '@meshplaylab/shared/src/config/logger.js';
+import config from "../config/config.js";
 import { randomUUID } from "crypto";
 import { SocketLoggerMetadata } from "../config/logger.js";
 import { sanitizeError } from "../utils/errorSanitizer.js";
@@ -13,8 +14,6 @@ import codes from "../protocol/status/codes.js";
 import { validateClient } from "../utils/validateMessage.js";
 import parse from "../utils/parseMessage.js";
 import routeMessage from "./router.js";
-
-const PING_INTERVAL = 30000;
 
 /**
  * @typedef {import('ws').WebSocketServer & {
@@ -51,7 +50,7 @@ export default async function createWebSocketServer(server, { redisPub, redisSub
   wss.on('close', () => clearInterval(interval));
 
   // Ping Pong logic
-  const interval = setInterval(() => performPingCheck(wss, logger), PING_INTERVAL);
+  const interval = setInterval(() => performPingCheck(wss, logger), config.pingInterval);
   wss.closeAsync = closeAsync;
 
   logger.info('Socket server Initialized');

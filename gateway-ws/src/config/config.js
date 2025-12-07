@@ -11,11 +11,13 @@
  * @property {number|string} port - Port number the gateway server listens on.
  * @property {string} env - Current runtime environment ( 'development' | 'production' | 'test' ).
  * @property {string} redisPrefix - String prefix applied to all Redis channels for namespacing.
+ * @property {number|string} pingInterval - Interval in milliseconds for ping-pong between client and server on sockets.
  */
 const config = {
   port: process.env.PORT || 5001,
   env: process.env.NODE_ENV || 'development',
-  redisPrefix: process.env.REDIS_PREFIX || 'development',
+  redisPrefix: process.env.ENV_PREFIX || 'dev',
+  pingInterval: process.env.PING_INTERVAL || 30000,
 };
 
 if (config.env === 'production' && process.env.npm_lifecycle_event === 'dev') {
