@@ -25,7 +25,7 @@ fi
 
 # Configuration
 ENV_FILE="$SCRIPT_DIR/../.env"
-SCHEMA_FILE="$SCRIPT_DIR/../init.sql"
+SCHEMA_FILE="$SCRIPT_DIR/../init/init.sql"
 
 # Validate .env
 REQUIRED_VARS=(
