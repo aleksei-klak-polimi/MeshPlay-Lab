@@ -5,13 +5,13 @@ import path from 'path';
 
 export default async function seedDB(verbose = true) {
     if(verbose) console.log('\n[JEST-SETUP] Seeding Test database\n');
-    const scriptPath = path.resolve(process.cwd(), '../db/scripts/entrypoints/seed_db_test.sh');
+    const scriptPath = path.resolve(process.cwd(), '../db/scripts/env/test.sh');
 
     try {
         if(verbose)
-            execSync(`${scriptPath}`, {stdio: 'inherit'});
+            execSync(`${scriptPath} seed`, {stdio: 'inherit'});
         else
-            execSync(`${scriptPath}`);
+            execSync(`${scriptPath} seed`);
 
         if(verbose) console.log('\n[JEST-SETUP] Test database seeded.\n');
     } catch (err) {

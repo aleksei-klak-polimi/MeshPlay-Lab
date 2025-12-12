@@ -1,4 +1,6 @@
-db/.env
+db/env/.env.dev
+db/env/.env.prod
+db/env/.env.test
 logs/*
 gateway-http/node_modules
 gateway-http/.env
