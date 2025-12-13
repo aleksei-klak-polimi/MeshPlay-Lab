@@ -1,0 +1,60 @@
+services:
+
+  mariadb:
+    build:                                            # build from dockerfile
+      context: ../                                    # context directory from which all rel. paths are resolved
+      dockerfile: db/Dockerfile                       # path to Dockerfile relative to context
+      args:
+        APP_ENV: prod                                 # argument for dockerfile during build
+    env_file:
+      - ../db/env/.env.prod                           # env file with msql name, root pass etc...
+    expose:
+      - "3306"                                        # internal docker network port for this service
+    volumes:
+      - db_data:/var/lib/mysql                        # persistent DB data
+
+  redis:
+    image: redis:8.4.0
+    expose:
+      - "6379"
+    tmpfs:
+    - /data                    # prevent Redis from creating anon vols since no presistance is required for pub/sub
+
+  gateway-http:
+    build:
+      context: ../
+      dockerfile: gateway-http/Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      PORT: "5000"
+      LOG_DIR: '/var/log/MeshPlay-Lab/gateway-http'
+    depends_on:
+      - mariadb
+    ports:
+      - "${EXTERNAL_HTTP_PORT}:5000"
+    volumes:
+      - ../logs/prod:/var/log/MeshPlay-Lab            # mount logging directory
+
+  gateway-ws:
+    build:
+      context: ../
+      dockerfile: gateway-ws/Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      PORT: "5050"
+      REDIS_URL: 'redis://redis:6379'
+      LOG_DIR: '/var/log/MeshPlay-Lab/gateway-ws'
+    depends_on:
+      - mariadb
+      - redis
+    ports:
+      - "${EXTERNAL_WS_PORT}:5050"
+    volumes:
+      - ../logs/prod:/var/log/MeshPlay-Lab            # mount logging directory
+
+volumes:
+  db_data:
