@@ -1,10 +1,9 @@
 import setupDB from '@meshplaylab/shared/tests/integration/setup/setupDB.js';
-import setupEnv from '@meshplaylab/shared/tests/integration/setup/setupEnv.js';
+import loadEnv from '@meshplaylab/shared/src/utils/loadEnv.js';
 import generateSchemas from './generateSchemas.js';
 
 export default async function globalSetup(){
-    setupEnv();
+    loadEnv();
     await generateSchemas();
-    console.log(`Should see test variable: ${process.env.TEST_FIELD}`);
     setupDB();
 }
