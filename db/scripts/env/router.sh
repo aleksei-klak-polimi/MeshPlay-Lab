@@ -12,6 +12,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ACTION=$1
 
+set -a
+DB_HOST=$2
+DB_PORT=$3
+set +a
+
 case $ACTION in
     createSchema) exec "$SCRIPT_DIR/../scripts/create_schema.sh" ;;
     dropSchema) exec "$SCRIPT_DIR/../scripts/drop_schema.sh" ;;

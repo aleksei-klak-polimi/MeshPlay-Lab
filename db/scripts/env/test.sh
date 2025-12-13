@@ -2,7 +2,7 @@
 # test.sh
 #
 # Usage:
-#   ./test.sh [createSchema|dropSchema|createUser|dropUser]
+#   ./test.sh [createSchema|dropSchema|createUser|dropUser] [db_host] [db_port]
 #
 # Description:
 #   Loads ".env.test" variables before performing the requested action.

@@ -2,7 +2,7 @@
 # prod.sh
 #
 # Usage:
-#   ./prod.sh [createSchema|dropSchema|createUser|dropUser]
+#   ./prod.sh [createSchema|dropSchema|createUser|dropUser] [db_host] [db_port]
 #
 # Description:
 #   Loads ".env.prod" variables before performing the requested action.

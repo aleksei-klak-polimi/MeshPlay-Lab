@@ -2,7 +2,7 @@
 # dev.sh
 #
 # Usage:
-#   ./dev.sh [createSchema|dropSchema|createUser|dropUser]
+#   ./dev.sh [createSchema|dropSchema|createUser|dropUser] [db_host] [db_port]
 #
 # Description:
 #   Loads ".env.dev" variables before performing the requested action.
