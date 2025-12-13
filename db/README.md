@@ -1,179 +1,318 @@
-## **MeshPlay-Lab Database Setup**
-This directory contains the SQL schema, seed data, and shell scripts required to initialize and manage the MeshPlay-Lab databases.  
-The setup supports **production**, **development**, and **testing** environments, each with its own schema, credentials, and data sets.  
-Currently, it is optimized for **MariaDB** on local deployments with plans to support containerized deployments in the near future.
-___
-### **1. Prerequisites**
-- A running MariaDB instance
-- A valid `.env` file configured in this directory (see `.env.example`).
-- `bash` and `mysql` client installed
-- The admin user specified in `.env` must already exist in the DB server
+## **MeshPlay-Lab Database**
 
-___
-### **2. Setup Steps**
-**1. Make the scripts executable:**
+This directory contains the SQL schema, seed data, shell scripts, and Docker assets required to initialize, manage, and run the MeshPlay-Lab databases.
 
-    chmod +x ./scripts/create_db.sh
-    chmod +x ./scripts/drop_db.sh
-    chmod +x ./scripts/seed_db.sh
+The database supports **development**, **testing**, and **production** environments and can be used in **two distinct modes**:
 
-**2. (Optional) Make entrypoint scripts executable:**
+* **Dockerized MariaDB** (recommended)
+* **Locally hosted MariaDB** (manual installation on the host)
 
-    chmod +x ./scripts/entrypoints/create_db_dev.sh
-    chmod +x ./scripts/entrypoints/create_db_test.sh
-    chmod +x ./scripts/entrypoints/drop_db_dev.sh
-    chmod +x ./scripts/entrypoints/drop_db_test.sh
-    chmod +x ./scripts/entrypoints/seed_db_dev.sh
-    chmod +x ./scripts/entrypoints/seed_db_test.sh
+Both modes share the same schema, environment configuration, and management scripts to ensure consistent behavior across local development, CI, and production.
 
-**3. Create the database(s) and relative users:**
+---
 
-You can create separate databases for **development**, **testing** or **production** by using `--env (prod|dev|test)` or using environment-specific entrypoints.
+### **1. Overview & Concepts**
 
-- **Development:**
+#### Environments
 
-        ./scripts/create_db.sh --env dev
-    or using the entrypoint:
+Each environment (`dev`, `test`, `prod`) is fully isolated and has:
 
-        ./scripts/entrypoints/create_db_dev.sh
+* Its own database schema
+* Its own application-level user
+* Its own environment file under `db/env/`
 
-- **Testing:**
+#### Users & Privileges
 
-        ./scripts/create_db.sh --env test
-    or using the entrypoint:
+Two categories of credentials are used:
 
-        ./scripts/entrypoints/create_db_test.sh
+* **Admin / bootstrap user**
 
-- **Production (manual use only):**
+  * Used *only* by scripts and Docker entrypoints
+  * Responsible for:
 
-        ./scripts/create_db.sh --env prod
+    * Creating and dropping schemas
+    * Creating and dropping users
+    * Granting privileges
 
-    When run in production mode, the script will always display a confirmation prompt to prevent accidental data creation or overwriting.
+* **Application user**
 
-Each creation script:
+  * Used by Node.js services at runtime
+  * Has **restricted privileges** for safety
 
-- Checks connection to the DB using admin credentials.
-- Creates the database for the specified environment (if it doesn’t already exist).
-- Applies the schema from `init.sql`.
-- Creates environment-specific application users (if they don't already exist):
-    - `'user'@'localhost'` — granted CRUD + ALTER permissions (for migration and seeding).
-    - `'user'@'%'` — granted CRUD permissions only (for external services).
+The meaning of `DB_ADMIN_USER` and `MYSQL_ROOT_PASSWORD` depends on the deployment mode:
 
-**4. Seed Development or Testing Databases:**
+* **Docker**:
 
-Populate your local or CI test database with sample data:
-- **Development:**
+  * These map to the MariaDB *root* credentials
+  * Used by the official MariaDB entrypoint during first container startup
 
-        ./scripts/seed_db.sh --env dev
-    or using the entrypoint:
+* **Local MariaDB**:
 
-        ./scripts/entrypoints/seed_db_dev.sh
+  * They may belong to any user that has:
 
-- **Testing:**
+    * Permission to create/drop schemas
+    * Permission to create/drop users it owns
+    * Grant privileges on schemas it creates
 
-        ./scripts/seed_db.sh --env test
-    or using the entrypoint:
+---
 
-        ./scripts/entrypoints/seed_db_test.sh
+### **2. Folder Structure**
 
-These scripts will apply the corresponding SQL seed file defined in `.env`.
+```
+/db
+ ├── docker/                     # Docker entrypoint extensions (per environment)
+ │    ├── dev/
+ │    ├── test/
+ │    └── prod/
+ │         └── restrict-privileges.sh
+ │
+ ├── docs/                       # Documentation
+ ├── env/                        # Environment-specific configuration
+ │    ├── .env.dev.example
+ │    ├── .env.test.example
+ │    ├── .env.prod.example
+ │    └── .env.*                 # Real env files (gitignored)
+ │
+ ├── scripts/
+ │    ├── db.sh                  # Main entrypoint for human usage
+ │    ├── env/                   # Environment loaders & routers
+ │    │    ├── dev.sh
+ │    │    ├── test.sh
+ │    │    ├── prod.sh
+ │    │    ├── router.sh
+ │    │    └── lib_common.sh
+ │    └── scripts/               # Low-level DB logic (not callable directly)
+ │         ├── create_schema.sh
+ │         ├── drop_schema.sh
+ │         ├── create_user.sh
+ │         ├── drop_user.sh
+ │         ├── seed.sh
+ │         └── lib_common.sh
+ │
+ ├── seeds/                      # Seed data
+ │    └── seed_dev.sql
+ │
+ ├── Dockerfile                  # MariaDB image with env-aware entrypoints
+ ├── init.sql                    # Database schema
+ └── README.md                   # This file
+```
 
->**Note:** The seed script cannot run against production databases.  
->It is strictly limited to development and testing environments.
+---
 
-**5. (Optional) Drop Development or Testing Databases:**
+### **3. Environment Configuration (`db/env/`)**
 
-To clean up or reset an environment:
-- **Development:**
+Each environment has its own `.env` file under `db/env/`.
 
-        ./scripts/drop_db.sh --env dev
-    or using the entrypoint:
+These files are consumed by:
 
-        ./scripts/entrypoints/drop_db_dev.sh
+* `docker-compose` (to configure MariaDB containers)
+* Database management scripts
+* Automated test suites (integration tests)
 
-- **Testing:**
+Example: **`.env.dev.example`**
 
-        ./scripts/drop_db.sh --env test
-    or using the entrypoint:
+```
+# ====== DEVELOPMENT DATABASE ======
+TARGET_ENV="dev"
 
-        ./scripts/entrypoints/drop_db_test.sh
+# Absolute Path to desired logs folder
+LOG_DIR="path/to/MeshPlay-Lab/logs/dev/db/scripts"
 
-These scripts permanently delete the specified environment database and user accounts.  
->**Note:** Production databases are never dropped automatically.
+# Admin credentials (creation / deletion only)
+DB_ADMIN_USER=root
+MYSQL_ROOT_PASSWORD='rootPass'
 
-___
-### **3. Environment Variables**
-All scripts rely on a shared `.env` file located in this directory.
+# Application credentials (used at runtime)
+MYSQL_USER=meshplay_dev
+MYSQL_PASSWORD='devPass'
+USER_PRIVILEGES='ALTER, SELECT, INSERT, UPDATE, DELETE'
 
-Example configuration:
+# Database name
+MYSQL_DATABASE=MeshPlay-LabDB_Dev
 
-    # Path to logs folder relative to scripts
-    LOG_DIR="../../logs/db"
+# Seed data
+SEED_FILE='seed_dev.sql'
+```
 
-    # Host and port for MariaDB (localhost for local dev)
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
+> **Important:**
+>
+> * These files contain sensitive data and must **never** be committed
+> * Copy from `.env.<env>.example` and adjust values accordingly
 
-    # Admin credentials for DB creation/deletion (used by create/drop scripts only)
-    DB_ADMIN_USER=meshplay_admin
-    DB_ADMIN_PASSWORD='adminpass'
+---
 
+### **4. Script Usage (Local or CI)**
 
-    # ====== PRODUCTION DATABASE ======
-    DB_PROD_USER=meshplay_prod
-    DB_PROD_PASSWORD='prodpass'
-    DB_PROD_NAME=MeshPlay-LabDB
+The scripts allow managing schemas and users **without Docker**, or from automated systems such as test suites.
 
+#### Make scripts executable
 
-    # ====== DEVELOPMENT DATABASE ======
-    DB_DEV_USER=meshplay_dev
-    DB_DEV_PASSWORD='devpass'
-    DB_DEV_NAME=MeshPlay-LabDB_Dev
-    SEED_FILE='seed_dev.sql'
+```
+chmod +x db/scripts/db.sh
+chmod +x db/scripts/env/dev.sh
+chmod +x db/scripts/env/test.sh
+chmod +x db/scripts/env/prod.sh
+```
 
+> `test.sh` **must** be executable, as it is used by automated test suites.
 
-    # ====== TESTING DATABASE ======
-    DB_TEST_USER=meshplay_test
-    DB_TEST_PASSWORD='testpass'
-    DB_TEST_NAME=MeshPlay-LabDB_Test
-    SEED_FILE_TEST='seed_dev.sql'
+#### Main entrypoint: `db.sh`
 
-Logs are written under:
+```
+./db.sh <env> <action> <db_host> <db_port>
+```
 
-    ${LOG_DIR}/scripts/${ENV}/create/
-    ${LOG_DIR}/scripts/${ENV}/seed/
-    ${LOG_DIR}/scripts/${ENV}/drop/
+* `<env>`: `dev | test | prod`
+* `<action>`:
 
-Where `${ENV}` is either `prod`, `dev` or `test` according to the parameter passed through `--env` to the scripts
+  * `createSchema`
+  * `dropSchema`
+  * `createUser`
+  * `dropUser`
 
-___
-### **4. Environment Safeguard**
-The scripts include multiple safety mechanisms:
-- **Production:**
-    - `create_db.sh --env prod` always displays a confirmation prompt (`Type CONFIRM to continue`).
-    - `seed_db.sh` and `drop_db.sh` automatically abort if `--env prod` is passed.
-- **Development & Testing:**
-    - Can be freely created, dropped, and reseeded.
-    - Ideal for local and CI/CD test environments.
+Example:
 
-___
-### **5. Folder Structure**
-    /db
-     ├── init.sql                       # Database schema
-     ├── README.md                      # This file
-     ├── seeds/
-     │    ├── seed_dev.sql              # Development seed data
-     │    └── seed_prod.sql             # (Optional) Production reference data
-     ├── scripts/
-     │    ├── create_db.sh              # Creates DB, users, applies schema
-     │    ├── drop_db.sh                # Base drop logic (dev and test only)
-     │    ├── seed_db.sh                # Populates DB (dev and test only)
-     │    ├── lib_common.sh             # Shared functions
-     │    └── entrypoints/
-     │         ├── create_db_dev.sh     # Entrypoint for creating development DB
-     │         ├── create_db_test.sh    # Entrypoint for creating testing DB
-     │         ├── drop_db_dev.sh       # Entrypoint for development cleanup
-     │         ├── drop_db_test.sh      # Entrypoint for testing cleanup
-     │         ├── seed_db_dev.sh       # Entrypoint for development seeding
-     │         └── seed_db_test.sh      # Entrypoint for testing seeding
-     └── .env.example                   # Example environment configuration
+```
+./db.sh dev createSchema 127.0.0.1 3306
+```
+
+#### Environment-specific entrypoints
+
+You may bypass `db.sh` and call environment loaders directly:
+
+```
+./dev.sh <action> <db_host> <db_port>
+./test.sh <action> <db_host> <db_port>
+./prod.sh <action> <db_host> <db_port>
+```
+
+These scripts:
+
+1. Load the correct `.env` file from `db/env/`
+2. Route the action to the appropriate low-level script
+
+---
+
+### **5. Seeding Data**
+
+Seeding is supported for **development** and **testing** environments only.
+
+The seed file is defined in the environment configuration via `SEED_FILE` and must exist under `db/seeds/`.
+
+Production seeding is intentionally restricted.
+
+---
+
+### **6. Docker Support**
+
+The database can be built and run as a Docker image using the provided `Dockerfile`.
+
+#### Dockerfile behavior
+
+* Base image: `mariadb:lts-ubi`
+* `init.sql` is copied as `00.sql` and automatically executed on first startup
+* Environment-specific scripts under `db/docker/<env>/` are injected into the MariaDB entrypoint
+
+```
+ARG APP_ENV=dev
+COPY db/docker/${APP_ENV} /docker-entrypoint-initdb.d/
+```
+
+#### Environment-specific Docker logic
+
+* `dev/` and `test/` currently rely on default MariaDB behavior
+* `prod/` includes `restrict-privileges.sh`, which:
+
+  * Revokes excessive privileges from the default application user
+  * Re-grants only the privileges specified in `USER_PRIVILEGES`
+
+This ensures a reduced attack surface for public-facing production services.
+
+---
+
+### **7. Local MariaDB Setup (Without Docker)**
+
+If you choose to run MariaDB directly on your host machine instead of using Docker, follow the steps below.
+
+#### Prerequisites
+
+* A running MariaDB instance on your machine or reachable over the network
+* An **admin user** configured as described earlier, with permissions to:
+
+  * Create and drop schemas
+  * Create and drop users it owns
+  * Grant privileges on schemas it creates
+
+#### Setup Steps
+
+**1. Ensure MariaDB is running**
+Confirm that your MariaDB server is reachable and that the admin credentials are valid.
+
+**2. Make scripts executable**
+
+```
+chmod +x db/scripts/db.sh
+chmod +x db/scripts/env/dev.sh
+chmod +x db/scripts/env/test.sh
+chmod +x db/scripts/env/prod.sh
+```
+
+**3. Configure environment files**
+
+Under `db/env/`, configure the `.env` files for the environments you want to support:
+
+* `dev`
+* `test`
+* `prod`
+
+You may configure **one, two, or all three** environments. There are no restrictions on hosting multiple schemas in the same MariaDB instance.
+
+Ensure each `.env` file contains:
+
+* Correct admin credentials
+* Correct application user credentials
+* Correct database name
+* Appropriate privileges
+
+**4. Create schemas and users**
+
+Run the scripts against your local MariaDB instance.
+
+Example (development):
+
+```
+./db.sh dev createSchema 127.0.0.1 3306
+./db.sh dev createUser   127.0.0.1 3306
+```
+
+Example (production):
+
+```
+./db.sh prod createSchema 127.0.0.1 3306
+./db.sh prod createUser   127.0.0.1 3306
+```
+
+Example (testing):
+
+```
+./db.sh test createUser 127.0.0.1 3306
+```
+
+> For **testing**, creating the user is sufficient.
+> Test suites will automatically drop and recreate the schema as part of their lifecycle.
+
+**5. Configure dependent services**
+
+Provide the following values to the other services in the monorepo (HTTP gateway, WS gateway, test runners):
+
+* Database host
+* Database port
+* Application user name
+* Application user password
+* Database name
+
+These values must match the ones defined in the corresponding `.env` file.
+
+**6. Ready to go**
+
+At this point, the database is fully configured and ready for use by the rest of the system, whether for local development, testing, or production.
