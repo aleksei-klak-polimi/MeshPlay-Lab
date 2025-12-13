@@ -21,8 +21,8 @@ SCHEMA_FILE="$SCRIPT_DIR/../../init.sql"
 
 REQUIRED_VARS=(
   TARGET_ENV
-  DB_HOST DB_PORT DB_NAME
-  DB_ADMIN_USER DB_ADMIN_PASSWORD
+  DB_HOST DB_PORT MYSQL_DATABASE
+  DB_ADMIN_USER MYSQL_ROOT_PASSWORD
   LOG_DIR
 )
 
@@ -33,14 +33,14 @@ validate_env_vars REQUIRED_VARS
 log_init "$LOG_DIR" "$TARGET_ENV" "create_schema"
 log INFO "Running schema creation for environment: $TARGET_ENV"
 
-DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
+DB_CONN_ADMIN=("$DB_ADMIN_USER" "$MYSQL_ROOT_PASSWORD" "$DB_HOST" "$DB_PORT")
 
 
 # Schema helper function
 applySchema () {
   if [ -f "$SCHEMA_FILE" ]; then
     log INFO "Applying schema from $SCHEMA_FILE"
-    if mariadb -u "$DB_ADMIN_USER" -p"$DB_ADMIN_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$DB_NAME" < "$SCHEMA_FILE" 2>>"$LOG_FILE"; then
+    if mariadb -u "$DB_ADMIN_USER" -p"$MYSQL_ROOT_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$MYSQL_DATABASE" < "$SCHEMA_FILE" 2>>"$LOG_FILE"; then
       log INFO "Schema applied successfully."
     else
       log ERROR "Schema application failed (see logs)."
@@ -61,13 +61,13 @@ flag_safety "Create Schema"
 db_check_connection "${DB_CONN_ADMIN[@]}"
 
 # Create DB if needed
-log INFO "Checking if Database $DB_NAME exists..."
-if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$DB_NAME")" == "$DB_NAME" ]; then
-  log INFO "Database '$DB_NAME' already exists - skipping creation."
+log INFO "Checking if Database $MYSQL_DATABASE exists..."
+if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$MYSQL_DATABASE")" == "$MYSQL_DATABASE" ]; then
+  log INFO "Database '$MYSQL_DATABASE' already exists - skipping creation."
 else
-  log INFO "Database '$DB_NAME' does not exist. Creating..."
-  run_sql "${DB_CONN_ADMIN[@]}" "Create database $DB_NAME" <<EOF
-CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
+  log INFO "Database '$MYSQL_DATABASE' does not exist. Creating..."
+  run_sql "${DB_CONN_ADMIN[@]}" "Create database $MYSQL_DATABASE" <<EOF
+CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;
 EOF
   applySchema
 fi

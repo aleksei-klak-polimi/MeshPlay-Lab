@@ -21,8 +21,8 @@ fi
 # --- Configuration ---
 REQUIRED_VARS=(
   TARGET_ENV
-  DB_HOST DB_PORT DB_NAME
-  DB_ADMIN_USER DB_ADMIN_PASSWORD
+  DB_HOST DB_PORT MYSQL_DATABASE
+  DB_ADMIN_USER MYSQL_ROOT_PASSWORD
   LOG_DIR
 )
 
@@ -33,7 +33,7 @@ validate_env_vars REQUIRED_VARS
 log_init "$LOG_DIR" "$TARGET_ENV" "drop"
 log INFO "Running script for environment: $TARGET_ENV"
 
-DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
+DB_CONN_ADMIN=("$DB_ADMIN_USER" "$MYSQL_ROOT_PASSWORD" "$DB_HOST" "$DB_PORT")
 
 
 
@@ -44,16 +44,16 @@ log INFO "=== Starting database drop for environment: $TARGET_ENV ==="
 db_check_connection "${DB_CONN_ADMIN[@]}"
 
 # Database drop
-log INFO "Checking if Database $DB_NAME exists..."
-if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$DB_NAME")" == "$DB_NAME" ]; then
-  log INFO "Database '$DB_NAME' found."
-  log INFO "Dropping database '$DB_NAME'"
-    run_sql "${DB_CONN_ADMIN[@]}" "Drop database $DB_NAME" <<EOF
-DROP SCHEMA IF EXISTS \`$DB_NAME\`;
+log INFO "Checking if Database $MYSQL_DATABASE exists..."
+if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$MYSQL_DATABASE")" == "$MYSQL_DATABASE" ]; then
+  log INFO "Database '$MYSQL_DATABASE' found."
+  log INFO "Dropping database '$MYSQL_DATABASE'"
+    run_sql "${DB_CONN_ADMIN[@]}" "Drop database $MYSQL_DATABASE" <<EOF
+DROP SCHEMA IF EXISTS \`$MYSQL_DATABASE\`;
 EOF
-  log INFO "Database '$DB_NAME' dropped successfully."
+  log INFO "Database '$MYSQL_DATABASE' dropped successfully."
 else
-  log INFO "Database '$DB_NAME' does not exist - skipping deletion."
+  log INFO "Database '$MYSQL_DATABASE' does not exist - skipping deletion."
 fi
 
 log INFO "=== Database drop completed successfully ==="

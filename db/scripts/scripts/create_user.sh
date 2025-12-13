@@ -18,9 +18,9 @@ fi
 
 REQUIRED_VARS=(
   TARGET_ENV
-  DB_HOST DB_PORT DB_NAME
-  DB_ADMIN_USER DB_ADMIN_PASSWORD
-  DB_USER DB_PASSWORD
+  DB_HOST DB_PORT MYSQL_DATABASE
+  DB_ADMIN_USER MYSQL_ROOT_PASSWORD
+  MYSQL_USER MYSQL_PASSWORD
   LOG_DIR
 )
 
@@ -30,7 +30,7 @@ validate_env_vars REQUIRED_VARS
 log_init "$LOG_DIR" "$TARGET_ENV" "create_user"
 log INFO "Running user creation for environment: $TARGET_ENV"
 
-DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
+DB_CONN_ADMIN=("$DB_ADMIN_USER" "$MYSQL_ROOT_PASSWORD" "$DB_HOST" "$DB_PORT")
 
 
 
@@ -42,21 +42,21 @@ flag_safety "Create User"
 db_check_connection "${DB_CONN_ADMIN[@]}"
 
 # Ensure DB exists (a safety validation)
-if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$DB_NAME")" != "$DB_NAME" ]; then
-  log ERROR "Database '$DB_NAME' does not exist. Cannot grant privileges."
+if [ "$(db_exists "${DB_CONN_ADMIN[@]}" "$MYSQL_DATABASE")" != "$MYSQL_DATABASE" ]; then
+  log ERROR "Database '$MYSQL_DATABASE' does not exist. Cannot grant privileges."
   exit 1
 fi
 
 # Create user
-log INFO "Checking if User '$DB_USER'@'%' exists..."
-if [ "$(user_exists "${DB_CONN_ADMIN[@]}" "$DB_USER" "%")" -gt 0 ]; then
-    log INFO "User '$DB_USER'@'%' already exists - skipping."
+log INFO "Checking if User '$MYSQL_USER'@'%' exists..."
+if [ "$(user_exists "${DB_CONN_ADMIN[@]}" "$MYSQL_USER" "%")" -gt 0 ]; then
+    log INFO "User '$MYSQL_USER'@'%' already exists - skipping."
 else
-    log INFO "Creating user '$DB_USER'@'%' with privileges: $USER_PRIVILEGES"
+    log INFO "Creating user '$MYSQL_USER'@'%' with privileges: $USER_PRIVILEGES"
 
-      run_sql "${DB_CONN_ADMIN[@]}" "Create user $DB_USER@%" <<EOF
-CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
-GRANT $USER_PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'%';
+      run_sql "${DB_CONN_ADMIN[@]}" "Create user $MYSQL_USER@%" <<EOF
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT $USER_PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';
 FLUSH PRIVILEGES;
 EOF
 

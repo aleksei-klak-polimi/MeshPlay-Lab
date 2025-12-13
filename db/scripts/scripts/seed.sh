@@ -24,8 +24,8 @@ SEED_DIR="$SCRIPT_DIR/../../seeds"
 
 # Validate .env
 REQUIRED_VARS=( 
-  DB_HOST DB_PORT DB_NAME
-  DB_ADMIN_USER DB_ADMIN_PASSWORD
+  DB_HOST DB_PORT MYSQL_DATABASE
+  DB_ADMIN_USER MYSQL_ROOT_PASSWORD
   SEED_FILE
   LOG_DIR 
 )
@@ -37,7 +37,7 @@ log_init "$LOG_DIR" "$TARGET_ENV" "seed"
 log INFO "Running script for environment: $TARGET_ENV"
 
 # Define reusable DB connection contexts
-DB_CONN_APP=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
+DB_CONN_APP=("$DB_ADMIN_USER" "$MYSQL_ROOT_PASSWORD" "$DB_HOST" "$DB_PORT")
 
 
 # Database Utilities
@@ -45,7 +45,7 @@ apply_seed() {
   local seed_path="$SEED_DIR/$SEED_FILE"
   if [ -f "$seed_path" ]; then
     log INFO "Applying seed from $SEED_FILE"
-    if mariadb -u "$DB_ADMIN_USER" -p"$DB_ADMIN_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$DB_NAME" < "$seed_path" 2>>"$LOG_FILE"; then
+    if mariadb -u "$DB_ADMIN_USER" -p"$MYSQL_ROOT_PASSWORD" -h "$DB_HOST" -P "$DB_PORT" "$MYSQL_DATABASE" < "$seed_path" 2>>"$LOG_FILE"; then
       log INFO "Applied seed file '$SEED_FILE' successfully"
     else
       log ERROR "Failed applying '$SEED_FILE' (see $LOG_FILE for details)"
@@ -66,9 +66,9 @@ flag_safety "Seed Schema"
 
 db_check_connection "${DB_CONN_APP[@]}"
 
-log INFO "Checking if Database $DB_NAME exists..."
-if [ "$(db_exists "${DB_CONN_APP[@]}" "$DB_NAME")" != "$DB_NAME" ]; then
-  log ERROR "Database '$DB_NAME' does not exist - exiting seeding script."
+log INFO "Checking if Database $MYSQL_DATABASE exists..."
+if [ "$(db_exists "${DB_CONN_APP[@]}" "$MYSQL_DATABASE")" != "$MYSQL_DATABASE" ]; then
+  log ERROR "Database '$MYSQL_DATABASE' does not exist - exiting seeding script."
   exit 1
 fi
 
