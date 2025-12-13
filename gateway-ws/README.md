@@ -191,18 +191,31 @@ Coverage output is generated under:
     gateway-ws/coverage
 
 ## **Environment Variables**
-The gateway uses two separate environment files:
-- `.env` — for dev/prod
-- `.env.test` — for test environment
+Environment files must be located under:
 
-A template for each exists in the project.
+    gateway-ws/env/
+
+The gateway expects the following environment files by default:
+- `.env.prod` — production 
+- `.env.dev` — development
+- `.env.test` — test runs
+
+A template for each exists in the directory.
+
+More environment files may be used by explicitly specifying the ENV_FILE variable when starting the server manually.  
+For example:
+
+    ENV_FILE=.env.custom nodemon src/server.js
+
+If the file specified in `ENV_FILE` does not exist the server will throw an error on startup and stop.
 
 ### **Environment Variable Structure**
     NODE_ENV='development'
     PORT=5001
 
     # Logging
-    LOG_DIR=../logs/gateway-ws/dev
+    # Relative or absolute path to desired log directory
+    LOG_DIR=/path/to/MeshPlay-Lab/logs/dev/gateway-ws
     LOG_LEVEL=trace
 
     # Database
@@ -257,12 +270,16 @@ Additionally `.env.test` also contains the following variables:
     │  └─ asyncapi/                       # protocol documentation
     │     └─ generated/                   # HTML docs
     ├─ tests/
-    │  ├─ .env.test.example
     │  ├─ mocks/                          # Jest mocks for unit tests
     │  ├─ unit/                           # Unit tests
     │  └─ integration/                    # Integration tests
     │     ├─ schemas/                     # generated JSON schemas for tests
     │     └─ setup/                       # Setup/Teardown scripts
+    ├─ env/
+    │  ├─ .env.dev.example
+    │  ├─ .env.test.example
+    │  ├─ .env.prod.example
+    │  └─ .env.*                          # Real env files (gitignored)
     ├─ src/
     │  ├─ config/
     │  │  ├─ config.js
@@ -301,7 +318,6 @@ Additionally `.env.test` also contains the following variables:
     │  ├─ app.js
     │  └─ server.js
     ├─ .gitignore
-    ├─ .env.example
     ├─ jest.config.js
     ├─ package.json
     ├─ package-lock.json

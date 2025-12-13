@@ -58,18 +58,31 @@ Integration tests require:
 - A separate test `.env` file
 
 ## **Environment Variables**
-The gateway uses two separate environment files:
-- `.env` — for dev/prod
-- `.env.test` — for test environment
+Environment files must be located under:
 
-A template for each exists in the project.
+    gateway-http/env/
+
+The gateway expects the following environment files by default:
+- `.env.prod` — production 
+- `.env.dev` — development
+- `.env.test` — test runs
+
+A template for each exists in the directory.
+
+More environment files may be used by explicitly specifying the ENV_FILE variable when starting the server manually.  
+For example:
+
+    ENV_FILE=.env.custom nodemon src/server.js
+
+If the file specified in `ENV_FILE` does not exist the server will throw an error on startup and stop.
 
 ### **Environment Variable Structure**
     NODE_ENV='development'
     PORT=5000
 
     # Logging
-    LOG_DIR=../logs/gateway-http/dev
+    # Relative or absolute path to desired log directory
+    LOG_DIR=/path/to/MeshPlay-Lab/logs/dev/gateway-http
     LOG_LEVEL=trace
 
     # Database
@@ -118,7 +131,6 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     │  ├─ openapi/
     │  └─ README.md
     ├─ tests/
-    │  ├─ .env.test.example
     │  ├─ unit/
     │  │  ├─ middleware/
     │  │  │  ├─ auth.middleware.test.js
@@ -140,6 +152,11 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     │     │  └─ teardownDB.js
     │     ├─ user.integration.test.js
     │     └─ auth.integration.test.js
+    ├─ env/
+    │  ├─ .env.dev.example
+    │  ├─ .env.test.example
+    │  ├─ .env.prod.example
+    │  └─ .env.*                          # Real env files (gitignored)
     ├─ src/
     │  ├─ config/
     │  │  ├─ config.js
@@ -180,7 +197,6 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     │  ├─ app.js
     │  └─ server.js
     ├─ .gitignore
-    ├─ .env.example
     ├─ jest.config.js
     ├─ package.json
     ├─ package-lock.json
