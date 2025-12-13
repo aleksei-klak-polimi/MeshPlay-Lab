@@ -24,6 +24,7 @@ SEED_DIR="$SCRIPT_DIR/../../seeds"
 
 # Validate .env
 REQUIRED_VARS=( 
+  TARGET_ENV
   DB_HOST DB_PORT MYSQL_DATABASE
   DB_ADMIN_USER MYSQL_ROOT_PASSWORD
   SEED_FILE
@@ -62,7 +63,11 @@ apply_seed() {
 # Main Script
 log INFO "=== Starting database seeding ==="
 
-flag_safety "Seed Schema"
+if [[ "$TARGET_ENV" == "prod" ]]; then
+  echo "[ERROR] Seeding in production is not allowed."
+  echo "[INFO] Aborting operation..."
+  exit 1
+fi
 
 db_check_connection "${DB_CONN_APP[@]}"
 
