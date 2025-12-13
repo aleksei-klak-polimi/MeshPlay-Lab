@@ -17,7 +17,7 @@ else
   exit 1
 fi
 
-SCHEMA_FILE="$SCRIPT_DIR/../../init/init.sql"
+SCHEMA_FILE="$SCRIPT_DIR/../../init.sql"
 
 REQUIRED_VARS=(
   TARGET_ENV
