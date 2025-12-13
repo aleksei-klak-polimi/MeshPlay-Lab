@@ -30,7 +30,7 @@ REQUIRED_VARS=(
 validate_env_vars REQUIRED_VARS
 
 # Logging
-log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "create_schema"
+log_init "$LOG_DIR" "$TARGET_ENV" "create_schema"
 log INFO "Running schema creation for environment: $TARGET_ENV"
 
 DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")

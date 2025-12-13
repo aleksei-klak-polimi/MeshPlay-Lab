@@ -33,7 +33,7 @@ REQUIRED_VARS=(
 validate_env_vars REQUIRED_VARS
 
 # Init logging
-log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "seed"
+log_init "$LOG_DIR" "$TARGET_ENV" "seed"
 log INFO "Running script for environment: $TARGET_ENV"
 
 # Define reusable DB connection contexts

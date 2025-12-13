@@ -12,7 +12,7 @@ log_init() {
   local log_name="$3"
   local timestamp
   timestamp="$(date +'%Y%m%d_%H%M%S')"
-  LOG_FILE="$log_dir/scripts/$target_env/$log_name/${log_name}_${timestamp}.log"
+  LOG_FILE="$log_dir/$log_name/${log_name}_${timestamp}.log"
 
   mkdir -p "$(dirname "$LOG_FILE")"
 }

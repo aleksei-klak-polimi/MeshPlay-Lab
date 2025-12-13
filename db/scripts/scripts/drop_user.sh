@@ -5,7 +5,6 @@
 
 
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Stop on any error, and propagate pipeline errors
 set -eE -o pipefail
@@ -31,7 +30,7 @@ REQUIRED_VARS=(
 validate_env_vars REQUIRED_VARS
 
 # Init logging
-log_init "$SCRIPT_DIR/$LOG_DIR/" "$TARGET_ENV" "drop"
+log_init "$LOG_DIR" "$TARGET_ENV" "drop"
 log INFO "Running script for environment: $TARGET_ENV"
 
 DB_CONN_ADMIN=("$DB_ADMIN_USER" "$DB_ADMIN_PASSWORD" "$DB_HOST" "$DB_PORT")
