@@ -1,11 +1,15 @@
 # **Gateway Service (gateway-http)**
-
-## **Overview**
 This service acts as the HTTP API gateway for the MeshPlay-Lab platform.
+
 It exposes authentication functionality (signup/login) and basic user management (fetch, edit, delete) while enforcing validation, logging, authentication, and consistent API responses.
 
-It is built on Node.js + Express, with integrated OpenAPI documentation and both unit and integration testing.
+It is built on **Node.js** + **Express**, with integrated **OpenAPI** documentation and both unit and integration testing.
 
+The gateway can run:
+- **Natively on the host machine** (development and testing)
+- **As a Docker container** (production or production-like environments)
+
+---
 ## **Current User Features**
 At the moment, the gateway provides the following:
 ### **Authentication**
@@ -17,10 +21,11 @@ At the moment, the gateway provides the following:
 - **Edit authenticated user**
 - **Delete authenticated user**
 
-These features are fully documented in the OpenAPI specification.
+All endpoints are documented in the OpenAPI specification.
 
+---
 ## **Codebase Features**
-This section covers the architectural and technical characteristics of the gateway service.
+
 ### **Technical Features**
 - **Express.js** API server
 - **JWT authentication**
@@ -37,15 +42,15 @@ This section covers the architectural and technical characteristics of the gatew
 - **Swagger UI** available via the gateway when running the `dev` environment
 
 ### **Testing Architecture**
-Both **unit** and **integration** tests run using a single command:
+Both **unit** and **integration** tests run with:
 
     npm test
 
-Before running tests, it is necessary to generate the bundled OpenAPI document:
+Before running tests, the bundled OpenAPI document must be generated:
 
     npm run bundle:docs
 
-This is required because **integration tests validate the API responses against the bundled OpenAPI specification**.
+Integration tests validate API responses against the bundled OpenAPI specification.
 
 ### **Test Coverage**
 Coverage output is generated under:
@@ -55,21 +60,51 @@ Coverage output is generated under:
 Integration tests require:
 - MariaDB running
 - Test database configured
-- A separate test `.env` file
+- `.env.test` present and configured under `gateway-http/env/`
 
+---
+## **Docker Support**
+The gateway can be built and run as a Docker container using:
+
+    gateway-http/Dockerfile
+
+Key characteristics:
+- Uses a multi-step build for better caching
+- Installs the shared module (`@meshplay-lab/shared`) first
+- Runs the gateway in production mode (`npm start`)
+- Receives runtime configuration via environment variables (overridden by Docker Compose in production)
+
+In **development and testing**, this gateway typically runs on the host machine and connects to Dockerized infrastructure (MariaDB, Redis).
+
+In **production**, it is intended to run fully containerized as part of the Docker Compose stack.
+
+---
 ## **Environment Variables**
-The gateway uses two separate environment files:
-- `.env` — for dev/prod
-- `.env.test` — for test environment
+Environment files must be located under:
 
-A template for each exists in the project.
+    gateway-http/env/
+
+The gateway expects the following environment files by default:
+- `.env.prod` — production 
+- `.env.dev` — development
+- `.env.test` — test runs
+
+A template for each exists in the directory.
+
+More environment files may be used by explicitly specifying the ENV_FILE variable when starting the server manually.  
+For example:
+
+    ENV_FILE=.env.custom nodemon src/server.js
+
+If the file specified in `ENV_FILE` does not exist the server will throw an error on startup and stop.
 
 ### **Environment Variable Structure**
     NODE_ENV='development'
     PORT=5000
 
     # Logging
-    LOG_DIR=../logs/gateway-http/dev
+    # Relative or absolute path to desired log directory
+    LOG_DIR=/path/to/MeshPlay-Lab/logs/dev/gateway-http
     LOG_LEVEL=trace
 
     # Database
@@ -89,6 +124,7 @@ A template for each exists in the project.
 >- Test environment credentials must match the isolated test database.
 >- MariaDB must be running in order to execute integration tests.
 
+---
 ## **Shared Module Dependency (`@meshplay-lab/shared`)**
 This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/shared` for the following functionalities:
 - Logging Utilities
@@ -99,6 +135,7 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     - `.env.test` loader
     - Test database initialization (schema creation, seeding)
 
+---
 ## **Development Workflow**
 
 ### **Install dependencies**
@@ -115,31 +152,20 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
 ## **Directory Structure**
     gateway-http/
     ├─ doc/
-    │  ├─ openapi/
+    │  ├─ openapi/                                      # protocol documentation
     │  └─ README.md
     ├─ tests/
-    │  ├─ .env.test.example
-    │  ├─ unit/
-    │  │  ├─ middleware/
-    │  │  │  ├─ auth.middleware.test.js
-    │  │  │  └─ validateJSON.middleware.test.js
-    │  │  ├─ models/
-    │  │  │  └─ common/
-    │  │  │     ├─ normalize.test.js
-    │  │  │     └─ time.test.js
-    │  │  └─ utils/
-    │  │     ├─ errorHandler.test.js
-    │  │     └─ response.test.js
-    │  └─ integration/
+    |  ├─ mocks/                                        # Jest mocks for unit tests
+    │  ├─ unit/                                         # Unit tests
+    │  └─ integration/                                  # Integration tests
     │     ├─ common/
-    │     │  └─ openApiLoader.js
-    │     ├─ setup/
-    │     │  ├─ globalSetup.js
-    │     │  ├─ seedTestData.js
-    │     │  ├─ setupDB.js
-    │     │  └─ teardownDB.js
-    │     ├─ user.integration.test.js
-    │     └─ auth.integration.test.js
+    |     |  └─ openApiLoader.js                        #Logic to load openApi Schemas for testing validation
+    │     └─ setup/
+    ├─ env/
+    │  ├─ .env.dev.example
+    │  ├─ .env.test.example
+    │  ├─ .env.prod.example
+    │  └─ .env.*                                        # Real env files (gitignored)
     ├─ src/
     │  ├─ config/
     │  │  ├─ config.js
@@ -157,17 +183,11 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     │  │  ├─ requestSignature.middleware.js
     │  │  ├─ validateJSON.middleware.js
     │  │  └─ validateReqSchema.middleware.js
-    │  ├─ models/
-    │  │  ├─ common/
-    │  │  │  ├─ normalize.js
-    │  │  │  └─ time.js
-    │  │  └─ user.model.js
     │  ├─ routes/
     │  │  ├─ auth.routes.js
     │  │  └─ user.routes.js
     │  ├─ schemas/
     │  │  ├─ auth.schema.js
-    │  │  ├─ fields.js
     │  │  └─ user.schema.js
     │  ├─ services/
     │  │  ├─ auth.service.js
@@ -180,7 +200,7 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     │  ├─ app.js
     │  └─ server.js
     ├─ .gitignore
-    ├─ .env.example
+    ├─ Dockerfile
     ├─ jest.config.js
     ├─ package.json
     ├─ package-lock.json
