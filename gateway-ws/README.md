@@ -1,32 +1,34 @@
 # **Gateway WebSocket (gateway-ws)**
-
-## **Overview**
 This service acts as the WebSocket gateway for the MeshPlay-Lab platform.
+
 It manages all real-time client connections and is responsible for:
 - Authenticating WebSocket upgrade requests using JWT
 - Maintaining persistent connections (multiple per user allowed)
-- Forwarding user-originated messages to backend microservices via Redis
-- Delivering microservice-originated events/updates back to users
+- Forwarding client-originated messages to backend microservices via Redis
+- Delivering microservice-originated events/updates back to clients
 - Enforcing schema validation for all incoming client messages
 - Managing connection lifecycle (ping/pong, cleanup, logging, etc.)
 - Providing documented protocol definitions using AsyncAPI
 
-The WebSocket gateway acts as the messaging hub of the platform, while remaining stateless aside from maintaining connection maps.
+The gateway is stateless aside from in-memory connection tracking and is implemented using the `ws` library.
 
-Websockets are implemented using the `ws` library.
+The service can run:
+- **Natively on the host machine** (development and testing)
+- **As a Docker container** (production or production-like environments)
 
+---
 ## **Current User Features**
 At the moment, the gateway provides the following:
 ### **Authentication**
 - JWT is required in the Authorization header during the HTTP → WS upgrade.
 - Connections without a valid token are rejected.
-- After successful authentication, the gateway sends a Server Ready update message.
+- A *Server Ready* update is sent after successful authentication.
 
 **Example (via websocat):**
 
         websocat ws://localhost:5001 --header "Authorization: Bearer <JWT>"
 
-Tokens should be obtained by logging in through the HTTP gateway (`gateway-http`).
+Tokens are obtained by logging in through the HTTP gateway (`gateway-http`).
 ### **Message Handling**
 **Incoming user messages**  
 Clients send the following object shape:
@@ -48,11 +50,8 @@ Messages are published to Redis channels:
     <ENV_PREFIX>.<target>.incoming
 
 ### **Server Acknowledgement**
-If the message is valid and forwarded, the server immediately sends:
-- **Message Received** update
-
-If invalid (schema error, malformed JSON), the server sends:
-- **Error** update 
+- Valid messages receive a **Message Received** update
+- Invalid messages receive a structured **Error** update
 
 Both are well-structured and documented in the AsyncAPI.
 
@@ -113,6 +112,23 @@ When running with `NODE_ENV=development`, documentation is served at:
 - The server initiates ping messages at a configurable interval (default 30s via `PING_INTERVAL`).
 - If a client fails to reply with pong, the gateway closes the connection.
 
+---
+## **Docker Support**
+The gateway can be built and run as a Docker container using:
+
+    gateway-ws/Dockerfile
+
+Key characteristics:
+- Uses a multi-step build for better caching
+- Installs the shared module (`@meshplay-lab/shared`) first
+- Runs the gateway in production mode (`npm start`)
+- Receives runtime configuration via environment variables (overridden by Docker Compose in production)
+
+In **development and testing**, this gateway typically runs on the host machine and connects to Dockerized infrastructure (MariaDB, Redis).
+
+In **production**, it is intended to run fully containerized as part of the Docker Compose stack.
+
+---
 ## **Internal Redis Channel Strategy**
 Redis channels are always prefixed using:
 
@@ -129,6 +145,7 @@ Examples:
 
 This allows `test`/`dev`/`prod` environments to remain completely isolated.
 
+---
 ## **Message Types**
 Clients only receive two types of messages:
 1. `event`  
@@ -157,7 +174,7 @@ Example:
           }
         }
 
-
+---
 ## **Shared Module Dependency (`@meshplay-lab/shared`)**
 This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/shared` for the following functionalities:
 - Logging Utilities
@@ -168,7 +185,7 @@ This service depends on the internal MeshPlay-Lab shared module: `@meshplay-lab/
     - `.env.test` loader
     - Test database initialization (schema creation, seeding)
 
-
+---
 ## **Testing Architecture**
 The service includes **unit** and **integration** tests, run together with:
 
@@ -190,6 +207,7 @@ Coverage output is generated under:
 
     gateway-ws/coverage
 
+---
 ## **Environment Variables**
 Environment files must be located under:
 
@@ -249,6 +267,7 @@ Additionally `.env.test` also contains the following variables:
 >- MariaDB must be running in order to execute integration tests.
 >- Redis must be running in order to execute integration tests.
 
+---
 ## **Development Workflow**
 
 ### **Install dependencies**
@@ -264,6 +283,7 @@ Additionally `.env.test` also contains the following variables:
 >**Notes**  
 >The server internally uses relative path resolution from the current-working-directory or `cwd`, for this reason all of the above commands must be run from the `gateway-ws` folder.
 
+---
 ## **Directory Structure**
     gateway-ws/
     ├─ doc/
