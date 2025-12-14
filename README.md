@@ -233,6 +233,19 @@ Formal contribution guidelines and workflows (branches, commit standards, CI rul
 
 ##
 
+## **Dependency Security Notes**
+Some development and test dependencies may report vulnerabilities when running:
+
+    npm install
+
+These packages are used exclusively for testing and local development.  
+Production builds and Docker images install runtime dependencies only:
+
+    npm install --omit=dev
+
+As a result, no known high or critical vulnerabilities are present in
+production runtime environments.
+
 ## **License**
 This project is currently unlicensed / for personal educational use.  
 A proper license may be added later.
