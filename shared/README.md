@@ -17,6 +17,7 @@ This module centralizes logic that would otherwise be duplicated between service
 - JWT generation and validation
 - Date/time and formatting helpers
 - Database connection and basic `CRUD` logic
+- Utilites such as a helper to load custom `.env` files
 - Scripts to help setup testing environments
 
 ### **Excluded Features**
@@ -88,6 +89,7 @@ Coverage output is generated under:
        │  │  └─ fields.js
        │  ├─ utils/
        │  │  ├─ generateJWT.js
+       │  │  ├─ loadEnv.js
        │  │  └─ validateJWT.js
        │  └─ index.js
        ├─ tests/
@@ -95,7 +97,6 @@ Coverage output is generated under:
        │  │  └─ setup/
        │  │     ├─ seedTestData.js
        │  │     ├─ setupDB.js
-       │  │     ├─ setupEnv.js
        │  │     └─ teardownDB.js
        │  ├─ mocks/ # Jest mocks for unit tests
        │  └─ unit/  # Unit tests for local modules

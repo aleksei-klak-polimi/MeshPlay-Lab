@@ -12,7 +12,7 @@ log_init() {
   local log_name="$3"
   local timestamp
   timestamp="$(date +'%Y%m%d_%H%M%S')"
-  LOG_FILE="$log_dir/scripts/$target_env/$log_name/${log_name}_${timestamp}.log"
+  LOG_FILE="$log_dir/$log_name/${log_name}_${timestamp}.log"
 
   mkdir -p "$(dirname "$LOG_FILE")"
 }
@@ -26,16 +26,6 @@ log() {
 
 
 # Environment handling
-load_env() {
-  local env_file="${1:-../.env}"
-  if [ -f "$env_file" ]; then
-    source "$env_file"
-  else
-    echo "[ERROR] Environment file '$env_file' not found!"
-    exit 1
-  fi
-}
-
 validate_env_vars() {
   local -n required_vars_ref=$1
   local missing_vars=()
@@ -52,42 +42,17 @@ validate_env_vars() {
   fi
 }
 
-parse_env_flag() {
-  local flagName="$1"
-  local flag="$2"
+flag_safety() {
+  local operation=$1
 
-  # If no flagName is supplied, error immediately.
-  if [ -z "$flagName" ]; then
-    echo "[ERROR] Missing required environment flag (expected: dev | test | prod)" >&2
-    exit 1
-  fi
-
-  # If no flag is supplied, error immediately.
-  if [ -z "$flag" ]; then
-    echo "[ERROR] Missing required environment flag (expected: dev | test | prod)" >&2
-    exit 1
-  fi
-
-  case "$flagName" in
-    --env)
-      # Valid environment; do nothing and resume normal execution
-      ;;
-    *)
-      echo "[ERROR] Invalid argument Name: '$flagName' (expected: --env)" >&2
+  if [[ "$TARGET_ENV" == "prod" ]]; then
+    log WARNING "You are about to perform the following operation on the production database: '$operation'."
+    read -p "Type CONFIRM to continue: " CONFIRM
+    if [ "$CONFIRM" != "CONFIRM" ]; then
+      log INFO "Aborting operation."
       exit 1
-      ;;
-  esac
-
-  case "$flag" in
-    dev|test|prod)
-      # Valid environment;
-      TARGET_ENV="$flag"
-      ;;
-    *)
-      echo "[ERROR] Invalid environment: '$flag' (expected: dev | test | prod)" >&2
-      exit 1
-      ;;
-  esac
+    fi
+  fi
 }
 
 

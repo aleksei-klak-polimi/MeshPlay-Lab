@@ -1,5 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import loadEnv from '@meshplaylab/shared/src/utils/loadEnv.js';
+
+// Load env file
+loadEnv();
 
 const { default: app } = await import('./app.js');
 const { createLogger } = await import('@meshplaylab/shared/src/config/logger.js');

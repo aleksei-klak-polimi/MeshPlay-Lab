@@ -1,0 +1,24 @@
+services:
+
+  mariadb:
+    build:                                            # build from dockerfile
+      context: ../                                    # context directory from which all rel. paths are resolved
+      dockerfile: db/Dockerfile                       # path to Dockerfile relative to context
+      args:
+        APP_ENV: dev                                  # argument for dockerfile during build
+    env_file:
+      - ../db/env/.env.dev                            # env file with msql name, root pass etc...
+    ports:
+      - "${EXTERNAL_DB_PORT}:3306"                    # <external_port> : <docker_network_port>
+    volumes:
+      - db_data:/var/lib/mysql                        # persistent DB data
+
+  redis:
+    image: redis:8.4.0
+    ports:
+      - "${EXTERNAL_REDIS_PORT}:6379"
+    tmpfs:
+    - /data                    # prevent Redis from creating anon vols since no presistance is required for pub/sub
+
+volumes:
+  db_data:
