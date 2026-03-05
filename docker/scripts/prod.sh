@@ -12,11 +12,13 @@
 
 set -eE -o pipefail
 
-PROJECT_NAME="meshplay-lab"
-COMPOSE_FILE="../docker-compose.prod.yml"
-ENV_FILE="../env/.env.prod"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-source common.sh
+PROJECT_NAME="meshplay-lab"
+COMPOSE_FILE="$SCRIPT_DIR/../docker-compose.prod.yml"
+ENV_FILE="$SCRIPT_DIR/../env/.env.prod"
+
+source "$SCRIPT_DIR/common.sh"
 
 case "${1:-up}" in
   up)
